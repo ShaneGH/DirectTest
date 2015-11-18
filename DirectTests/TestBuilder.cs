@@ -66,13 +66,17 @@ namespace DirectTests
         static readonly Dictionary<string, TestBuilder> _Builders = new Dictionary<string, TestBuilder>();
         public static void Run(string test)
         {
+            string last;
             var arrange = new List<TestBuilder>(new[] { _Builders[test] });
-            while (arrange.Last()._BasedOn != null)
+            while ((last = arrange.Last()._BasedOn) != null)
             {
-                if (arrange.Contains(_Builders[arrange.First()._BasedOn]))
+                if (!_Builders.ContainsKey(last))
+                    throw new InvalidOperationException("There is no test named \"" + last + "\" in this group.");
+
+                if (arrange.Contains(_Builders[last]))
                     throw new InvalidOperationException();
 
-                arrange.Add(_Builders[arrange.First()._BasedOn]);
+                arrange.Add(_Builders[last]);
             }
 
             int tmp;
