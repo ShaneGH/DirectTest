@@ -7,18 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DirectTests
+namespace DirectTests.Dynamic
 {
-    public class TestBag : DynamicObject
+    public class DynamicBag : DynamicObject
     {
         readonly ConcurrentDictionary<string, object> _Values;
         public readonly ReadOnlyDictionary<string, object> Values; 
 
-        public TestBag()
+        public DynamicBag()
             : this(new Dictionary<string, object>())
         { }
 
-        TestBag(IDictionary<string, object> initialialValues)
+        DynamicBag(IDictionary<string, object> initialialValues)
         {
             _Values = new ConcurrentDictionary<string,object>(initialialValues);
             Values = new ReadOnlyDictionary<string, object>(_Values);
@@ -29,9 +29,9 @@ namespace DirectTests
             return _Values;
         }
 
-        public TestBag Copy()
+        public DynamicBag Copy()
         {
-            return new TestBag(_Copy());
+            return new DynamicBag(_Copy());
         }
 
         protected void SetMember(string name, object value)

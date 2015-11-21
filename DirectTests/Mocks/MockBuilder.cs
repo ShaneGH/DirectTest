@@ -5,14 +5,15 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DirectTests.Dynamic;
 
-namespace DirectTests
+namespace DirectTests.Mocks
 {
     /// <summary>
     /// This class is not thread safe.
     /// It is intended to be used multiple times, however the Settings property will be changed at the beginning of each operation
     /// </summary>
-    internal class MockBuilder : TestBag
+    internal class MockBuilder : DynamicBag
     {
         private MockSettings _Settings;
         internal MockSettings Settings 
@@ -108,7 +109,7 @@ namespace DirectTests
             if (TryGetMember(name, out existingMock) && !(existingMock is MethodMockBuilderCollection))
                 throw new InvalidOperationException("The member \"" + name + "\" has already been set as a parameter, and cannot be mocked now as a function");    //TODM
 
-            var result = new MethodMockBuilder(Settings, new MockBuilder(Settings));
+            var result = new MethodMockBuilder(Settings, new MockBuilder(Settings), args);
             if (existingMock == null)
             {
                 existingMock = new MethodMockBuilderCollection(result);

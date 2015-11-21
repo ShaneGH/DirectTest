@@ -6,21 +6,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DirectTests
+namespace DirectTests.Mocks
 {
-
     internal class MethodMockBuilder : DynamicObject
     {
+        public readonly IEnumerable<object> Args;
         public object ReturnValue { get; private set; }
         readonly ReadOnlyDictionary<string, Action<object[]>> SpecialActions;
         readonly MockBuilder NextPiece;
 
-        public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece)
+        public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece, IEnumerable<object> args)
         {
             NextPiece = nextPiece;
 
+            Args = args.ToArray();
+
             SpecialActions = new ReadOnlyDictionary<string, Action<object[]>>(new Dictionary<string, Action<object[]>> 
             {
+                //TODO, some of these will stop all other functions
                 { settings.Return, Return },
                 { settings.Ensure, Ensure },
                 { settings.Clear, Clear },
@@ -28,7 +31,6 @@ namespace DirectTests
             });
         }
 
-        //TODO, some of these will stop all other functions
         void Return(object[] args)
         {
             if (args.Length != 1)

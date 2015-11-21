@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Dynamic;
 using System.Linq;
+using DirectTests.Dynamic;
+using DirectTests.Mocks;
 
-namespace DirectTests
+namespace DirectTests.Builders
 {
-    public class TestArranger : TestBag
+    public class TestArranger : DynamicBag
     {
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {

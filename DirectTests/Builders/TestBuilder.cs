@@ -4,40 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DirectTests
+namespace DirectTests.Builders
 {
-    public interface IBasedOn : IArrange
-    {
-        IArrange BasedOn(string basedOn);
-    }
-
-    public interface IArrange
-    {
-        IAct Arrange(Action<dynamic> arrange);
-    }
-
-    public interface IAct
-    {
-        IAct UseParentAct(bool useParentAct = true);
-        IAssert Act(Action<dynamic> action);
-        IAssert<TResult> Act<TResult>(Func<dynamic, TResult> action);
-    }
-
-    public interface IAssert
-    {
-        IAssert SkipParentAssert(bool skipParentAssert = true);
-        void Assert(Action<dynamic> result);
-        void Throws<TException>(Action<dynamic, TException> result)
-            where TException : Exception;
-    }
-
-    public interface IAssert<TResult> : IAssert
-    {
-        new IAssert<TResult> SkipParentAssert(bool skipParentAssert = true);
-        void Assert(Action<dynamic, TResult> result);
-    }
-
-    public class TestBuilder : IBasedOn, IArrange, IAct, IAssert
+    public partial class TestBuilder : IBasedOn, IArrange, IAct, IAssert
     {
         string _BasedOn { get; set; }
 
@@ -121,20 +90,6 @@ namespace DirectTests
 
         #endregion
 
-        static void TEST()
-        {
-            Test("My test")
-                .Arrange(testBag =>
-                {
-                })
-                .Act(testBag =>
-                {
-                })
-                .Assert(testBag =>
-                {
-                });
-        }
-
         public IArrange BasedOn(string basedOn)
         {
             _BasedOn = basedOn;
@@ -183,43 +138,6 @@ namespace DirectTests
         public void Throws<TException>(Action<dynamic, TException> result) where TException : Exception
         {
             _Throws.Add(new KeyValuePair<Type, Action<dynamic, Exception>>(typeof(TException), (a, b) => result(a, (TException)b)));
-        }
-
-        private class Asserter<TTestResult> : IAssert<TTestResult>
-        {
-            private readonly TestBuilder BasedOn;
-
-            public Asserter(TestBuilder basedOn)
-            {
-                BasedOn = basedOn;
-            }
-
-            public void Assert(Action<dynamic, TTestResult> result)
-            {
-                //TODO, catch cast errors
-                BasedOn._Assert.Add((a, b) => result(a, (TTestResult)b));
-            }
-
-            public void Assert(Action<dynamic> result)
-            {
-                BasedOn.Assert(result);
-            }
-
-            public void Throws<TException>(Action<dynamic, TException> result) where TException : Exception
-            {
-                BasedOn.Throws<TException>(result);
-            }
-
-            public IAssert<TTestResult> SkipParentAssert(bool skipParentAssert = true)
-            {
-                BasedOn._UseBaseAssert = !skipParentAssert;
-                return this;
-            }
-
-            IAssert IAssert.SkipParentAssert(bool skipParentAssert)
-            {
-                return BasedOn.SkipParentAssert(skipParentAssert);
-            }
         }
     }
 }
