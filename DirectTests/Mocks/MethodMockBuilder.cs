@@ -8,18 +8,53 @@ using System.Threading.Tasks;
 
 namespace DirectTests.Mocks
 {
+    internal class MethodGroup : Collection<MethodMockBuilder>
+    {
+        public MethodGroup()
+            : base()
+        {
+        }
+
+        public MethodGroup(MethodMockBuilder first)
+            : this()
+        {
+            Add(first);
+        }
+
+        public bool TryInvoke(IEnumerable<object> arguments, out object result) 
+        {
+            foreach (var item in this)
+                if (item.TryInvoke(arguments, out result))
+                    return true;
+            
+            result = null;
+            return false;
+        }             
+    }
+
     internal class MethodMockBuilder : DynamicObject
     {
-        public readonly IEnumerable<object> Args;
+        public readonly MethodApplicabilityChecker ArgChecker;
+        public bool ReturnValueSet { get; private set; }
         public object ReturnValue { get; private set; }
         readonly ReadOnlyDictionary<string, Action<object[]>> SpecialActions;
         readonly MockBuilder NextPiece;
 
+        public MethodMockBuilder(MockBuilder nextPiece, IEnumerable<object> args)
+            : this(new MockSettings(), nextPiece, args)
+        {
+        }
+
         public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece, IEnumerable<object> args)
         {
-            NextPiece = nextPiece;
+            if (args.Count() == 1 && args.First() is MethodApplicabilityChecker)
+                ArgChecker = args.First() as MethodApplicabilityChecker;
+            else if (args.Any(a => a is MethodApplicabilityChecker))
+                throw new InvalidOperationException("Arg checker must be first and only arg");  //TODO
+            else
+                ArgChecker = new EqualityMethodApplicabilityChecker(args);
 
-            Args = args.ToArray();
+            NextPiece = nextPiece;
 
             SpecialActions = new ReadOnlyDictionary<string, Action<object[]>>(new Dictionary<string, Action<object[]>> 
             {
@@ -36,6 +71,7 @@ namespace DirectTests.Mocks
             if (args.Length != 1)
                 throw new InvalidOperationException("You must specify a single argument to return.");
 
+            ReturnValueSet = true;
             ReturnValue = args[0];
         }
 
@@ -66,6 +102,18 @@ namespace DirectTests.Mocks
             SpecialActions[binder.Name](args);
             result = this;
             return true;
+        }
+
+        public bool TryInvoke(IEnumerable<object> arguments, out object result) 
+        {
+            if (ArgChecker.TestArgs(arguments))
+            {
+                result = ReturnValue;
+                return true;
+            }
+
+            result = null;
+            return false;
         }
     }
 }

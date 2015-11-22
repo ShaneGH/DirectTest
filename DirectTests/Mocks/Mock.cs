@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DirectTests.Mocks;
@@ -34,28 +35,27 @@ namespace DirectTests.Mocks
 
         public Mock(Type mockType, MockBuilder builder)
         {
+            if (!mockType.IsInterface)
+                throw new NotImplementedException();
+
             MockType = mockType;
             Builder = builder.Values;
         }
 
+        private readonly Dictionary<Type, ConstructorInfo> Constructors = new Dictionary<Type,ConstructorInfo>();
+        void Compile() 
+        {
+            lock (Constructors)
+            {
+                // add constructor
+            }
+        }
+
         object BuildObject()
         {
-            return @"
-new (public class MyMock  : MockType
-{
-    public readonly IEnumerable<MemberDescription> Properties;
-    public readonly IEnumerable<MethodDescription> Methods;
+            Compile();
 
-    public int MyProp
-    {
-        get
-        {
-            (int)Properties.First(p => p.Name == MyProp)
-        }
-    }
- 
-});
-";
+            return Constructors[MockType].Invoke(new [] { new ObjectBase(Builder) });
         }
     }
 }

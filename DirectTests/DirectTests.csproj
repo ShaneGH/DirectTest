@@ -90,10 +90,14 @@
     <Compile Include="Builders\IAssert.cs" />
     <Compile Include="Builders\IArrange.cs" />
     <Compile Include="Builders\Asserter.cs" />
+    <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
+    <Compile Include="Mocks\GenericMethodApplicabilityCheckers.cs" />
+    <Compile Include="Mocks\MethodApplicabilityChecker.cs" />
     <Compile Include="Mocks\MethodMockBuilder.cs" />
     <Compile Include="Mocks\Mock.cs" />
     <Compile Include="Mocks\MockBuilder.cs" />
     <Compile Include="MockSettings.cs" />
+    <Compile Include="Mocks\ObjectBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Builders\TestArranger.cs" />
