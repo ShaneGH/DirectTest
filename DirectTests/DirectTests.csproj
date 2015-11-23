@@ -86,6 +86,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\IFor.cs" />
     <Compile Include="Builders\SimpleTestBuilder.cs" />
     <Compile Include="Builders\IAct.cs" />
     <Compile Include="Builders\IAssert.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Builders\Asserter.cs" />
     <Compile Include="Builders\ITest.cs" />
     <Compile Include="Builders\TestBuilder_Runners.cs" />
+    <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
     <Compile Include="Compile\Compiler.cs" />
     <Compile Include="Framework.cs" />
