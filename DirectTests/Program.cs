@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using DirectTests.Builders;
 
 namespace DirectTests
 {
@@ -13,68 +12,69 @@ namespace DirectTests
     {
         public static void Main(string[] args)
         {
-            TestBuilder.Test("My test")
-            //    .BasedOn("An ancient test")
+            Framework.Test("My test")
+                .Subject(typeof(Add).GetConstructor(new Type[] { typeof(IRepo1) }))
+                .For(typeof(Add).GetMethod("Execute1"))
                 .Arrange(bag =>
                 {
-                    bag.entityNumber = 2;
-                    bag.commandId = 55;
-                    bag.repository.GetEntity(bag.commandId).Returns(new ClassToTest.Entity { Number = bag.entityNumber });
-                })
-
-                .UseParentAct()
-                .Act(bag =>
-                {
-                    bag.constructorNumber = 55;
-                    ClassToTest subject = new ClassToTest((ClassToTest.IRepo1)bag.repository, bag.constructorNumber);
-                    return subject.Execute(new ClassToTest.Command { Id = bag.commandId });
+                    bag.Args.add = 2;
+                    bag.Args.id = 55;
+                    bag.CArgs.repo1
+                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()
-                .Assert((bag, result) => 
+                .Assert((bag, result) =>
                 {
-                    if (result.Number != 99)
+                    if ((int)result != 110)
                         throw new InvalidOperationException();
-                });
+                })
 
-            TestBuilder.Run("My test");
+                .Run();
         }
     }
-
-    public class ClassToTest
+    public interface IRepo1
     {
-        readonly IRepo1 Repository;
-        readonly int ANumber;
+        Add.Entity GetEntity(int id);
+    }
 
-        public ClassToTest(IRepo1 repo1, int aNumber)
+    public interface IRepoFactory
+    {
+        IRepo1 GetRepo(bool whatever);
+    }
+
+    public class Add
+    {
+        readonly IRepoFactory RepositoryFactory;
+        readonly IRepo1 Repo;
+
+        public Add(IRepoFactory repo1)
         {
-            Repository = repo1;
-            ANumber = aNumber;
+            RepositoryFactory = repo1;
         }
 
-        public Result Execute(Command command) 
+        public Add(IRepo1 repo1)
         {
-            var entity = Repository.GetEntity(command.Id);
-            return new Result { Number = entity.Number * ANumber };
+            Repo = repo1;
         }
 
-        public class Command
+        public int Execute1(int id, int add)
+        {
+            var entity = Repo.GetEntity(id);
+            return entity.Number * add;
+        }
+
+        public int Execute2(int id, int add)
+        {
+            var repo = RepositoryFactory.GetRepo(true);
+            var entity = repo.GetEntity(id);
+            return entity.Number * add;
+        }
+
+        public class Entity
         {
             public int Id { get; set; }
-        }
-
-        public class Result
-        {
-            public int Number { get; set; }
-        }
-
-        public interface IRepo1 
-        {
-            Entity GetEntity(int id);
-        }
-
-        public class Entity 
-        {
             public int Number { get; set; }
         }
     }

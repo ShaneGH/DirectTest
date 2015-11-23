@@ -4,19 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DirectTests
+namespace DirectTests.Builders
 {
-    public interface IAssert
+    public interface IAssert : ITest
     {
         IAssert SkipParentAssert(bool skipParentAssert = true);
-        void Assert(Action<dynamic> result);
-        void Throws<TException>(Action<dynamic, TException> result)
+        ITest Assert(Action<dynamic> result);
+        ITest Throws<TException>(Action<dynamic, TException> result)
             where TException : Exception;
     }
 
     public interface IAssert<TResult> : IAssert
     {
         new IAssert<TResult> SkipParentAssert(bool skipParentAssert = true);
-        void Assert(Action<dynamic, TResult> result);
+        ITest Assert(Action<dynamic, TResult> result);
     }
 }

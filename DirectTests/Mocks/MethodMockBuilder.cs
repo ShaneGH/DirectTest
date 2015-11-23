@@ -34,9 +34,9 @@ namespace DirectTests.Mocks
 
     internal class MethodMockBuilder : DynamicObject
     {
-        public readonly MethodApplicabilityChecker ArgChecker;
-        public bool ReturnValueSet { get; private set; }
+        public readonly IMethodAssert ArgChecker;
         public object ReturnValue { get; private set; }
+
         readonly ReadOnlyDictionary<string, Action<object[]>> SpecialActions;
         readonly MockBuilder NextPiece;
 
@@ -47,13 +47,14 @@ namespace DirectTests.Mocks
 
         public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece, IEnumerable<object> args)
         {
-            if (args.Count() == 1 && args.First() is MethodApplicabilityChecker)
-                ArgChecker = args.First() as MethodApplicabilityChecker;
-            else if (args.Any(a => a is MethodApplicabilityChecker))
+            if (args.Count() == 1 && args.First() is IMethodAssert)
+                ArgChecker = args.First() as IMethodAssert;
+            else if (args.Any(a => a is IMethodAssert))
                 throw new InvalidOperationException("Arg checker must be first and only arg");  //TODO
             else
                 ArgChecker = new EqualityMethodApplicabilityChecker(args);
 
+            ReturnValue = nextPiece;
             NextPiece = nextPiece;
 
             SpecialActions = new ReadOnlyDictionary<string, Action<object[]>>(new Dictionary<string, Action<object[]>> 
@@ -71,7 +72,6 @@ namespace DirectTests.Mocks
             if (args.Length != 1)
                 throw new InvalidOperationException("You must specify a single argument to return.");
 
-            ReturnValueSet = true;
             ReturnValue = args[0];
         }
 

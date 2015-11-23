@@ -17,7 +17,7 @@ namespace DirectTests.Mocks
         {
             get
             {
-                return ExtraAddedProperties.Union(
+                return ExtraAddedProperties.Concat(
                     Members.Where(m => !(m.Value is MethodGroup)));
             }
         }
@@ -102,6 +102,9 @@ namespace DirectTests.Mocks
                 else
                     return default(TResult);
             }
+
+            if (result is MockBuilder)
+                result = (result as MockBuilder).Mock(typeof(TResult));
 
             if (result is TResult || (result == null && !typeof(TResult).IsValueType))
                 return (TResult)result;

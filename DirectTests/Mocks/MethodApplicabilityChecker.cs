@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace DirectTests.Mocks
 {
-    internal class MethodApplicabilityChecker
+    public interface IMethodAssert
+    {
+        bool TestArgs(IEnumerable<object> args);
+    }
+
+    internal class MethodApplicabilityChecker : IMethodAssert
     {
         public virtual IEnumerable<Type> InputTypes
         {
@@ -52,44 +57,5 @@ namespace DirectTests.Mocks
         }
 
         protected sealed class Any { }
-
-        #region builders
-
-        public static MethodApplicabilityChecker Assert()
-        {
-            return new MethodApplicabilityChecker();
-        }
-
-        public static MethodApplicabilityChecker<T> Assert<T>(Func<T, bool> assert)
-        {
-            return new MethodApplicabilityChecker<T>(assert);
-        }
-
-        public static MethodApplicabilityChecker<T1, T2> Assert<T1, T2>(Func<T1, T2, bool> assert)
-        {
-            return new MethodApplicabilityChecker<T1, T2>(assert);
-        }
-
-        public static MethodApplicabilityChecker<T1, T2, T3> Assert<T1, T2, T3>(Func<T1, T2, T3, bool> assert)
-        {
-            return new MethodApplicabilityChecker<T1, T2, T3>(assert);
-        }
-
-        public static MethodApplicabilityChecker<T1, T2, T3, T4> Assert<T1, T2, T3, T4>(Func<T1, T2, T3, T4, bool> assert)
-        {
-            return new MethodApplicabilityChecker<T1, T2, T3, T4>(assert);
-        }
-
-        public static MethodApplicabilityChecker<T1, T2, T3, T4, T5> Assert<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, bool> assert)
-        {
-            return new MethodApplicabilityChecker<T1, T2, T3, T4, T5>(assert);
-        }
-
-        public static MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6> Assert<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, bool> assert)
-        {
-            return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6>(assert);
-        }
-
-        #endregion
     }
 }

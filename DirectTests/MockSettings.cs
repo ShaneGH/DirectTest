@@ -14,6 +14,7 @@ namespace DirectTests
         public string Ensure { get; set; }
         public string Clear { get; set; }
         public string Do { get; set; }
+        public string As { get; set; }
 
         public MockSettings()
         {
@@ -21,6 +22,7 @@ namespace DirectTests
             Ensure = "Ensure";
             Clear = "Clear";
             Do = "Do";
+            As = "As";
         }
 
         public MockSettings(object settings)
@@ -43,6 +45,7 @@ namespace DirectTests
             set("Ensure", a => Ensure = a);
             set("Clear", a => Clear = a);
             set("Do", a => Do = a);
+            set("As", a => As = a);
         }
     }
 }

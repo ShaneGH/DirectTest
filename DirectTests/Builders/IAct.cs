@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DirectTests
+namespace DirectTests.Builders
 {
-    public interface IAct
+    public interface IAct : ITest
     {
         IAct UseParentAct(bool useParentAct = true);
         IAssert Act(Action<dynamic> action);

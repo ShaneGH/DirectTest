@@ -86,10 +86,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\SimpleTestBuilder.cs" />
     <Compile Include="Builders\IAct.cs" />
     <Compile Include="Builders\IAssert.cs" />
     <Compile Include="Builders\IArrange.cs" />
     <Compile Include="Builders\Asserter.cs" />
+    <Compile Include="Builders\ITest.cs" />
+    <Compile Include="Builders\TestBuilder_Runners.cs" />
+    <Compile Include="Builders\TestModule.cs" />
+    <Compile Include="Compile\Compiler.cs" />
+    <Compile Include="Framework.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckers.cs" />
     <Compile Include="Mocks\MethodApplicabilityChecker.cs" />
@@ -108,9 +114,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Compiler\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

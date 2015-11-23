@@ -54,7 +54,10 @@ namespace DirectTests.Dynamic
             SetMember(binder.Name, value);
             return true;
         }
-
+        public override bool TryConvert(ConvertBinder binder, out object result)
+        {
+            return base.TryConvert(binder, out result);
+        }
         protected void Clear() 
         {
             _Values.Clear();

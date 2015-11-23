@@ -81,7 +81,7 @@ namespace DirectTests.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -146,7 +146,7 @@ namespace DirectTests.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     Assert.AreEqual(a, arg);
@@ -174,7 +174,7 @@ namespace DirectTests.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     Assert.AreEqual(a, arg);
                     return false;
@@ -207,7 +207,7 @@ namespace DirectTests.Tests.Mocks
             var returnVal = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -238,7 +238,7 @@ namespace DirectTests.Tests.Mocks
             object returnVal = null;
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -269,7 +269,7 @@ namespace DirectTests.Tests.Mocks
             var returnVal = 555;
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -300,7 +300,7 @@ namespace DirectTests.Tests.Mocks
             var returnVal = 555;
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -330,7 +330,7 @@ namespace DirectTests.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     return true;
@@ -350,7 +350,7 @@ namespace DirectTests.Tests.Mocks
         }
 
         [Test]
-        public void Invoke_NonVoid_RefType()
+        public void Invoke_NonVoid_VoidMethod_RefType()
         {
             //TODO: this method needs mocking
 
@@ -359,7 +359,7 @@ namespace DirectTests.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     return true;
@@ -426,7 +426,7 @@ namespace DirectTests.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     ok = true;
                     Assert.AreEqual(a, arg);
@@ -455,7 +455,7 @@ namespace DirectTests.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                MethodApplicabilityChecker.Assert<object>(a =>
+                Framework.Method<object>(a =>
                 {
                     Assert.AreEqual(a, arg);
                     return false;
@@ -474,24 +474,5 @@ namespace DirectTests.Tests.Mocks
         }
 
         #endregion
-
-        //[Test]
-        //public void Invoke()
-        //{
-        //    //TODO: this method needs mocking
-
-        //    // arrange
-        //    var returnVal = new object();
-        //    var method = new MethodMockBuilder(null, new[] { MethodApplicabilityChecker.Assert<object>(a => true) });
-        //    (method as dynamic).Return(returnVal);
-        //    var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-        //    {
-        //        { "abc", new MethodGroup(method) }
-        //    }));
-
-        //    // act
-        //    // assert
-        //    Assert.AreEqual(returnVal, subject.Invoke<object>("abc", new[] { new KeyValuePair<Type, object>(typeof(object), returnVal) }));
-        //}
     }
 }

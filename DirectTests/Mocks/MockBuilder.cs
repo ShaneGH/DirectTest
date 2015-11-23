@@ -27,7 +27,7 @@ namespace DirectTests.Mocks
             }
             set 
             {
-                _Settings = Settings;
+                _Settings = value;
             }
         }
 
@@ -91,13 +91,43 @@ namespace DirectTests.Mocks
                 return true;
             }
 
-            result = MockMethod(binder.Name, args);
+            if (binder.Name == Settings.As)
+            {
+                if (args.Length == 1 && args[0] is Type)
+                {
+                    result = Mock(args[0] as Type);
+                }
+                else
+                {
+                    //TOOD: http://stackoverflow.com/questions/5492373/get-generic-type-of-call-to-method-in-dynamic-object
+                    var csharpBinder = binder.GetType().GetInterface("Microsoft.CSharp.RuntimeBinder.ICSharpInvokeOrInvokeMemberBinder");
+                    var typeArgs = csharpBinder.GetProperty("TypeArguments").GetValue(binder, null) as IList<Type>;
+                    if (typeArgs == null || typeArgs.Count != 1)
+                        throw new InvalidOperationException("A call to " + Settings.As + " must have 1 generic type argument or 1 argument for return type.");
+
+                    result = Mock(typeArgs[0]);
+                }
+            }
+            else
+            {
+                result = MockMethod(binder.Name, args);
+            }
+
             return true;
         }
 
         public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
         {
-            result = MockMethod(string.Empty, args);
+            if (args.Length == 1 && args[0] is MockSettings)
+            {
+                Settings = args[0] as MockSettings;
+                result = this;
+            }
+            else
+            {
+                result = MockMethod(string.Empty, args);
+            }
+            
             return true;
         }
 
@@ -105,7 +135,12 @@ namespace DirectTests.Mocks
         {
             object result;
             if (base.TryGetMember(name, out result))
+            {
+                if (result is MockBuilder)
+                    (result as MockBuilder).Settings = Settings;
+
                 return result;
+            }
 
             SetMember(name, result = new MockBuilder(Settings));
             return result;

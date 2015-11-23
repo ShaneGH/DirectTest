@@ -59,7 +59,7 @@ namespace DirectTests.Tests.Mocks
             Assert.IsTrue(subject.TestArgs(amalgamated));
             Assert.IsFalse(subject.TestArgs(amalgamated.Skip(1)));
             Assert.IsFalse(subject.TestArgs(amalgamated.Take(amalgamated.Length - 1)));
-            Assert.IsFalse(subject.TestArgs(amalgamated.Union(new[] { new object() })));
+            Assert.IsFalse(subject.TestArgs(amalgamated.Concat(new[] { new object() })));
             result = false;
             Assert.IsFalse(subject.TestArgs(amalgamated));
         }
@@ -84,7 +84,7 @@ namespace DirectTests.Tests.Mocks
             Assert.IsTrue(subject.TestArgs(amalgamated));
             Assert.IsFalse(subject.TestArgs(amalgamated.Skip(1)));
             Assert.IsFalse(subject.TestArgs(amalgamated.Take(amalgamated.Length - 1)));
-            Assert.IsFalse(subject.TestArgs(amalgamated.Union(new[] { new object() })));
+            Assert.IsFalse(subject.TestArgs(amalgamated.Concat(new[] { new object() })));
             result = false;
             Assert.IsFalse(subject.TestArgs(amalgamated));
         }
@@ -111,7 +111,7 @@ namespace DirectTests.Tests.Mocks
             Assert.IsTrue(subject.TestArgs(amalgamated));
             Assert.IsFalse(subject.TestArgs(amalgamated.Skip(1)));
             Assert.IsFalse(subject.TestArgs(amalgamated.Take(amalgamated.Length - 1)));
-            Assert.IsFalse(subject.TestArgs(amalgamated.Union(new[] { new object() })));
+            Assert.IsFalse(subject.TestArgs(amalgamated.Concat(new[] { new object() })));
             result = false;
             Assert.IsFalse(subject.TestArgs(amalgamated));
         }
@@ -140,7 +140,7 @@ namespace DirectTests.Tests.Mocks
             Assert.IsTrue(subject.TestArgs(amalgamated));
             Assert.IsFalse(subject.TestArgs(amalgamated.Skip(1)));
             Assert.IsFalse(subject.TestArgs(amalgamated.Take(amalgamated.Length - 1)));
-            Assert.IsFalse(subject.TestArgs(amalgamated.Union(new[] { new object() })));
+            Assert.IsFalse(subject.TestArgs(amalgamated.Concat(new[] { new object() })));
             result = false;
             Assert.IsFalse(subject.TestArgs(amalgamated));
         }
@@ -171,7 +171,7 @@ namespace DirectTests.Tests.Mocks
             Assert.IsTrue(subject.TestArgs(amalgamated));
             Assert.IsFalse(subject.TestArgs(amalgamated.Skip(1)));
             Assert.IsFalse(subject.TestArgs(amalgamated.Take(amalgamated.Length - 1)));
-            Assert.IsFalse(subject.TestArgs(amalgamated.Union(new[] { new object() })));
+            Assert.IsFalse(subject.TestArgs(amalgamated.Concat(new[] { new object() })));
             result = false;
             Assert.IsFalse(subject.TestArgs(amalgamated));
         }
@@ -204,7 +204,7 @@ namespace DirectTests.Tests.Mocks
             Assert.IsTrue(subject.TestArgs(amalgamated));
             Assert.IsFalse(subject.TestArgs(amalgamated.Skip(1)));
             Assert.IsFalse(subject.TestArgs(amalgamated.Take(amalgamated.Length - 1)));
-            Assert.IsFalse(subject.TestArgs(amalgamated.Union(new[] { new object() })));
+            Assert.IsFalse(subject.TestArgs(amalgamated.Concat(new[] { new object() })));
             result = false;
             Assert.IsFalse(subject.TestArgs(amalgamated));
         }
