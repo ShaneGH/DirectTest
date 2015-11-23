@@ -25,6 +25,7 @@ namespace DirectTests.Tests.Compile
             public virtual int Prop8 { get; internal set; }
             public abstract int Prop9 { get; }
             public abstract int Prop10 { set; }
+            protected abstract internal int Prop11 { get; set; }
         }
 
         [Test]

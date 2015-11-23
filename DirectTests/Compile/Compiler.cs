@@ -87,13 +87,13 @@ namespace DirectTests.Compile
 
             @class.AppendLine("readonly " + getFullTypeName(typeof(ObjectBase)) + " " + _ObjectBase + ";");
 
-            @class.AppendLine(GetConstructors(baseType, out dummy));
+            @class.AppendLine(ImplementConstructors(baseType, out dummy));
             _assemblies = _assemblies.Union(dummy.Where(d => d != null));
 
-            @class.AppendLine(GetProperties(baseType, out dummy));
+            @class.AppendLine(ImplementProperties(baseType, out dummy));
             _assemblies = _assemblies.Union(dummy.Where(d => d != null));
 
-            @class.AppendLine(GetMethods(baseType, out dummy));
+            @class.AppendLine(ImplementMethods(baseType, out dummy));
             _assemblies = _assemblies.Union(dummy.Where(d => d != null));
 
             @class.AppendLine("}");
@@ -123,7 +123,7 @@ namespace DirectTests.Compile
             Built[baseType] = assembly.GetType("DirectTests.Proxy." + baseType.Namespace + "." + baseType.Name);   //TODO: no namespace
         }
 
-        static string GetConstructors(Type baseType, out IEnumerable<Assembly> assemblies)
+        static string ImplementConstructors(Type baseType, out IEnumerable<Assembly> assemblies)
         {
             IEnumerable<Assembly> dummy;
             var _assemblies = new List<Assembly>();
@@ -164,7 +164,32 @@ namespace DirectTests.Compile
             return output.ToString();
         }
 
-        static string GetProperties(Type baseType, out IEnumerable<Assembly> assemblies)
+        class MethodDescriptor
+        {
+            public bool IsProtectedInternal { get; set; }
+            public bool IsInternal { get; set; }
+            public bool IsPrivate { get; set; }
+            public bool IsProtected { get; set; }
+            public bool IsOverride { get; set; }
+            public bool IsAbstract { get; set; }
+            public string InterfaceName { get; set; }
+        }
+
+        static MethodDescriptor GetMethod(MethodInfo method, Func<Type, string> getFullTypeName)
+        {
+            return new MethodDescriptor
+            {
+                IsProtectedInternal = method.IsFamilyOrAssembly,
+                IsInternal = method.IsAssembly,
+                IsPrivate = method.IsPrivate,
+                IsProtected = method.IsFamily,
+                IsOverride = !method.DeclaringType.IsInterface,
+                InterfaceName = method.DeclaringType.IsInterface ? (getFullTypeName(method.DeclaringType) + ".") : string.Empty,
+                IsAbstract = method.DeclaringType.IsInterface || method.IsAbstract
+            };
+        }
+
+        static string ImplementProperties(Type baseType, out IEnumerable<Assembly> assemblies)
         {
             IEnumerable<Assembly> dummy;
             var _assemblies = new List<Assembly>();
@@ -176,87 +201,102 @@ namespace DirectTests.Compile
             };
 
 
-            bool isProtected;
+            //bool isProtected;
             var required = baseType.AllClassesAndInterfaces().Where(c => !c.IsInterface);
             var properties = required.SelectMany(c =>
                 c.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .Where(p => p.GetAccessors(true).Any(a => !a.IsPrivate && !a.IsAssembly && !a.IsFamilyOrAssembly && (a.IsVirtual || a.IsAbstract))).Select(p => new
                     {
-                        isProtected = isProtected = ((p.GetMethod == null || p.GetMethod.IsFamily) && (p.SetMethod == null || p.SetMethod.IsFamily)),
-                        getIsProtected = !isProtected && p.GetMethod != null && p.GetMethod.IsFamily,
-                        setIsProtected = !isProtected && p.SetMethod != null && p.SetMethod.IsFamily,
-                        isOverride = true,
-                        isAbstract = p.GetAccessors(true).Any(a => a.IsAbstract),
-                        interfaceName = string.Empty,
-                        property = p
+                        name = p.Name,
+                        getter = p.GetMethod == null ? null : GetMethod(p.GetMethod, getFullTypeName),
+                        setter = p.SetMethod == null ? null : GetMethod(p.SetMethod, getFullTypeName),
+                        propertyType = getFullTypeName(p.PropertyType),
+                        isOverride = !c.IsInterface,
+                        //isProtected = isProtected = ((p.GetMethod == null || p.GetMethod.IsFamily) && (p.SetMethod == null || p.SetMethod.IsFamily)),
+                        //getIsProtected = !isProtected && p.GetMethod != null && p.GetMethod.IsFamily,
+                        //setIsProtected = !isProtected && p.SetMethod != null && p.SetMethod.IsFamily,
+                        //isOverride = true,
+                        //isAbstract = p.GetAccessors(true).Any(a => a.IsAbstract),
+                        //interfaceName = string.Empty,
+                        //property = p
                     }));
 
 
             required = baseType.AllClassesAndInterfaces().Where(c => c.IsInterface);
             properties = properties.Union(required.SelectMany(i => i.GetProperties().Select(p => new
             {
-                isProtected = false,
-                getIsProtected = false,
-                setIsProtected = false,
-                isOverride = false,
-                isAbstract = true,
-                interfaceName = getFullTypeName(i) + ".",
-                property = p
+                name = p.Name,
+                getter = p.GetMethod == null ? null : GetMethod(p.GetMethod, getFullTypeName),
+                setter = p.SetMethod == null ? null : GetMethod(p.SetMethod, getFullTypeName),
+                propertyType = getFullTypeName(p.PropertyType),
+                isOverride = !i.IsInterface,
+                //isProtected = false,
+                //getIsProtected = false,
+                //setIsProtected = false,
+                //isOverride = false,
+                //isAbstract = true,
+                //interfaceName = getFullTypeName(i) + ".",
+                //property = p
             })));
 
             var output = new StringBuilder();
             foreach (var property in properties)
             {
-                var returnType = getFullTypeName(property.property.PropertyType);
+                //TODO: if no getter or setter
+                bool isProtected = (property.getter == null || property.getter.IsProtected) &&
+                    (property.setter == null || property.setter.IsProtected);
+
+                string interfaceName = property.getter != null && !string.IsNullOrEmpty(property.getter.InterfaceName) ?
+                    property.getter.InterfaceName :
+                    (property.setter != null && !string.IsNullOrEmpty(property.setter.InterfaceName) ?
+                        property.setter.InterfaceName : "");
+
                 output.AppendLine(
-                    (property.isProtected ? "protected " : property.isOverride ? "public " : string.Empty) +
+                    (isProtected ? "protected " : property.isOverride ? "public " : string.Empty) +
                     (property.isOverride ? "override " : "") +
-                    returnType + " " +
-                    property.interfaceName + property.property.Name);
+                    property.propertyType + " " +
+                    interfaceName + property.name);
 
                 output.AppendLine("{");
 
-                if (property.property.GetMethod != null && 
-                    !property.property.GetMethod.IsPrivate && 
-                    !property.property.GetMethod.IsAssembly && 
-                    !property.property.GetMethod.IsFamilyOrAssembly)
+                Func<MethodDescriptor, bool> ok = a =>
+                   a != null && !a.IsPrivate && !a.IsInternal && !a.IsProtectedInternal;
+
+                if (ok(property.getter))
                 {
-                    output.AppendLine((property.getIsProtected ? "protected " : "") + "get");
+                    output.AppendLine((!isProtected && property.getter.IsProtected ? "protected " : "") + "get");
                     output.AppendLine("{");
-                    if (property.isAbstract)
+                    if (property.getter.IsAbstract)
                     {
-                        output.AppendLine("return this." + _ObjectBase + ".GetProperty<" + returnType + ">(\"" + property.property.Name + "\");");
+                        output.AppendLine("return this." + _ObjectBase + ".GetProperty<" + property.propertyType + ">(\"" + property.name + "\");");
                     }
                     else
                     {
-                        output.AppendLine(returnType + " val;");
-                        output.AppendLine("if (this." + _ObjectBase + ".TryGetProperty<" + returnType + ">(\"" + property.property.Name + "\", out val))");
+                        output.AppendLine(property.propertyType + " val;");
+                        output.AppendLine("if (this." + _ObjectBase + ".TryGetProperty<" + property.propertyType + ">(\"" + property.name + "\", out val))");
                         output.AppendLine("return val;");
                         output.AppendLine();
-                        output.AppendLine("return base." + property.property.Name + ";");
+                        output.AppendLine("return base." + property.name + ";");
                     }
 
                     output.AppendLine("}");
                 }
 
-                if (property.property.SetMethod != null &&
-                    !property.property.SetMethod.IsPrivate &&
-                    !property.property.SetMethod.IsAssembly &&
-                    !property.property.SetMethod.IsFamilyOrAssembly)
+                if (ok(property.setter))
                 {
-                    output.AppendLine((property.setIsProtected ? "protected " : "") + "set");
+                    output.AppendLine((!isProtected && property.setter.IsProtected ? "protected " : "") + "set");
                     output.AppendLine("{");
-                    if (property.isAbstract)
+                    if (property.setter.IsAbstract)
                     {
-                        output.AppendLine("this." + _ObjectBase + ".SetProperty(\"" + property.property.Name + "\", value);");
+                        output.AppendLine("this." + _ObjectBase + ".SetProperty(\"" + property.name + "\", value);");
                     }
                     else
                     {
-                        output.AppendLine(returnType + " val;");
-                        output.AppendLine("if (this." + _ObjectBase + ".TryGetProperty<" + returnType + ">(\"" + property.property.Name + "\", out val))");
-                        output.AppendLine("this." + _ObjectBase + ".SetProperty(\"" + property.property.Name + "\", value);");
+                        output.AppendLine(property.propertyType + " val;");
+                        output.AppendLine("if (this." + _ObjectBase + ".TryGetProperty<" + property.propertyType + ">(\"" + property.name + "\", out val))");
+                        output.AppendLine("this." + _ObjectBase + ".SetProperty(\"" + property.name + "\", value);");
                         output.AppendLine("else");
-                        output.AppendLine("base." + property.property.Name + " = value;");
+                        output.AppendLine("base." + property.name + " = value;");
                     }
                     
                     output.AppendLine("}");
@@ -269,7 +309,7 @@ namespace DirectTests.Compile
             return output.ToString();
         }
 
-        static string GetMethods(Type baseType, out IEnumerable<Assembly> assemblies)
+        static string ImplementMethods(Type baseType, out IEnumerable<Assembly> assemblies)
         {
             IEnumerable<Assembly> dummy;
             var _assemblies = new List<Assembly>();
@@ -280,10 +320,7 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
-            var required = baseType.GetInterfaces() as IEnumerable<Type>;
-            if (baseType.IsInterface)
-                required = required.Union(new[] { baseType });
-
+            var required = baseType.AllClassesAndInterfaces().Where(i => i.IsInterface);
             var methods = required.SelectMany(i => i.GetMethods().Select(m => new
             {
                 @interface = getFullTypeName(i),
