@@ -51,6 +51,13 @@ namespace DirectTests.Mocks
 
         public TProperty GetProperty<TProperty>(string propertyName)
         {
+            TProperty result;
+            TryGetProperty(propertyName, out result);
+            return result;
+        }
+
+        public bool TryGetProperty<TProperty>(string propertyName, out TProperty result)
+        {
             KeyValuePair<string, object> property;
             lock (ExtraAddedProperties)
             {
@@ -60,21 +67,27 @@ namespace DirectTests.Mocks
             if (property.Equals(default(KeyValuePair<string, object>)))
             {
                 if (StrictMock)
+                {
                     throw new InvalidOperationException("Property has not been mocked");    //TODO
+                }
                 else
-                    return default(TProperty);
+                {
+                    result = default(TProperty);
+                    return false;
+                }
             }
 
             if (!(property.Value is TProperty))
                 throw new InvalidOperationException("Bad type");
 
-            return (TProperty)property.Value;
+            result = (TProperty)property.Value;
+            return true;
         }
 
         /// <summary>
         /// Invoke a method with no return value
         /// </summary>
-        public void Invoke(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments)
+        public bool TryInvoke(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments)
         {
             object dummy = null;
             var method = Methods
@@ -83,6 +96,16 @@ namespace DirectTests.Mocks
 
             if (StrictMock && method.Equals(default(KeyValuePair<string, MethodGroup>)))
                 throw new InvalidOperationException("Method has not been mocked");    //TODO
+
+            return method.Equals(default(KeyValuePair<string, MethodGroup>));
+        }
+
+        /// <summary>
+        /// Invoke a method with no return value
+        /// </summary>
+        public void Invoke(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments)
+        {
+            TryInvoke(methodName, arguments);
         }
 
         /// <summary>
@@ -90,27 +113,48 @@ namespace DirectTests.Mocks
         /// </summary>
         public TResult Invoke<TResult>(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments)
         {
-            object result = null;
+            TResult result;
+            TryInvoke(methodName, arguments, out result);
+            return result;
+        }
+
+        /// <summary>
+        /// Invoke a method with a return value
+        /// </summary>
+        public bool TryInvoke<TResult>(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments, out TResult result)
+        {
+            object tmp = null;
             var method = Methods
                 .Where(m => m.Key == methodName)
-                .FirstOrDefault(m => m.Value.TryInvoke(arguments.Select(a => a.Value), out result));
+                .FirstOrDefault(m => m.Value.TryInvoke(arguments.Select(a => a.Value), out tmp));
 
             if (method.Equals(default(KeyValuePair<string, MethodGroup>)))
             {
                 if (StrictMock)
+                {
                     throw new InvalidOperationException("Method has not been mocked");    //TODO
+                }
                 else
-                    return default(TResult);
+                {
+                    result = default(TResult);
+                    return true;
+                }
             }
 
-            if (result is MockBuilder)
-                result = (result as MockBuilder).Mock(typeof(TResult));
+            if (tmp is MockBuilder)
+                tmp = (tmp as MockBuilder).Mock(typeof(TResult));
 
-            if (result is TResult || (result == null && !typeof(TResult).IsValueType))
-                return (TResult)result;
-            if (result == null)
-                //TODO: currently cannot do strict mocks here.
-                return default(TResult);
+            if (tmp is TResult || (tmp == null && !typeof(TResult).IsValueType))
+            {
+                result = (TResult)tmp;
+                return true;
+            }
+
+            if (tmp == null)
+            {
+                result = default(TResult);
+                return false;
+            }
 
             throw new InvalidOperationException("Bad type");    //TODO
         }

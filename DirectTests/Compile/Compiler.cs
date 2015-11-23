@@ -65,8 +65,11 @@ namespace DirectTests.Compile
 
         void CompileAndCache(Type baseType)
         {
-            if (!baseType.IsInterface)
-                throw new NotImplementedException("TODO");
+            if (baseType == null)
+                baseType = typeof(object);
+
+            if (baseType.IsSealed)
+                throw new InvalidOperationException("Cannot mock sealed");  //TODO
 
             IEnumerable<Assembly> dummy;
             var _assemblies = Enumerable.Empty<Assembly>();
@@ -104,8 +107,6 @@ namespace DirectTests.Compile
             CSharpCodeProvider provider = new CSharpCodeProvider();
             CompilerResults results = provider.CompileAssemblyFromSource(parameters, @class.ToString());
 
-            //var ttttt = @class.ToString();
-
             if (results.Errors.HasErrors)
             {
                 StringBuilder sb = new StringBuilder();
@@ -133,11 +134,10 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
-            var constructors = !baseType.IsInterface ? 
-                baseType.GetConstructors()
-                    .Where(c => !c.IsPrivate)
-                    .Select(c => c.GetParameters().Select(p => p.ParameterType))
-                    .Where(c => c.Any()) :
+            var constructors = !baseType.IsInterface ?
+                baseType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(c => !c.IsPrivate && !c.IsAssembly && !c.IsFamilyOrAssembly)
+                    .Select(c => c.GetParameters().Select(p => p.ParameterType)) :
                     new[] { Enumerable.Empty<Type>() };
 
             if (!constructors.Any())
@@ -175,39 +175,90 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
-            var required = baseType.GetInterfaces() as IEnumerable<Type>;
-            if (baseType.IsInterface)
-                required = required.Union(new[] { baseType });
 
-            var properties = required.SelectMany(i => i.GetProperties().Select(p => new
+            bool isProtected;
+            var required = baseType.AllClassesAndInterfaces().Where(c => !c.IsInterface);
+            var properties = required.SelectMany(c =>
+                c.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(p => p.GetAccessors(true).Any(a => !a.IsPrivate && !a.IsAssembly && !a.IsFamilyOrAssembly && (a.IsVirtual || a.IsAbstract))).Select(p => new
+                    {
+                        isProtected = isProtected = ((p.GetMethod == null || p.GetMethod.IsFamily) && (p.SetMethod == null || p.SetMethod.IsFamily)),
+                        getIsProtected = !isProtected && p.GetMethod != null && p.GetMethod.IsFamily,
+                        setIsProtected = !isProtected && p.SetMethod != null && p.SetMethod.IsFamily,
+                        isOverride = true,
+                        isAbstract = p.GetAccessors(true).Any(a => a.IsAbstract),
+                        interfaceName = string.Empty,
+                        property = p
+                    }));
+
+
+            required = baseType.AllClassesAndInterfaces().Where(c => c.IsInterface);
+            properties = properties.Union(required.SelectMany(i => i.GetProperties().Select(p => new
             {
-                @interface = getFullTypeName(i),
+                isProtected = false,
+                getIsProtected = false,
+                setIsProtected = false,
+                isOverride = false,
+                isAbstract = true,
+                interfaceName = getFullTypeName(i) + ".",
                 property = p
-            })).ToArray();
+            })));
 
             var output = new StringBuilder();
             foreach (var property in properties)
             {
                 var returnType = getFullTypeName(property.property.PropertyType);
                 output.AppendLine(
+                    (property.isProtected ? "protected " : property.isOverride ? "public " : string.Empty) +
+                    (property.isOverride ? "override " : "") +
                     returnType + " " +
-                    property.@interface + "." + property.property.Name);
+                    property.interfaceName + property.property.Name);
 
                 output.AppendLine("{");
 
-                if (property.property.GetMethod != null)
+                if (property.property.GetMethod != null && 
+                    !property.property.GetMethod.IsPrivate && 
+                    !property.property.GetMethod.IsAssembly && 
+                    !property.property.GetMethod.IsFamilyOrAssembly)
                 {
-                    output.AppendLine("get");
+                    output.AppendLine((property.getIsProtected ? "protected " : "") + "get");
                     output.AppendLine("{");
-                    output.AppendLine("return this." + _ObjectBase + ".GetProperty<" + returnType + ">(\"" + property.property.Name + "\");");
+                    if (property.isAbstract)
+                    {
+                        output.AppendLine("return this." + _ObjectBase + ".GetProperty<" + returnType + ">(\"" + property.property.Name + "\");");
+                    }
+                    else
+                    {
+                        output.AppendLine(returnType + " val;");
+                        output.AppendLine("if (this." + _ObjectBase + ".TryGetProperty<" + returnType + ">(\"" + property.property.Name + "\", out val))");
+                        output.AppendLine("return val;");
+                        output.AppendLine();
+                        output.AppendLine("return base." + property.property.Name + ";");
+                    }
+
                     output.AppendLine("}");
                 }
 
-                if (property.property.GetMethod != null)
+                if (property.property.SetMethod != null &&
+                    !property.property.SetMethod.IsPrivate &&
+                    !property.property.SetMethod.IsAssembly &&
+                    !property.property.SetMethod.IsFamilyOrAssembly)
                 {
-                    output.AppendLine("set");
+                    output.AppendLine((property.setIsProtected ? "protected " : "") + "set");
                     output.AppendLine("{");
-                    output.AppendLine("this." + _ObjectBase + ".SetProperty(\"" + property.property.Name + "\", value);");
+                    if (property.isAbstract)
+                    {
+                        output.AppendLine("this." + _ObjectBase + ".SetProperty(\"" + property.property.Name + "\", value);");
+                    }
+                    else
+                    {
+                        output.AppendLine(returnType + " val;");
+                        output.AppendLine("if (this." + _ObjectBase + ".TryGetProperty<" + returnType + ">(\"" + property.property.Name + "\", out val))");
+                        output.AppendLine("this." + _ObjectBase + ".SetProperty(\"" + property.property.Name + "\", value);");
+                        output.AppendLine("else");
+                        output.AppendLine("base." + property.property.Name + " = value;");
+                    }
+                    
                     output.AppendLine("}");
                 }
 

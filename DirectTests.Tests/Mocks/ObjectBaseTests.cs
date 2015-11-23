@@ -25,7 +25,7 @@ namespace DirectTests.Tests.Mocks
             var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object> { { "abc", prop1 } }));
 
             // act
-            // assert
+            // 
             Assert.AreEqual(prop1, subject.GetProperty<object>("abc"));
             subject.SetProperty("abc", prop2);
             Assert.AreEqual(prop2, subject.GetProperty<object>("abc"));

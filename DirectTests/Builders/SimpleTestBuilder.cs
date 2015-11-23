@@ -105,7 +105,7 @@ namespace DirectTests.Builders
         /// <returns></returns>
         private IParameterizedArrange<TReturnVal> For<TReturnVal>(MethodInfo method)
         {
-            var allMethods = AllClassesAndInterfaces(Constructor.DeclaringType).SelectMany(t => t.GetMethods());
+            var allMethods = Constructor.DeclaringType.AllClassesAndInterfaces().SelectMany(t => t.GetMethods());
             if (!allMethods.Contains(method))
                 throw new InvalidOperationException("Invalid method");
 
@@ -122,19 +122,6 @@ namespace DirectTests.Builders
             });
 
             return new Actor<TReturnVal>(this, action);
-        }
-
-        static IEnumerable<Type> AllClassesAndInterfaces(Type type)
-        {
-            var output = new List<Type>();
-            while (type != null)
-            {
-                output.Add(type);
-                output.AddRange(type.GetInterfaces());
-                type = type.BaseType;
-            }
-
-            return output.Where(o => o != null).Distinct();
         }
 
         static IEnumerable<object> GetArgs(IEnumerable<ParameterInfo> parameters, DynamicBag data)

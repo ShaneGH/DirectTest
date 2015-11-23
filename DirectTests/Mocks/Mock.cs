@@ -39,8 +39,8 @@ namespace DirectTests.Mocks
 
         public Mock(Type mockType, MockBuilder builder)
         {
-            if (!mockType.IsInterface)
-                throw new NotImplementedException();
+            if (mockType.IsSealed)
+                throw new InvalidOperationException("Cannot mock sealed");  //TODO
 
             MockType = mockType;
             Builder = builder.Values;
@@ -68,48 +68,5 @@ namespace DirectTests.Mocks
 
             return Constructors[MockType](new ObjectBase(Builder));
         }
-
-        //            string code = @"
-        //    using System;
-        //
-        //    namespace First
-        //    {
-        //        public class Program
-        //        {
-        //            public static void Main()
-        //            {
-        //            " +
-        //                "Console.WriteLine(\"Hello, world!\");"
-        //                + @"
-        //            }
-        //        }
-        //    }
-        //";
-
-        //            var parameters = new CompilerParameters();
-        //            parameters.ReferencedAssemblies.Add("System.Drawing.dll");
-        //            parameters.GenerateInMemory = true;
-        //            parameters.GenerateExecutable = true;
-
-        //            CSharpCodeProvider provider = new CSharpCodeProvider();
-        //            CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
-
-        //            if (results.Errors.HasErrors)
-        //            {
-        //                StringBuilder sb = new StringBuilder();
-
-        //                foreach (CompilerError error in results.Errors)
-        //                {
-        //                    sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
-        //                }
-
-        //                throw new InvalidOperationException(sb.ToString());
-        //            }
-
-        //            Assembly assembly = results.CompiledAssembly;
-        //            Type program = assembly.GetType("First.Program");
-        //            MethodInfo main = program.GetMethod("Main");
-
-        //            main.Invoke(null, null);
     }
 }
