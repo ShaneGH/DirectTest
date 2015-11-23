@@ -13,8 +13,10 @@ namespace DirectTests.Builders
         IParameterizedArrange<object> For(MethodInfo method);
     }
 
-    public interface IFor<TSubject>
+    public interface IFor<TSubject> : ITest
     {
         IParameterizedArrange<TReturnValue> For<TReturnValue>(Expression<Func<TSubject, TReturnValue>> act);
+
+        IParameterizedArrange For(Expression<Action<TSubject>> act);
     }
 }

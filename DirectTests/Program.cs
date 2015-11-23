@@ -13,8 +13,8 @@ namespace DirectTests
         public static void Main(string[] args)
         {
             Framework.Test("My test")
-                .Subject(typeof(Add).GetConstructor(new Type[] { typeof(IRepo1) }))
-                .For(typeof(Add).GetMethod("Execute1"))
+                .Subject(() => new Add((IRepo1)null))
+                .For(a => a.Execute1(0, 0))
                 .Arrange(bag =>
                 {
                     bag.Args.add = 2;
@@ -27,7 +27,7 @@ namespace DirectTests
                 .SkipParentAssert()
                 .Assert((bag, result) =>
                 {
-                    if ((int)result != 110)
+                    if (result != 110)
                         throw new InvalidOperationException();
                 })
 

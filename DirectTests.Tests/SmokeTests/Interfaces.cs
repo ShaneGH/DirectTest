@@ -39,14 +39,19 @@ namespace DirectTests.Tests.SmokeTests
             public int Execute1(int id, int add)
             {
                 var entity = Repo.GetEntity(id);
-                return entity.Number * add;
+                return entity.Number *= add;
             }
 
             public int Execute2(int id, int add)
             {
                 var repo = RepositoryFactory.GetRepo(true);
                 var entity = repo.GetEntity(id);
-                return entity.Number * add;
+                return entity.Number *= add;
+            }
+
+            public void Execute3(int id, int add)
+            {
+                Execute1(id, add);
             }
 
             public class Entity
@@ -72,9 +77,9 @@ namespace DirectTests.Tests.SmokeTests
                 .UseParentAct()
                 .Act(bag =>
                 {
-                    bag.constructorNumber = 55;
+                    bag.add = 55;
                     var subject = new Add(bag.repo.As<IRepo1>());
-                    return subject.Execute1((int)bag.id, (int)bag.constructorNumber);
+                    return subject.Execute1((int)bag.id, (int)bag.add);
                 })
 
                 .SkipParentAssert()
@@ -104,9 +109,9 @@ namespace DirectTests.Tests.SmokeTests
                 .UseParentAct()
                 .Act(bag =>
                 {
-                    bag.constructorNumber = 55;
+                    bag.add = 55;
                     var subject = new Add(bag.factory.As<IRepoFactory>());
-                    return subject.Execute2(bag.commandId, bag.constructorNumber);
+                    return subject.Execute2(bag.commandId, bag.add);
                 })
 
                 .SkipParentAssert()
@@ -120,7 +125,7 @@ namespace DirectTests.Tests.SmokeTests
         }
 
         [Test]
-        public void SimpleForSubjectAct1()
+        public void SimpleForSubjectAct_Reflection_ReturnVal()
         {
             Framework.Test("My test")
                 .Subject(typeof(Add).GetConstructor(new Type[] { typeof(IRepo1) }))
@@ -144,29 +149,81 @@ namespace DirectTests.Tests.SmokeTests
                 .Run();
         }
 
-        //[Test]
-        //public void SimpleForSubjectAct2()
-        //{
-        //    Framework.Test("My test")
-        //        .Subject(() => new Add((IRepo1)null))
-        //        .For(a => a.Execute1(0, 0))
-        //        .Arrange(bag =>
-        //        {
-        //            bag.Args.add = 2;
-        //            bag.Args.id = 55;
-        //            bag.CArgs.repo1
-        //                .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
-        //                .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
-        //        })
+        [Test]
+        public void SimpleForSubjectAct_Reflection_NonReturnVal()
+        {
+            bool ok = false;
+            Framework.Test("My test")
+                .Subject(typeof(Add).GetConstructor(new Type[] { typeof(IRepo1) }))
+                .For(typeof(Add).GetMethod("Execute3"))
 
-        //        .SkipParentAssert()
-        //        .Assert((bag, result) =>
-        //        {
-        //            if (result != 110)
-        //                throw new InvalidOperationException();
-        //        })
+                .Arrange(bag =>
+                {
+                    bag.Args.add = 2;
+                    bag.Args.id = 55;
+                    bag.CArgs.repo1
+                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                })
 
-        //        .Run();
-        //}
+                .SkipParentAssert()
+                .Assert(bag => ok = true)
+
+                .Run();
+
+            if (!ok)
+                throw new InvalidOperationException();
+        }
+
+        [Test]
+        public void SimpleForSubjectAct_Expression_ReturnVal()
+        {
+            Framework.Test("My test")
+                .Subject(() => new Add((IRepo1)null))
+                .For(a => a.Execute1(0, 0))
+                .Arrange(bag =>
+                {
+                    bag.Args.add = 2;
+                    bag.Args.id = 55;
+                    bag.CArgs.repo1
+                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                })
+
+                .SkipParentAssert()
+                .Assert((bag, result) =>
+                {
+                    if (result != 110)
+                        throw new InvalidOperationException();
+                })
+
+                .Run();
+        }
+
+        [Test]
+        public void SimpleForSubjectAct_Expression_NonReturnVal()
+        {
+            bool ok = false;
+            Framework.Test("My test")
+                .Subject(() => new Add((IRepo1)null))
+                .For(a => a.Execute3(0, 0))
+
+                .Arrange(bag =>
+                {
+                    bag.Args.add = 2;
+                    bag.Args.id = 55;
+                    bag.CArgs.repo1
+                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                })
+
+                .SkipParentAssert()
+                .Assert(bag => ok = true)
+
+                .Run();
+
+            if (!ok)
+                throw new InvalidOperationException();
+        }
     }
 }

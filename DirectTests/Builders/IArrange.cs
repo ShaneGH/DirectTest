@@ -15,7 +15,7 @@ namespace DirectTests.Builders
 
         IFor Subject(ConstructorInfo constructor);
 
-        //IFor<TSubject> Subject<TSubject>(Expression<Func<TSubject>> constructor);
+        IFor<TSubject> Subject<TSubject>(Expression<Func<TSubject>> constructor);
     }
 
     public interface IBasedOn : IArrange
@@ -23,8 +23,13 @@ namespace DirectTests.Builders
         IArrange BasedOn(string basedOn);
     }
 
-    public interface IParameterizedArrange<TReturnValue> : ITest
+    public interface IParameterizedArrange : ITest
     {
-        IAssert<TReturnValue> Arrange(Action<ITestData> arrange);
+        IAssert Arrange(Action<ITestData> arrange);
+    }
+
+    public interface IParameterizedArrange<TReturnValue> : IParameterizedArrange
+    {
+        new IAssert<TReturnValue> Arrange(Action<ITestData> arrange);
     }
 }

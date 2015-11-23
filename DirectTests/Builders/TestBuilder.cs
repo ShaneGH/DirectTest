@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,6 +40,11 @@ namespace DirectTests.Builders
         }
 
         public IFor Subject(ConstructorInfo constructor)
+        {
+            return new SimpleTestBuilder(this).Subject(constructor);
+        }
+
+        public IFor<TSubject> Subject<TSubject>(Expression<Func<TSubject>> constructor)
         {
             return new SimpleTestBuilder(this).Subject(constructor);
         }
