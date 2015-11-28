@@ -38,6 +38,11 @@ namespace DirectTests.Mocks
             Members = members;
         }
 
+        public ObjectBase(bool strictMock = false)
+            : this (new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), strictMock)
+        {
+        }
+
         public void SetProperty(string propertyName, object propertyValue)
         {
             lock (ExtraAddedProperties)

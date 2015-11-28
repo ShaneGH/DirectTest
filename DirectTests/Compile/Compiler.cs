@@ -23,7 +23,11 @@ namespace DirectTests.Compile
         Type _Compile(Type baseType)
         {
             if (!Built.ContainsKey(baseType))
-                CompileAndCache(baseType);
+            {
+                var result = CompileAndCache(baseType);
+                if (result.CompilerErrors.Any())
+                    throw new InvalidOperationException(string.Join(@"\n", result.CompilerErrors));  //TODO
+            }
 
             return Built[baseType];
         }
@@ -63,13 +67,23 @@ namespace DirectTests.Compile
             return result.Item1;
         }
 
-        void CompileAndCache(Type baseType)
+        class CompilerResult
+        {
+            public readonly List<string> CompilerErrors;
+
+            public CompilerResult(params string[] errors)
+            {
+                CompilerErrors = new List<string>(errors ?? new string[0]);
+            }
+        }
+
+        CompilerResult CompileAndCache(Type baseType)
         {
             if (baseType == null)
                 baseType = typeof(object);
 
             if (baseType.IsSealed)
-                throw new InvalidOperationException("Cannot mock sealed");  //TODO
+                return new CompilerResult("Cannot mock sealed");  //TODO
 
             IEnumerable<Assembly> dummy;
             var _assemblies = Enumerable.Empty<Assembly>();
@@ -80,6 +94,7 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
+            var errors = new CompilerResult();
             var @class = new StringBuilder("namespace DirectTests.Proxy." + baseType.Namespace);//TODO: no namespace
             @class.AppendLine("{");
             @class.AppendLine("public class " + baseType.Name + ": " + getFullTypeName(baseType));  //TODO: sealed class, generic parameters
@@ -87,17 +102,20 @@ namespace DirectTests.Compile
 
             @class.AppendLine("readonly " + getFullTypeName(typeof(ObjectBase)) + " " + _ObjectBase + ";");
 
-            @class.AppendLine(ImplementConstructors(baseType, out dummy));
+            errors.CompilerErrors.AddRange(ImplementConstructors(baseType, @class, out dummy).CompilerErrors);
             _assemblies = _assemblies.Union(dummy.Where(d => d != null));
 
-            @class.AppendLine(ImplementProperties(baseType, out dummy));
+            errors.CompilerErrors.AddRange(ImplementProperties(baseType, @class, out dummy).CompilerErrors);
             _assemblies = _assemblies.Union(dummy.Where(d => d != null));
 
-            @class.AppendLine(ImplementMethods(baseType, out dummy));
+            errors.CompilerErrors.AddRange(ImplementMethods(baseType, @class, out dummy).CompilerErrors);
             _assemblies = _assemblies.Union(dummy.Where(d => d != null));
 
             @class.AppendLine("}");
             @class.AppendLine("}");
+
+            if (errors.CompilerErrors.Any())
+                return errors;
 
             var parameters = new CompilerParameters();
             parameters.ReferencedAssemblies.AddRange(_assemblies.Select(a => a.Location).ToArray());
@@ -107,23 +125,21 @@ namespace DirectTests.Compile
             CSharpCodeProvider provider = new CSharpCodeProvider();
             CompilerResults results = provider.CompileAssemblyFromSource(parameters, @class.ToString());
 
-            if (results.Errors.HasErrors)
+            foreach (CompilerError error in results.Errors)
             {
-                StringBuilder sb = new StringBuilder();
-
-                foreach (CompilerError error in results.Errors)
-                {
-                    sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
-                }
-
-                throw new InvalidOperationException(sb.ToString());
+                errors.CompilerErrors.Add(string.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
             }
+
+            if (errors.CompilerErrors.Any())
+                return errors;
 
             Assembly assembly = results.CompiledAssembly;
             Built[baseType] = assembly.GetType("DirectTests.Proxy." + baseType.Namespace + "." + baseType.Name);   //TODO: no namespace
+
+            return new CompilerResult();
         }
 
-        static string ImplementConstructors(Type baseType, out IEnumerable<Assembly> assemblies)
+        static CompilerResult ImplementConstructors(Type baseType, StringBuilder output, out IEnumerable<Assembly> assemblies)
         {
             IEnumerable<Assembly> dummy;
             var _assemblies = new List<Assembly>();
@@ -144,7 +160,6 @@ namespace DirectTests.Compile
                 throw new InvalidOperationException("No public constructors");  //TODO
 
             var arg1 = new[]{ typeof(ObjectBase)};
-            var output = new StringBuilder();
             foreach (var constructor in constructors)
             {
                 output.AppendLine("public " + baseType.Name + //TODO, class name
@@ -161,7 +176,7 @@ namespace DirectTests.Compile
             }
 
             assemblies = _assemblies.AsReadOnly();
-            return output.ToString();
+            return new CompilerResult();
         }
 
         class MethodDescriptor
@@ -189,7 +204,7 @@ namespace DirectTests.Compile
             };
         }
 
-        static string ImplementProperties(Type baseType, out IEnumerable<Assembly> assemblies)
+        static CompilerResult ImplementProperties(Type baseType, StringBuilder output, out IEnumerable<Assembly> assemblies)
         {
             IEnumerable<Assembly> dummy;
             var _assemblies = new List<Assembly>();
@@ -200,9 +215,9 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
+            var result = new CompilerResult();
 
-            //bool isProtected;
-            var required = baseType.AllClassesAndInterfaces().Where(c => !c.IsInterface);
+            var required = baseType.AllClassesAndInterfaces();
             var properties = required.SelectMany(c =>
                 c.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .Where(p => p.GetAccessors(true).Any(a => !a.IsPrivate && !a.IsAssembly && !a.IsFamilyOrAssembly && (a.IsVirtual || a.IsAbstract))).Select(p => new
@@ -211,38 +226,23 @@ namespace DirectTests.Compile
                         getter = p.GetMethod == null ? null : GetMethod(p.GetMethod, getFullTypeName),
                         setter = p.SetMethod == null ? null : GetMethod(p.SetMethod, getFullTypeName),
                         propertyType = getFullTypeName(p.PropertyType),
-                        isOverride = !c.IsInterface,
-                        //isProtected = isProtected = ((p.GetMethod == null || p.GetMethod.IsFamily) && (p.SetMethod == null || p.SetMethod.IsFamily)),
-                        //getIsProtected = !isProtected && p.GetMethod != null && p.GetMethod.IsFamily,
-                        //setIsProtected = !isProtected && p.SetMethod != null && p.SetMethod.IsFamily,
-                        //isOverride = true,
-                        //isAbstract = p.GetAccessors(true).Any(a => a.IsAbstract),
-                        //interfaceName = string.Empty,
-                        //property = p
+                        isOverride = !c.IsInterface
                     }));
 
-
-            required = baseType.AllClassesAndInterfaces().Where(c => c.IsInterface);
-            properties = properties.Union(required.SelectMany(i => i.GetProperties().Select(p => new
-            {
-                name = p.Name,
-                getter = p.GetMethod == null ? null : GetMethod(p.GetMethod, getFullTypeName),
-                setter = p.SetMethod == null ? null : GetMethod(p.SetMethod, getFullTypeName),
-                propertyType = getFullTypeName(p.PropertyType),
-                isOverride = !i.IsInterface,
-                //isProtected = false,
-                //getIsProtected = false,
-                //setIsProtected = false,
-                //isOverride = false,
-                //isAbstract = true,
-                //interfaceName = getFullTypeName(i) + ".",
-                //property = p
-            })));
-
-            var output = new StringBuilder();
             foreach (var property in properties)
             {
-                //TODO: if no getter or setter
+                if (property.getter != null && property.getter.IsAbstract && property.getter.IsInternal)
+                {
+                    result.CompilerErrors.Add("Cannot implement class with abstract internal member: get_" + property.name);
+                    break;
+                }
+
+                if (property.setter != null && property.setter.IsAbstract && property.setter.IsInternal)
+                {
+                    result.CompilerErrors.Add("Cannot implement class with abstract internal member: set_" + property.name);
+                    break;
+                }
+
                 bool isProtected = (property.getter == null || property.getter.IsProtected) &&
                     (property.setter == null || property.setter.IsProtected);
 
@@ -306,10 +306,10 @@ namespace DirectTests.Compile
             }
 
             assemblies = _assemblies.AsReadOnly();
-            return output.ToString();
+            return result;
         }
 
-        static string ImplementMethods(Type baseType, out IEnumerable<Assembly> assemblies)
+        static CompilerResult ImplementMethods(Type baseType, StringBuilder output, out IEnumerable<Assembly> assemblies)
         {
             IEnumerable<Assembly> dummy;
             var _assemblies = new List<Assembly>();
@@ -321,14 +321,20 @@ namespace DirectTests.Compile
             };
 
             var required = baseType.AllClassesAndInterfaces().Where(i => i.IsInterface);
-            var methods = required.SelectMany(i => i.GetMethods().Select(m => new
-            {
-                @interface = getFullTypeName(i),
-                method = m
-            })).ToArray();
+            var propertyAccessors = new HashSet<MethodInfo>(required.SelectMany(
+                r => r.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SelectMany(p => new[] { p.GetMethod, p.SetMethod }).Where(m => m != null)));
+
+            var methods = required.SelectMany(i => i.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(m => !propertyAccessors.Contains(m))
+                .Select(m => new
+                {
+                    @interface = getFullTypeName(i),
+                    method = m
+                }))
+                .ToArray();
 
             var kvp = getFullTypeName(typeof(KeyValuePair<Type, object>));
-            var output = new StringBuilder();
             foreach (var method in methods)
             {
                 var returnType = method.method.ReturnType == typeof(void) ? "void" : getFullTypeName(method.method.ReturnType);
@@ -350,7 +356,7 @@ namespace DirectTests.Compile
             }
 
             assemblies = _assemblies.AsReadOnly();
-            return output.ToString();
+            return new CompilerResult();
         }
 
 
