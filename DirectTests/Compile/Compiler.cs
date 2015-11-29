@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DirectTests.Mocks;
 using Microsoft.CSharp;
@@ -33,22 +34,29 @@ namespace DirectTests.Compile
         }
 
         static readonly ConcurrentDictionary<Type, Tuple<string, IEnumerable<Assembly>>> NameCache = new ConcurrentDictionary<Type, Tuple<string, IEnumerable<Assembly>>>();
-        static string GetFullTypeName(Type type, out IEnumerable<Assembly> assemblies)
+        static string GetFullTypeName(Type type, out IEnumerable<Assembly> assemblies, bool includeNamespace = true)
         {
             if (!NameCache.ContainsKey(type))
             {
-                if (!type.FullName.Contains("`"))
+                var name = ("global::" + type.FullName).Replace("+", ".");
+                if (type == typeof(void))
                 {
                     NameCache.TryAdd(type, new Tuple<string, IEnumerable<Assembly>>(
-                        "global::" + type.FullName.Replace("+", "."),
+                        "void",
+                        Array.AsReadOnly<Assembly>(type.Assembly == null ? new Assembly[] { } : new[] { type.Assembly })));
+                }
+                else if (!name.Contains("`"))
+                {
+                    NameCache.TryAdd(type, new Tuple<string, IEnumerable<Assembly>>(
+                        name,
                         Array.AsReadOnly<Assembly>(type.Assembly == null ? new Assembly[] { } : new[] { type.Assembly })));
                 }
                 else
                 {
                     IEnumerable<Assembly> dummy;
-                    var ass = new List<Assembly>();
+                    var ass = new List<Assembly>(type.Assembly == null ? new Assembly[] { } : new[] { type.Assembly });
                     var generics = new List<string>();
-                    var output = type.FullName.Substring(0, type.FullName.IndexOf("`"));
+                    var output = name.Substring(0, name.IndexOf("`"));
                     foreach (var generic in type.GetGenericArguments())
                     {
                         generics.Add(GetFullTypeName(generic, out dummy));
@@ -56,7 +64,7 @@ namespace DirectTests.Compile
                     }
 
                     NameCache.TryAdd(type, new Tuple<string, IEnumerable<Assembly>>(
-                        "global::" + output.Replace("+", ".") + "<" + string.Join(", ", generics) + ">",
+                        output + "<" + string.Join(", ", generics) + ">",
                         Array.AsReadOnly<Assembly>(ass.Where(a => a != null).Distinct().ToArray())));
                 }
             }
@@ -64,7 +72,43 @@ namespace DirectTests.Compile
             Tuple<string, IEnumerable<Assembly>> result;
             NameCache.TryGetValue(type, out result);
             assemblies = result.Item2;
-            return result.Item1;
+
+            return includeNamespace ? result.Item1 : RemoveNamespace(result.Item1);
+        }
+
+        static readonly Regex _global = new Regex(@"^\s*global::\s*");
+        static string RemoveNamespace(string test)
+        {
+            test = _global.Replace(test, "");
+
+            var generic = test.IndexOf("<");
+            if (generic == -1)
+            {
+                if (!test.Contains("."))
+                    return test;
+                else
+                    return test.Substring(test.LastIndexOf(".") + 1);
+            }
+
+            var tempIndex = -1;
+            var index = 0;
+            while ((tempIndex = test.IndexOf(".", tempIndex + 1)) < generic && tempIndex >= 0)
+                index = tempIndex;
+
+            return test.Substring(index + 1);
+        }
+
+        static string GetNameWithGenericHash(Type forType, out IEnumerable<Assembly> assemblies)
+        {
+            int generic = 0;
+            IEnumerable<Assembly> dummy;
+            var name = GetFullTypeName(forType, out assemblies, false);
+            if ((generic = name.IndexOf("<")) == -1)
+                return name;
+
+            return (name.Substring(0, generic) + 
+                string.Join("", 
+                    forType.GetGenericArguments().Select(a => "_" + GetFullTypeName(a, out dummy).GetHashCode()))).Replace("-", "x");
         }
 
         class CompilerResult
@@ -86,7 +130,8 @@ namespace DirectTests.Compile
                 return new CompilerResult("Cannot mock sealed");  //TODO
 
             IEnumerable<Assembly> dummy;
-            var _assemblies = Enumerable.Empty<Assembly>();
+            IEnumerable<Assembly> _assemblies;
+            var className = GetNameWithGenericHash(baseType, out _assemblies);
             Func<Type, string> getFullTypeName = t =>
             {
                 var typeName = GetFullTypeName(t, out dummy);
@@ -94,10 +139,11 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
+
             var errors = new CompilerResult();
             var @class = new StringBuilder("namespace DirectTests.Proxy." + baseType.Namespace);//TODO: no namespace
             @class.AppendLine("{");
-            @class.AppendLine("public class " + baseType.Name + ": " + getFullTypeName(baseType));  //TODO: sealed class, generic parameters
+            @class.AppendLine("public class " + className + ": " + getFullTypeName(baseType));  //TODO: sealed class, generic parameters
             @class.AppendLine("{");
 
             @class.AppendLine("readonly " + getFullTypeName(typeof(ObjectBase)) + " " + _ObjectBase + ";");
@@ -113,6 +159,8 @@ namespace DirectTests.Compile
 
             @class.AppendLine("}");
             @class.AppendLine("}");
+
+            var ttttttttt = @class.ToString();
 
             if (errors.CompilerErrors.Any())
                 return errors;
@@ -134,7 +182,7 @@ namespace DirectTests.Compile
                 return errors;
 
             Assembly assembly = results.CompiledAssembly;
-            Built[baseType] = assembly.GetType("DirectTests.Proxy." + baseType.Namespace + "." + baseType.Name);   //TODO: no namespace
+            Built[baseType] = assembly.GetType("DirectTests.Proxy." + baseType.Namespace + "." + className);   //TODO: no namespace
 
             return new CompilerResult();
         }
@@ -150,6 +198,8 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
+            var name = GetNameWithGenericHash(baseType, out dummy);
+            _assemblies.AddRange(dummy);
             var constructors = !baseType.IsInterface ?
                 baseType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     .Where(c => !c.IsPrivate && !c.IsAssembly && !c.IsFamilyOrAssembly)
@@ -162,7 +212,8 @@ namespace DirectTests.Compile
             var arg1 = new[]{ typeof(ObjectBase)};
             foreach (var constructor in constructors)
             {
-                output.AppendLine("public " + baseType.Name + //TODO, class name
+                output.AppendLine("public " +
+                    name + //TODO, class name
                     "(" +
                     string.Join(", ", arg1.Concat(constructor).Select((a, i) => getFullTypeName(a) + " arg" + i)) +
                     ")");
@@ -175,7 +226,7 @@ namespace DirectTests.Compile
                 output.AppendLine("}");
             }
 
-            assemblies = _assemblies.AsReadOnly();
+            assemblies = _assemblies.Distinct();
             return new CompilerResult();
         }
 
@@ -188,6 +239,11 @@ namespace DirectTests.Compile
             public bool IsOverride { get; set; }
             public bool IsAbstract { get; set; }
             public string InterfaceName { get; set; }
+        }
+
+        static bool IsFinalize(MethodInfo method) 
+        {
+            return method.Name == "Finalize" && method.ReturnType == typeof(void) && !method.GetParameters().Any();
         }
 
         static MethodDescriptor GetMethod(MethodInfo method, Func<Type, string> getFullTypeName)
@@ -220,27 +276,29 @@ namespace DirectTests.Compile
             var required = baseType.AllClassesAndInterfaces();
             var properties = required.SelectMany(c =>
                 c.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(p => p.GetAccessors(true).Any(a => !a.IsPrivate && !a.IsAssembly && !a.IsFamilyOrAssembly && (a.IsVirtual || a.IsAbstract))).Select(p => new
+                    .Where(p => p.GetAccessors(true).Any(a => !a.IsPrivate && !a.IsAssembly && !a.IsFamilyOrAssembly && (a.IsVirtual || a.IsAbstract))))
+                    .Distinct()
+                    .Select(p => new
                     {
                         name = p.Name,
                         getter = p.GetMethod == null ? null : GetMethod(p.GetMethod, getFullTypeName),
                         setter = p.SetMethod == null ? null : GetMethod(p.SetMethod, getFullTypeName),
                         propertyType = getFullTypeName(p.PropertyType),
-                        isOverride = !c.IsInterface
-                    }));
+                        isOverride = !p.DeclaringType.IsInterface
+                    });
 
             foreach (var property in properties)
             {
                 if (property.getter != null && property.getter.IsAbstract && property.getter.IsInternal)
                 {
                     result.CompilerErrors.Add("Cannot implement class with abstract internal member: get_" + property.name);
-                    break;
+                    continue;
                 }
 
                 if (property.setter != null && property.setter.IsAbstract && property.setter.IsInternal)
                 {
                     result.CompilerErrors.Add("Cannot implement class with abstract internal member: set_" + property.name);
-                    break;
+                    continue;
                 }
 
                 bool isProtected = (property.getter == null || property.getter.IsProtected) &&
@@ -320,37 +378,78 @@ namespace DirectTests.Compile
                 return typeName;
             };
 
-            var required = baseType.AllClassesAndInterfaces().Where(i => i.IsInterface);
+            var required = baseType.AllClassesAndInterfaces();
             var propertyAccessors = new HashSet<MethodInfo>(required.SelectMany(
                 r => r.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .SelectMany(p => new[] { p.GetMethod, p.SetMethod }).Where(m => m != null)));
 
-            var methods = required.SelectMany(i => i.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(m => !propertyAccessors.Contains(m))
+            var methods = required.SelectMany(c => c.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(m => !propertyAccessors.Contains(m) && 
+                    !IsFinalize(m) &&
+                    (c.IsInterface || m.IsAbstract || m.IsVirtual)))
+                .Distinct(MethodInfoComparer.Instance)
                 .Select(m => new
                 {
-                    @interface = getFullTypeName(i),
-                    method = m
-                }))
+                    name = m.Name,
+                    method = GetMethod(m, getFullTypeName),
+                    returnType = getFullTypeName(m.ReturnType),
+                    isOverride = !m.DeclaringType.IsInterface,
+                    parameters = m.GetParameters()
+                })
                 .ToArray();
 
+            var result = new CompilerResult();
             var kvp = getFullTypeName(typeof(KeyValuePair<Type, object>));
             foreach (var method in methods)
             {
-                var returnType = method.method.ReturnType == typeof(void) ? "void" : getFullTypeName(method.method.ReturnType);
-                output.AppendLine(
-                    returnType + " " +
-                    method.@interface + "." + method.method.Name +
-                    "(" + string.Join(", ", method.method.GetParameters().Select((p, i) => getFullTypeName(p.ParameterType) + " arg" + i)) + ")");
+                if (method.method.IsAbstract && method.method.IsInternal)
+                {
+                    result.CompilerErrors.Add("Cannot implement class with abstract internal member: " + method.name);
+                    continue;
+                }
+
+                output.Append(
+                    (method.method.IsProtected ? "protected " : method.method.IsOverride ? "public " : string.Empty) +
+                    (method.method.IsOverride ? "override " : "") +
+                    method.returnType + " " +
+                    method.method.InterfaceName  + method.name);
+
+                output.AppendLine("(" + string.Join(", ", method.parameters.Select((p, i) => getFullTypeName(p.ParameterType) + " arg" + i)) + ")");
                 output.AppendLine("{");
 
-                output.AppendLine((returnType == "void" ? "" : "return ") +
-                    "this." + _ObjectBase + ".Invoke" +
-                    (returnType == "void" ? "" : ("<" + returnType + ">")) +
-                    "(\"" + method.method.Name + "\", " + 
-                    " new " + kvp + "[]" + " {" +
-                    string.Join(", ", method.method.GetParameters().Select((p, i) => "new " + kvp + "(typeof(" + getFullTypeName(p.ParameterType)  +  "), arg" + i + ")")) + 
-                    "});");
+                if (method.method.IsAbstract || !string.IsNullOrWhiteSpace(method.method.InterfaceName))
+                {
+                    output.AppendLine((method.returnType == "void" ? "" : "return ") +
+                        "this." + _ObjectBase + ".Invoke" +
+                        (method.returnType == "void" ? "" : ("<" + method.returnType + ">")) +
+                        "(\"" + method.name + "\", " +
+                        " new " + kvp + "[]" + " {" +
+                        string.Join(", ", method.parameters.Select((p, i) => "new " + kvp + "(typeof(" + getFullTypeName(p.ParameterType) + "), arg" + i + ")")) +
+                        "});");
+                }
+                else
+                {
+                    // Type output;
+                    if (method.returnType != "void")
+                        output.AppendLine(method.returnType + " output;");
+
+                    // if (!this._ObjectBase.TryInvoke("name", args, out ouptup))
+                    output.AppendLine("if (!this." + _ObjectBase + ".TryInvoke" +
+                        (method.returnType == "void" ? "" : ("<" + method.returnType + ">")) +
+                        "(\"" + method.name + "\", " +
+                        " new " + kvp + "[]" + " {" +
+                        string.Join(", ", method.parameters.Select((p, i) => "new " + kvp + "(typeof(" + getFullTypeName(p.ParameterType) + "), arg" + i + ")")) + "}" +
+                        (method.returnType != "void" ? ", out output" : "") +
+                        "))");
+
+                    // output = base.name(args);
+                    output.AppendLine("\t" + (method.returnType == "void" ? "" : "output = ") +
+                        "base." + method.name + "(" + string.Join(", ", method.parameters.Select((p, i) => "arg" + i)) + ");");
+
+                    // return output
+                    if (method.returnType != "void")
+                        output.AppendLine("return output;");
+                }
 
                 output.AppendLine("}");
             }

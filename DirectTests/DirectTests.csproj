@@ -97,6 +97,7 @@
     <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
     <Compile Include="Compile\Compiler.cs" />
+    <Compile Include="Compile\MethodInfoComparer.cs" />
     <Compile Include="Framework.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckers.cs" />

@@ -8,7 +8,6 @@ using NUnit.Framework;
 
 namespace DirectTests.Tests.SmokeTests
 {
-    [Ignore("in progress")]
     [TestFixture]
     public class Classes
     {

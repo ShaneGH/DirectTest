@@ -15,7 +15,7 @@ namespace DirectTests.Tests.Compile
     public class CompileTests
     {
         //TODO: mock or rather set fields (comment not really related to this class)
-        public abstract class LostOfProperties
+        public abstract class LostOfProperties<T>
         {
             int _Prop0 = 1;
             public virtual int Prop0 { get { return _Prop0; } set { _Prop0 = value; } }
@@ -36,8 +36,8 @@ namespace DirectTests.Tests.Compile
         [Test]
         public void LotsOfProperties()
         {
-            var subject = (LostOfProperties)
-                Compiler.Compile(typeof(LostOfProperties)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = (LostOfProperties<string>)
+                Compiler.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"Prop1", 22},
                     {"Prop6", 33},
