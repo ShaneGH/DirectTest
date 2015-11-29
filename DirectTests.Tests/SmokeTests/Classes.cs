@@ -71,7 +71,7 @@ namespace DirectTests.Tests.SmokeTests
                     bag.id = 55;
                     bag.repo
                         .GetEntity(Framework.Method<int>(a => a == bag.id))
-                        .Return(new Add.Entity { Id = bag.id, Number = bag.entityNumber });
+                        .Returns(new Add.Entity { Id = bag.id, Number = bag.entityNumber });
                 })
 
                 .UseParentAct()
@@ -103,7 +103,7 @@ namespace DirectTests.Tests.SmokeTests
                     bag.factory
                         .GetRepo(true)
                         .GetEntity(Framework.Method<int>(a => a == bag.commandId))
-                        .Return(new Add.Entity { Number = bag.entityNumber });
+                        .Returns(new Add.Entity { Number = bag.entityNumber });
                 })
 
                 .UseParentAct()
@@ -136,7 +136,7 @@ namespace DirectTests.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
-                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()
@@ -163,7 +163,7 @@ namespace DirectTests.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
-                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()
@@ -187,7 +187,7 @@ namespace DirectTests.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
-                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()
@@ -214,7 +214,7 @@ namespace DirectTests.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
-                        .Return(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()

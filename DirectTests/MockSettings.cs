@@ -10,7 +10,7 @@ namespace DirectTests
 
     public class MockSettings
     {
-        public string Return { get; set; }
+        public string Returns { get; set; }
         public string Ensure { get; set; }
         public string Clear { get; set; }
         public string Do { get; set; }
@@ -18,7 +18,7 @@ namespace DirectTests
 
         public MockSettings()
         {
-            Return = "Return";
+            Returns = "Returns";
             Ensure = "Ensure";
             Clear = "Clear";
             Do = "Do";
@@ -41,7 +41,7 @@ namespace DirectTests
                     b((f.GetValue(settings) ?? a).ToString());
             };
 
-            set("Return", a => Return = a);
+            set("Returns", a => Returns = a);
             set("Ensure", a => Ensure = a);
             set("Clear", a => Clear = a);
             set("Do", a => Do = a);

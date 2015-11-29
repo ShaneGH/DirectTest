@@ -213,7 +213,7 @@ namespace DirectTests.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Return(returnVal);
+            (method as dynamic).Returns(returnVal);
 
             var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
@@ -244,7 +244,7 @@ namespace DirectTests.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Return(returnVal);
+            (method as dynamic).Returns(returnVal);
 
             var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
@@ -275,7 +275,7 @@ namespace DirectTests.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Return(returnVal);
+            (method as dynamic).Returns(returnVal);
 
             var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
@@ -306,7 +306,7 @@ namespace DirectTests.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Return(returnVal);
+            (method as dynamic).Returns(returnVal);
 
             var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {

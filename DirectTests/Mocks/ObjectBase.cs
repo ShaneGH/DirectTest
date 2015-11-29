@@ -94,7 +94,15 @@ namespace DirectTests.Mocks
         /// </summary>
         public void Invoke(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments)
         {
-            TryInvoke(methodName, arguments);
+            Invoke(methodName, Enumerable.Empty<Type>(), arguments);
+        }
+
+        /// <summary>
+        /// Invoke a method with no return value
+        /// </summary>
+        public void Invoke(string methodName, IEnumerable<Type> genericArguments, IEnumerable<KeyValuePair<Type, object>> arguments)
+        {
+            TryInvoke(methodName, genericArguments, arguments);
         }
 
         /// <summary>
@@ -102,8 +110,16 @@ namespace DirectTests.Mocks
         /// </summary>
         public TResult Invoke<TResult>(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments)
         {
+            return Invoke<TResult>(methodName, Enumerable.Empty<Type>(), arguments);
+        }
+
+        /// <summary>
+        /// Invoke a method with a return value
+        /// </summary>
+        public TResult Invoke<TResult>(string methodName, IEnumerable<Type> genericArguments, IEnumerable<KeyValuePair<Type, object>> arguments)
+        {
             TResult result;
-            TryInvoke(methodName, arguments, out result);
+            TryInvoke(methodName, genericArguments, arguments, out result);
             return result;
         }
 
@@ -112,10 +128,18 @@ namespace DirectTests.Mocks
         /// </summary>
         public bool TryInvoke(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments)
         {
+            return TryInvoke(methodName, Enumerable.Empty<Type>(), arguments);
+        }
+
+        /// <summary>
+        /// Invoke a method with no return value
+        /// </summary>
+        public bool TryInvoke(string methodName, IEnumerable<Type> genericArguments, IEnumerable<KeyValuePair<Type, object>> arguments)
+        {
             object dummy = null;
             var method = Methods
                 .Where(m => m.Key == methodName)
-                .FirstOrDefault(m => m.Value.TryInvoke(arguments.Select(a => a.Value), out dummy));
+                .FirstOrDefault(m => m.Value.TryInvoke(genericArguments, arguments.Select(a => a.Value), out dummy));
 
             if (StrictMock && method.Equals(default(KeyValuePair<string, MethodGroup>)))
                 throw new InvalidOperationException("Method has not been mocked");    //TODO
@@ -128,10 +152,18 @@ namespace DirectTests.Mocks
         /// </summary>
         public bool TryInvoke<TResult>(string methodName, IEnumerable<KeyValuePair<Type, object>> arguments, out TResult result)
         {
+            return TryInvoke<TResult>(methodName, Enumerable.Empty<Type>(), arguments, out result);
+        }
+
+        /// <summary>
+        /// Invoke a method with a return value
+        /// </summary>
+        public bool TryInvoke<TResult>(string methodName, IEnumerable<Type> genericArguments, IEnumerable<KeyValuePair<Type, object>> arguments, out TResult result)
+        {
             object tmp = null;
             var method = Methods
                 .Where(m => m.Key == methodName)
-                .FirstOrDefault(m => m.Value.TryInvoke(arguments.Select(a => a.Value), out tmp));
+                .FirstOrDefault(m => m.Value.TryInvoke(genericArguments, arguments.Select(a => a.Value), out tmp));
 
             if (method.Equals(default(KeyValuePair<string, MethodGroup>)))
             {
@@ -142,7 +174,7 @@ namespace DirectTests.Mocks
                 else
                 {
                     result = default(TResult);
-                    return true;
+                    return false;
                 }
             }
 

@@ -38,7 +38,7 @@ namespace DirectTests.Compile
         {
             if (!NameCache.ContainsKey(type))
             {
-                var name = ("global::" + type.FullName).Replace("+", ".");
+                var name = type.IsGenericParameter ? type.Name : ("global::" + type.FullName).Replace("+", ".");
                 if (type == typeof(void))
                 {
                     NameCache.TryAdd(type, new Tuple<string, IEnumerable<Assembly>>(
@@ -73,7 +73,7 @@ namespace DirectTests.Compile
             NameCache.TryGetValue(type, out result);
             assemblies = result.Item2;
 
-            return includeNamespace ? result.Item1 : RemoveNamespace(result.Item1);
+            return includeNamespace || type.IsGenericParameter ? result.Item1 : RemoveNamespace(result.Item1);
         }
 
         static readonly Regex _global = new Regex(@"^\s*global::\s*");
@@ -276,7 +276,7 @@ namespace DirectTests.Compile
             var required = baseType.AllClassesAndInterfaces();
             var properties = required.SelectMany(c =>
                 c.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(p => p.GetAccessors(true).Any(a => !a.IsPrivate && !a.IsAssembly && !a.IsFamilyOrAssembly && (a.IsVirtual || a.IsAbstract))))
+                    .Where(p => p.GetAccessors(true).Any(a => !a.IsPrivate && !a.IsAssembly && (c.IsInterface || a.IsVirtual || a.IsAbstract))))
                     .Distinct()
                     .Select(p => new
                     {
@@ -301,8 +301,8 @@ namespace DirectTests.Compile
                     continue;
                 }
 
-                bool isProtected = (property.getter == null || property.getter.IsProtected) &&
-                    (property.setter == null || property.setter.IsProtected);
+                bool isProtected = (property.getter == null || property.getter.IsProtected || property.getter.IsProtectedInternal) &&
+                    (property.setter == null || property.setter.IsProtected || property.setter.IsProtectedInternal);
 
                 string interfaceName = property.getter != null && !string.IsNullOrEmpty(property.getter.InterfaceName) ?
                     property.getter.InterfaceName :
@@ -318,7 +318,7 @@ namespace DirectTests.Compile
                 output.AppendLine("{");
 
                 Func<MethodDescriptor, bool> ok = a =>
-                   a != null && !a.IsPrivate && !a.IsInternal && !a.IsProtectedInternal;
+                   a != null && !a.IsPrivate && !a.IsInternal;
 
                 if (ok(property.getter))
                 {
@@ -394,7 +394,8 @@ namespace DirectTests.Compile
                     method = GetMethod(m, getFullTypeName),
                     returnType = getFullTypeName(m.ReturnType),
                     isOverride = !m.DeclaringType.IsInterface,
-                    parameters = m.GetParameters()
+                    parameters = m.GetParameters(),
+                    generics = m.GetGenericArguments()
                 })
                 .ToArray();
 
@@ -402,17 +403,21 @@ namespace DirectTests.Compile
             var kvp = getFullTypeName(typeof(KeyValuePair<Type, object>));
             foreach (var method in methods)
             {
-                if (method.method.IsAbstract && method.method.IsInternal)
+                if (method.method.IsInternal)
                 {
-                    result.CompilerErrors.Add("Cannot implement class with abstract internal member: " + method.name);
+                    if (method.method.IsAbstract)
+                        result.CompilerErrors.Add("Cannot implement class with abstract internal member: " + method.name);
                     continue;
                 }
 
                 output.Append(
-                    (method.method.IsProtected ? "protected " : method.method.IsOverride ? "public " : string.Empty) +
+                    (method.method.IsProtected || method.method.IsProtectedInternal ? "protected " : method.method.IsOverride ? "public " : string.Empty) +
                     (method.method.IsOverride ? "override " : "") +
                     method.returnType + " " +
                     method.method.InterfaceName  + method.name);
+
+                if (method.generics.Any())
+                    output.Append("<" + string.Join(", ", method.generics.Select(getFullTypeName)) + ">");
 
                 output.AppendLine("(" + string.Join(", ", method.parameters.Select((p, i) => getFullTypeName(p.ParameterType) + " arg" + i)) + ")");
                 output.AppendLine("{");
@@ -422,8 +427,9 @@ namespace DirectTests.Compile
                     output.AppendLine((method.returnType == "void" ? "" : "return ") +
                         "this." + _ObjectBase + ".Invoke" +
                         (method.returnType == "void" ? "" : ("<" + method.returnType + ">")) +
-                        "(\"" + method.name + "\", " +
-                        " new " + kvp + "[]" + " {" +
+                        "(\"" + method.name + "\"" +
+                        (method.generics.Any() ? ", new [] {" + string.Join(", ", method.generics.Select(t => "typeof(" + getFullTypeName(t) + ")" )) + "}" : "") +
+                        ", new " + kvp + "[]" + " {" +
                         string.Join(", ", method.parameters.Select((p, i) => "new " + kvp + "(typeof(" + getFullTypeName(p.ParameterType) + "), arg" + i + ")")) +
                         "});");
                 }
@@ -436,8 +442,9 @@ namespace DirectTests.Compile
                     // if (!this._ObjectBase.TryInvoke("name", args, out ouptup))
                     output.AppendLine("if (!this." + _ObjectBase + ".TryInvoke" +
                         (method.returnType == "void" ? "" : ("<" + method.returnType + ">")) +
-                        "(\"" + method.name + "\", " +
-                        " new " + kvp + "[]" + " {" +
+                        "(\"" + method.name + "\"" +
+                        (method.generics.Any() ? ", new [] {" + string.Join(", ", method.generics.Select(t => "typeof(" + getFullTypeName(t) + ")")) + "}" : "") +
+                        ", new " + kvp + "[]" + " {" +
                         string.Join(", ", method.parameters.Select((p, i) => "new " + kvp + "(typeof(" + getFullTypeName(p.ParameterType) + "), arg" + i + ")")) + "}" +
                         (method.returnType != "void" ? ", out output" : "") +
                         "))");

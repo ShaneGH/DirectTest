@@ -99,9 +99,7 @@ namespace DirectTests.Mocks
                 }
                 else
                 {
-                    //TOOD: http://stackoverflow.com/questions/5492373/get-generic-type-of-call-to-method-in-dynamic-object
-                    var csharpBinder = binder.GetType().GetInterface("Microsoft.CSharp.RuntimeBinder.ICSharpInvokeOrInvokeMemberBinder");
-                    var typeArgs = csharpBinder.GetProperty("TypeArguments").GetValue(binder, null) as IList<Type>;
+                    var typeArgs = GenericArguments(binder);
                     if (typeArgs == null || typeArgs.Count != 1)
                         throw new InvalidOperationException("A call to " + Settings.As + " must have 1 generic type argument or 1 argument for return type.");
 
@@ -110,10 +108,17 @@ namespace DirectTests.Mocks
             }
             else
             {
-                result = MockMethod(binder.Name, args);
+                result = MockMethod(binder.Name, GenericArguments(binder), args);
             }
 
             return true;
+        }
+
+        static IList<Type> GenericArguments(InvokeMemberBinder binder)
+        {
+            //TOOD: http://stackoverflow.com/questions/5492373/get-generic-type-of-call-to-method-in-dynamic-object
+            var csharpBinder = binder.GetType().GetInterface("Microsoft.CSharp.RuntimeBinder.ICSharpInvokeOrInvokeMemberBinder");
+            return csharpBinder.GetProperty("TypeArguments").GetValue(binder, null) as IList<Type> ?? new List<Type>();
         }
 
         public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
@@ -125,7 +130,7 @@ namespace DirectTests.Mocks
             }
             else
             {
-                result = MockMethod(string.Empty, args);
+                result = MockMethod(string.Empty, Enumerable.Empty<Type>(), args);
             }
             
             return true;
@@ -157,13 +162,13 @@ namespace DirectTests.Mocks
             }
         }
 
-        protected MethodMockBuilder MockMethod(string name, object[] args)
+        protected MethodMockBuilder MockMethod(string name, IEnumerable<Type> genericArgs, object[] args)
         {
             object existingMock;
             if (TryGetMember(name, out existingMock) && !(existingMock is MethodGroup))
                 throw new InvalidOperationException("The member \"" + name + "\" has already been set as a parameter, and cannot be mocked now as a function");    //TODM
 
-            var result = new MethodMockBuilder(Settings, new MockBuilder(Settings), args);
+            var result = new MethodMockBuilder(Settings, new MockBuilder(Settings), genericArgs, args);
             if (existingMock == null)
             {
                 existingMock = new MethodGroup(result);

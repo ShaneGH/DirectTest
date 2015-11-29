@@ -14,49 +14,49 @@ namespace DirectTests
 {
     public class Program
     {
-        //TODO: mock or rather set fields (comment not really related to this class)
-        public abstract class LostOfProperties<T>
-        {
-            int _Prop0 = 1;
-            public virtual int Prop0 { get { return _Prop0; } set { _Prop0 = value; } }
 
-            int _Prop1 = 11;
-            public virtual int Prop1 { get { return _Prop1; } set { _Prop1 = value; } }
-            internal int Prop2 { get; set; }
-            protected abstract int Prop3 { get; set; }
-            private int Prop4 { get; set; }
-            protected virtual internal int Prop5 { get; set; }
-            public virtual int Prop6 { get; private set; }
-            public virtual int Prop7 { get; protected set; }
-            public virtual int Prop8 { get; internal set; }
-            public abstract int Prop9 { get; }
-            public abstract int Prop10 { set; }
+        //TODO: mock or rather set fields (comment not really related to this class)
+        public abstract class LostOfMethods<T>
+        {
+            public abstract TOut GM2<TOut>(int arg1);
         }
 
         public static void Main(string[] args)
         {
-            var subject = (LostOfProperties<string>)
-                Compiler.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+
+            Func<int, IEnumerable<Type>, MethodGroup> mock2 = (val, generic) =>
+            {
+                dynamic builder = new MethodMockBuilder(null, generic, new object[] { val });
+                builder.Return("M-" + val);
+
+                return new MethodGroup(builder);
+            };
+
+            Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
+
+            var subject = (LostOfMethods<string>)
+                Compiler.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
-                    {"Prop1", 22},
-                    {"Prop6", 33},
-                    {"Prop7", 44},
-                    {"Prop8", 55},
-                    {"Prop9", 66}
+                    //{"M1", mock(2)},
+                    //{"M4", mock(2)},
+                    //{"M5", mock(2)},
+                    
+                    //{"VM1", mock(2)},
+                    //{"VM4", mock(2)},
+                    //{"VM5", mock(2)},
+                    
+                    //{"AM1", mock(2)},
+                    //{"AM5", mock(2)},
+                    
+                    //{"GM1", mock(2)},
+                    {"GM2", mock2(2, new[]{typeof(string)})},
                 })) });
 
-            //Assert.AreEqual(subject.Prop0, 1);
-            //Assert.AreEqual(subject.Prop1, 22);
-            //Assert.AreEqual(subject.Prop6, 33);
-            //Assert.AreEqual(subject.Prop7, 44);
-            //Assert.AreEqual(subject.Prop8, 55);
-            //Assert.AreEqual(subject.Prop9, 66);
-
-            //subject.Prop1 = 77;
-            //Assert.AreEqual(subject.Prop1, 77);
+            subject.GM2<string>(2);
         }
     }
 }
+
 
 
 

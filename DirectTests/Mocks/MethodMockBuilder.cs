@@ -21,10 +21,10 @@ namespace DirectTests.Mocks
             Add(first);
         }
 
-        public bool TryInvoke(IEnumerable<object> arguments, out object result) 
+        public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<object> arguments, out object result) 
         {
             foreach (var item in this)
-                if (item.TryInvoke(arguments, out result))
+                if (item.TryInvoke(genericArguments, arguments, out result))
                     return true;
             
             result = null;
@@ -37,15 +37,26 @@ namespace DirectTests.Mocks
         public readonly IMethodAssert ArgChecker;
         public object ReturnValue { get; private set; }
 
+        readonly IEnumerable<Type> GenericArguments;
         readonly ReadOnlyDictionary<string, Action<object[]>> SpecialActions;
         readonly MockBuilder NextPiece;
 
         public MethodMockBuilder(MockBuilder nextPiece, IEnumerable<object> args)
-            : this(new MockSettings(), nextPiece, args)
+            : this(nextPiece, Enumerable.Empty<Type>(), args)
+        {
+        }
+
+        public MethodMockBuilder(MockBuilder nextPiece, IEnumerable<Type> genericArgs, IEnumerable<object> args)
+            : this(new MockSettings(), nextPiece, genericArgs, args)
         {
         }
 
         public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece, IEnumerable<object> args)
+            : this(settings, nextPiece, Enumerable.Empty<Type>(), args)
+        {
+        }
+
+        public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece, IEnumerable<Type> genericArgs, IEnumerable<object> args)
         {
             if (args.Count() == 1 && args.First() is IMethodAssert)
                 ArgChecker = args.First() as IMethodAssert;
@@ -54,13 +65,14 @@ namespace DirectTests.Mocks
             else
                 ArgChecker = new EqualityMethodApplicabilityChecker(args);
 
+            GenericArguments = Array.AsReadOnly((genericArgs ?? Enumerable.Empty<Type>()).ToArray());
             ReturnValue = nextPiece;
             NextPiece = nextPiece;
 
             SpecialActions = new ReadOnlyDictionary<string, Action<object[]>>(new Dictionary<string, Action<object[]>> 
             {
                 //TODO, some of these will stop all other functions
-                { settings.Return, Return },
+                { settings.Returns, Return },
                 { settings.Ensure, Ensure },
                 { settings.Clear, Clear },
                 { settings.Do, Do }
@@ -104,8 +116,31 @@ namespace DirectTests.Mocks
             return true;
         }
 
-        public bool TryInvoke(IEnumerable<object> arguments, out object result) 
+        public bool TryInvoke(IEnumerable<object> arguments, out object result)
         {
+            return TryInvoke(Enumerable.Empty<Type>(), arguments, out result);
+        }
+
+
+        public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<object> arguments, out object result)
+        {
+            var gen1 = GenericArguments.ToArray();
+            var gen2 = genericArguments.ToArray();
+            if (gen1.Length != gen2.Length)
+            {
+                result = null;
+                return false;
+            }
+
+            for (var i = 0; i < gen1.Length; i++)
+            {
+                if (gen1[i] != gen2[i])
+                {
+                    result = null;
+                    return false;
+                }
+            }
+
             if (ArgChecker.TestArgs(arguments))
             {
                 result = ReturnValue;
