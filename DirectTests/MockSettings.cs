@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace DirectTests
 {
-
     public class MockSettings
     {
         public string Returns { get; set; }

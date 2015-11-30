@@ -11,12 +11,10 @@ namespace DirectTests.Builders
     {
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            if (base.TryGetMember(binder, out result))
-                return true;
+            if (!base.TryGetMember(binder, out result))
+                SetMember(binder.Name, result = new MockBuilder());   //TODO
 
-            SetMember(binder.Name, new MockBuilder());   //TODO
-
-            return base.TryGetMember(binder, out result);
+            return true;
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
