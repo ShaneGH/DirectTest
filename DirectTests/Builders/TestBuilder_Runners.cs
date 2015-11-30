@@ -82,6 +82,10 @@ namespace DirectTests.Builders
                 work();
             }
 
+            if (arranger.ShouldHaveBeenCalled.Any())
+                throw new InvalidOperationException("methods not called\n" + string.Join("\n", arranger.ShouldHaveBeenCalled));  //TODO
+            
+
             foreach (var ass in Filter(arrange, a => !a._UseBaseAssert, a => a._Assert))
                 ass(arranger, result);
 

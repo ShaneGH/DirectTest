@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using DirectTests.Dynamic;
@@ -41,6 +42,17 @@ namespace DirectTests.Builders
         {
             foreach (var builder in Values.Values.OfType<MockBuilder>())
                 builder.Settings = null;
+        }
+
+        public IEnumerable<string> ShouldHaveBeenCalled
+        {
+            get
+            {
+                return Values
+                    .Where(v => v.Value is MockBuilder)
+                    .Select(v => new { name = v.Key, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
+                    .SelectMany(v => v.args.Select(a => "testBag." + v.name + ": { " + a + " }"));
+            }
         }
     }
 }

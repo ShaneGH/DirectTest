@@ -184,5 +184,16 @@ namespace DirectTests.Mocks
 
             return result;
         }
+
+        public IEnumerable<string> ShouldHaveBeenCalled
+        {
+            get
+            {
+                return Values
+                    .Where(v => v.Value is MethodGroup)
+                    .Select(v => new { name = v.Key, args = (v.Value as MethodGroup).ShouldHaveBeenCalled })
+                    .SelectMany(v => v.args.Select(a => "Method: " + v.name + (a.Any() ? "{ " + a  + " }" : string.Empty)));
+            }
+        }
     }
 }

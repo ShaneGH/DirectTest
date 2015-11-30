@@ -29,15 +29,29 @@ namespace DirectTests.Mocks
             
             result = null;
             return false;
-        }             
+        }
+
+        /// <summary>
+        /// Returns a a summary of the args of any method which was strict mocked and not called
+        /// </summary>
+        public IEnumerable<string> ShouldHaveBeenCalled 
+        {
+            get
+            {
+                return this.Where(m => m.MustBeCalled && !m.WasCalled)
+                    .Select(m => m.ArgChecker.InputTypes.Any() ? "Args: " + string.Join(", ", m.ArgChecker.InputTypes) : string.Empty)
+                    .Union(
+                        this.Select(m => m.ReturnValue).OfType<MockBuilder>().SelectMany(b => b.ShouldHaveBeenCalled));
+            }
+        }
     }
 
     internal class MethodMockBuilder : DynamicObject
     {
         public readonly IMethodAssert ArgChecker;
         public object ReturnValue { get; private set; }
-        //public bool MustBeCalled { get; private set; }
-        //public bool WasCalled { get; private set; }
+        public bool MustBeCalled { get; private set; }
+        public bool WasCalled { get; private set; }
 
         readonly IEnumerable<Type> GenericArguments;
         readonly ReadOnlyDictionary<string, Func<object[], bool>> SpecialActions;
@@ -72,14 +86,13 @@ namespace DirectTests.Mocks
             GenericArguments = Array.AsReadOnly((genericArgs ?? Enumerable.Empty<Type>()).ToArray());
             ReturnValue = nextPiece;
             NextPiece = nextPiece;
-            //MustBeCalled = false;
-            //WasCalled = false;
+            MustBeCalled = false;
+            WasCalled = false;
 
             SpecialActions = new ReadOnlyDictionary<string, Func<object[], bool>>(new Dictionary<string, Func<object[], bool>> 
             {
                 { settings.Returns, Returns },
-                //{ settings.Ensure, Ensure },
-                //{ settings.Clear, Clear },
+                { settings.Ensure, Ensure },
                 { settings.Do, Do }
             });
         }
@@ -94,15 +107,16 @@ namespace DirectTests.Mocks
             return false;
         }
 
-        //bool Ensure(object[] args)
-        //{
-        //    if (args != null && args.Any())
-        //        throw new InvalidOperationException("You cannot pass any argments into ensure");
+        bool Ensure(object[] args)
+        {
+            if (args != null && args.Any())
+                throw new InvalidOperationException("You cannot pass any argments into ensure");
 
-        //    this.MustBeCalled = true;
+            this.MustBeCalled = true;
+            Actions.Add(new MethodCallback(() => WasCalled = true));
 
-        //    return true;
-        //}
+            return true;
+        }
 
         bool Do(object[] args)
         {

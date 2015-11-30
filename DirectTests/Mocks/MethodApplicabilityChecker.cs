@@ -9,6 +9,8 @@ namespace DirectTests.Mocks
     public interface IMethodAssert
     {
         bool TestArgs(IEnumerable<object> args);
+
+        IEnumerable<Type> InputTypes { get; }
     }
 
     internal class MethodApplicabilityChecker : IMethodAssert
