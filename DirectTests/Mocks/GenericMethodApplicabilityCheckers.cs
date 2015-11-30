@@ -166,4 +166,130 @@ namespace DirectTests.Mocks
             return ArgsAreValid((T1)a[0], (T2)a[1], (T3)a[2], (T4)a[3], (T5)a[4], (T6)a[5]);
         }
     }
+
+    internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7> : MethodApplicabilityChecker
+    {
+        readonly Func<T1, T2, T3, T4, T5, T6, T7, bool> ArgsAreValid;
+
+        public override IEnumerable<Type> InputTypes
+        {
+            get
+            {
+                yield return typeof(T1);
+                yield return typeof(T2);
+                yield return typeof(T3);
+                yield return typeof(T4);
+                yield return typeof(T5);
+                yield return typeof(T6);
+                yield return typeof(T7);
+            }
+        }
+
+        public MethodApplicabilityChecker(Func<T1, T2, T3, T4, T5, T6, T7, bool> argsAreValid)
+        {
+            ArgsAreValid = argsAreValid;
+        }
+
+        protected override bool _TestArgs(IEnumerable<object> args)
+        {
+            var a = args.ToArray();
+            return ArgsAreValid((T1)a[0], (T2)a[1], (T3)a[2], (T4)a[3], (T5)a[4], (T6)a[5], (T7)a[6]);
+        }
+    }
+
+    internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8> : MethodApplicabilityChecker
+    {
+        readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> ArgsAreValid;
+
+        public override IEnumerable<Type> InputTypes
+        {
+            get
+            {
+                yield return typeof(T1);
+                yield return typeof(T2);
+                yield return typeof(T3);
+                yield return typeof(T4);
+                yield return typeof(T5);
+                yield return typeof(T6);
+                yield return typeof(T7);
+                yield return typeof(T8);
+            }
+        }
+
+        public MethodApplicabilityChecker(Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> argsAreValid)
+        {
+            ArgsAreValid = argsAreValid;
+        }
+
+        protected override bool _TestArgs(IEnumerable<object> args)
+        {
+            var a = args.ToArray();
+            return ArgsAreValid((T1)a[0], (T2)a[1], (T3)a[2], (T4)a[3], (T5)a[4], (T6)a[5], (T7)a[6], (T8)a[7]);
+        }
+    }
+
+    internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9> : MethodApplicabilityChecker
+    {
+        readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, bool> ArgsAreValid;
+
+        public override IEnumerable<Type> InputTypes
+        {
+            get
+            {
+                yield return typeof(T1);
+                yield return typeof(T2);
+                yield return typeof(T3);
+                yield return typeof(T4);
+                yield return typeof(T5);
+                yield return typeof(T6);
+                yield return typeof(T7);
+                yield return typeof(T8);
+                yield return typeof(T9);
+            }
+        }
+
+        public MethodApplicabilityChecker(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, bool> argsAreValid)
+        {
+            ArgsAreValid = argsAreValid;
+        }
+
+        protected override bool _TestArgs(IEnumerable<object> args)
+        {
+            var a = args.ToArray();
+            return ArgsAreValid((T1)a[0], (T2)a[1], (T3)a[2], (T4)a[3], (T5)a[4], (T6)a[5], (T7)a[6], (T8)a[7], (T9)a[8]);
+        }
+    }
+
+    internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : MethodApplicabilityChecker
+    {
+        readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, bool> ArgsAreValid;
+
+        public override IEnumerable<Type> InputTypes
+        {
+            get
+            {
+                yield return typeof(T1);
+                yield return typeof(T2);
+                yield return typeof(T3);
+                yield return typeof(T4);
+                yield return typeof(T5);
+                yield return typeof(T6);
+                yield return typeof(T7);
+                yield return typeof(T8);
+                yield return typeof(T9);
+                yield return typeof(T10);
+            }
+        }
+
+        public MethodApplicabilityChecker(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, bool> argsAreValid)
+        {
+            ArgsAreValid = argsAreValid;
+        }
+
+        protected override bool _TestArgs(IEnumerable<object> args)
+        {
+            var a = args.ToArray();
+            return ArgsAreValid((T1)a[0], (T2)a[1], (T3)a[2], (T4)a[3], (T5)a[4], (T6)a[5], (T7)a[6], (T8)a[7], (T9)a[8], (T10)a[9]);
+        }
+    }
 }

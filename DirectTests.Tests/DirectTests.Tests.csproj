@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compile\CompileTests.cs" />
+    <Compile Include="Features\TestSetup.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckersTests.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityCheckerTests.cs" />
     <Compile Include="Mocks\MethodApplicabilityCheckerTests.cs" />
@@ -59,6 +60,9 @@
       <Project>{481e2d7e-ad0f-4afa-bc7d-1cc3615698f5}</Project>
       <Name>DirectTests</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\Mocks\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

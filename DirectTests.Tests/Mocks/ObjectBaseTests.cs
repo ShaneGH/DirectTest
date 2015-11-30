@@ -74,8 +74,6 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_Void_HasMock()
         {
-            //TODO: this method needs mocking
-
             // arrange
             var ok = false;
             var arg = new object();
@@ -102,8 +100,6 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_Void_NoMock_NonStrict()
         {
-            //TODO: this method needs mocking
-
             // arrange
             var arg = new object();
 
@@ -120,7 +116,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_Void_NoMock_Strict()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var arg = new object();
@@ -139,7 +135,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_Void_NoValidMock_NonStrict()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -168,7 +164,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_Void_NoValidMock_Strict()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var arg = new object();
@@ -199,7 +195,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_HasMock()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -230,7 +226,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_Null()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -261,7 +257,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_ValueType()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -292,7 +288,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_Cast()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -323,7 +319,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_VoidMethod()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -352,7 +348,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_VoidMethod_RefType()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -381,7 +377,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_NoMock_NonStrict()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var arg = new object();
@@ -400,7 +396,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_NoMock_Strict()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var arg = new object();
@@ -419,7 +415,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_NoValidMock_NonStrict()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var ok = false;
@@ -449,7 +445,7 @@ namespace DirectTests.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_NoValidMock_Strict()
         {
-            //TODO: this method needs mocking
+            
 
             // arrange
             var arg = new object();

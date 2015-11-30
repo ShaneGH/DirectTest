@@ -14,6 +14,7 @@ namespace DirectTests.Builders
 
         bool _UseBaseAct = true;
         bool _UseBaseAssert = false;
+        bool _UseBaseThrows = false;
 
         readonly List<Action<dynamic>> _Arrange = new List<Action<dynamic>>();
         readonly List<Func<dynamic, object>> _Act = new List<Func<dynamic, object>>();
@@ -77,13 +78,26 @@ namespace DirectTests.Builders
             return this;
         }
 
+        public IAssert SkipParentThrows(bool skipParentThrows = true)
+        {
+            _UseBaseThrows = !skipParentThrows;
+            return this;
+        }
+
         public ITest Assert(Action<dynamic> result)
         {
             _Assert.Add((a, b) => result(a));
             return this;
         }
 
-        public ITest Throws<TException>(Action<dynamic, TException> result) where TException : Exception
+        public ITest Throws<TException>()
+            where TException : Exception
+        {
+            return Throws<TException>((a, b) => { });
+        }
+
+        public ITest Throws<TException>(Action<dynamic, TException> result)
+            where TException : Exception
         {
             _Throws.Add(new KeyValuePair<Type, Action<dynamic, Exception>>(typeof(TException), (a, b) => result(a, (TException)b)));
             return this;

@@ -25,9 +25,14 @@ namespace DirectTests
             Run(new TestModule(test));
         }
 
-        public static void Run(ITestModule tests)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tests"></param>
+        /// <param name="singleTest">If not null, only run the given test from the module</param>
+        public static void Run(ITestModule tests, string singleTestName = null)
         {
-            TestBuilder.Run(tests);
+            TestBuilder.Run(tests, singleTestName);
         }
 
         #region MethodApplicabilityChecker
@@ -65,6 +70,26 @@ namespace DirectTests
         public static IMethodAssert Method<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6>(assert);
+        }
+
+        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, bool> assert)
+        {
+            return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7>(assert);
+        }
+
+        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> assert)
+        {
+            return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8>(assert);
+        }
+
+        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, bool> assert)
+        {
+            return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9>(assert);
+        }
+
+        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, bool> assert)
+        {
+            return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(assert);
         }
 
         #endregion

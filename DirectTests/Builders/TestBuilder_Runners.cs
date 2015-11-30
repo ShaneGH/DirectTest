@@ -8,10 +8,21 @@ namespace DirectTests.Builders
 {
     public partial class TestBuilder
     {
-        public static void Run(ITestModule module)
+        public static void Run(ITestModule module, string singleTest = null)
         {
-            foreach (var test in module)
-                Run(test, module);
+            if (singleTest == null)
+            {
+                foreach (var test in module)
+                    Run(test, module);
+
+                return;
+            }
+
+            var selectedTest = module.FirstOrDefault(t => t.TestName == singleTest);
+            if (selectedTest == null)
+                throw new InvalidOperationException("Test not found");    //TODO
+
+            Run(selectedTest, module);
         }
 
         static void Run(TestBuilder test, ITestModule module)
@@ -47,7 +58,10 @@ namespace DirectTests.Builders
                     result = act(arranger.Copy());
             };
 
-            if (false /*throws.Length*/)
+            var throws = arrange.Take((tmp = arrange.IndexOf(arrange.FirstOrDefault(a => !a._UseBaseThrows))) == -1 ? int.MaxValue : (tmp + 1))
+                .Reverse().SelectMany(a => a._Throws);
+
+            if (throws.Any())
             {
                 try
                 {
@@ -55,7 +69,7 @@ namespace DirectTests.Builders
                 }
                 catch (Exception e)
                 {
-                    //TODO: cache exception
+                    exception = e;
                 }
             }
             else
@@ -67,14 +81,13 @@ namespace DirectTests.Builders
                 .Reverse().SelectMany(a => a._Assert))
                 ass(arranger.Copy(), result);
 
-            foreach (var thr in arrange.Take((tmp = arrange.IndexOf(arrange.FirstOrDefault(a => !a._UseBaseAssert))) == -1 ? int.MaxValue : (tmp + 1))
-                .Reverse().SelectMany(a => a._Throws))
+            foreach (var thr in throws)
             {
                 if (exception == null)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException();  //TODO
 
                 if (!thr.Key.IsAssignableFrom(exception.GetType()))
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException();//TODO
 
                 thr.Value(arranger.Copy(), exception);
             }

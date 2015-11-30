@@ -17,11 +17,21 @@ namespace DirectTests.Builders
                 BasedOn = basedOn;
             }
 
+            public ITest Assert<TExpectedResult>(Action<dynamic, TExpectedResult> result)
+            {
+                BasedOn._Assert.Add((a, b) =>
+                {
+                    if ((typeof(TExpectedResult).IsValueType && b == null) || (b != null && !(b is TExpectedResult)))
+                        throw new InvalidOperationException("Invalid return type"); //TODO
+
+                    result(a, (TExpectedResult)b);
+                });
+                return this;
+            }
+
             public ITest Assert(Action<dynamic, TTestResult> result)
             {
-                //TODO, catch cast errors
-                BasedOn._Assert.Add((a, b) => result(a, (TTestResult)b));
-                return this;
+                return Assert<TTestResult>(result);
             }
 
             public ITest Assert(Action<dynamic> result)
@@ -30,9 +40,22 @@ namespace DirectTests.Builders
                 return this;
             }
 
-            public ITest Throws<TException>(Action<dynamic, TException> result) where TException : Exception
+            public ITest Throws<TException>(Action<dynamic, TException> result)
+                where TException : Exception
             {
                 BasedOn.Throws<TException>(result);
+                return this;
+            }
+
+            public ITest Throws<TException>()
+                where TException : Exception
+            {
+                return Throws<TException>((a, b) => { });
+            }
+
+            public IAssert<TTestResult> SkipParentThrows(bool skipParentThrows = true)
+            {
+                BasedOn._UseBaseThrows = !skipParentThrows;
                 return this;
             }
 
@@ -40,6 +63,11 @@ namespace DirectTests.Builders
             {
                 BasedOn._UseBaseAssert = !skipParentAssert;
                 return this;
+            }
+
+            IAssert IAssert.SkipParentThrows(bool skipParentThrows = true)
+            {
+                return BasedOn.SkipParentThrows(skipParentThrows);
             }
 
             IAssert IAssert.SkipParentAssert(bool skipParentAssert)

@@ -72,14 +72,14 @@ namespace DirectTests.Mocks
             SpecialActions = new ReadOnlyDictionary<string, Action<object[]>>(new Dictionary<string, Action<object[]>> 
             {
                 //TODO, some of these will stop all other functions
-                { settings.Returns, Return },
-                { settings.Ensure, Ensure },
-                { settings.Clear, Clear },
-                { settings.Do, Do }
+                { settings.Returns, Returns },
+                //{ settings.Ensure, Ensure },
+                //{ settings.Clear, Clear },
+                //{ settings.Do, Do }
             });
         }
 
-        void Return(object[] args)
+        void Returns(object[] args)
         {
             if (args.Length != 1)
                 throw new InvalidOperationException("You must specify a single argument to return.");
@@ -87,7 +87,12 @@ namespace DirectTests.Mocks
             ReturnValue = args[0];
         }
 
-        void Ensure(object[] args) { }
+        //void Ensure(object[] args)
+        //{
+        //    if (args != null && args.Any())
+        //        throw new InvalidOperationException("You cannot pass any argments into ensure");
+        //}
+
         void Clear(object[] args) { }
         void Do(object[] args) { }
 
