@@ -100,8 +100,10 @@
     <Compile Include="Compile\MethodInfoComparer.cs" />
     <Compile Include="Framework.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
+    <Compile Include="Mocks\MethodCallback.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckers.cs" />
     <Compile Include="Mocks\MethodApplicabilityChecker.cs" />
+    <Compile Include="Mocks\MethodCallbackBase.cs" />
     <Compile Include="Mocks\MethodMockBuilder.cs" />
     <Compile Include="Mocks\Mock.cs" />
     <Compile Include="Mocks\MockBuilder.cs" />

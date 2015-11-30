@@ -246,7 +246,7 @@ namespace DirectTests.Compile
             return method.Name == "Finalize" && method.ReturnType == typeof(void) && !method.GetParameters().Any();
         }
 
-        static MethodDescriptor GetMethod(MethodInfo method, Func<Type, string> getFullTypeName)
+        static MethodDescriptor GetMethod(MethodInfo method, Func<Type, string> getFullTypeName, bool suppressInterfaceName)
         {
             return new MethodDescriptor
             {
@@ -255,7 +255,7 @@ namespace DirectTests.Compile
                 IsPrivate = method.IsPrivate,
                 IsProtected = method.IsFamily,
                 IsOverride = !method.DeclaringType.IsInterface,
-                InterfaceName = method.DeclaringType.IsInterface ? (getFullTypeName(method.DeclaringType) + ".") : string.Empty,
+                InterfaceName = method.DeclaringType.IsInterface && !suppressInterfaceName ? (getFullTypeName(method.DeclaringType) + ".") : string.Empty,
                 IsAbstract = method.DeclaringType.IsInterface || method.IsAbstract
             };
         }
@@ -281,10 +281,11 @@ namespace DirectTests.Compile
                     .Select(p => new
                     {
                         name = p.Name,
-                        getter = p.GetMethod == null ? null : GetMethod(p.GetMethod, getFullTypeName),
-                        setter = p.SetMethod == null ? null : GetMethod(p.SetMethod, getFullTypeName),
+                        getter = p.GetMethod == null ? null : GetMethod(p.GetMethod, getFullTypeName, p.DeclaringType == baseType),
+                        setter = p.SetMethod == null ? null : GetMethod(p.SetMethod, getFullTypeName, p.DeclaringType == baseType),
                         propertyType = getFullTypeName(p.PropertyType),
-                        isOverride = !p.DeclaringType.IsInterface
+                        isOverride = !p.DeclaringType.IsInterface,
+                        declaringType = p.DeclaringType
                     });
 
             foreach (var property in properties)
@@ -310,7 +311,7 @@ namespace DirectTests.Compile
                         property.setter.InterfaceName : "");
 
                 output.AppendLine(
-                    (isProtected ? "protected " : property.isOverride ? "public " : string.Empty) +
+                    (isProtected ? "protected " : property.isOverride || property.declaringType == baseType ? "public " : string.Empty) +
                     (property.isOverride ? "override " : "") +
                     property.propertyType + " " +
                     interfaceName + property.name);
@@ -391,7 +392,8 @@ namespace DirectTests.Compile
                 .Select(m => new
                 {
                     name = m.Name,
-                    method = GetMethod(m, getFullTypeName),
+                    method = GetMethod(m, getFullTypeName, m.DeclaringType == baseType),
+                    declaringType = m.DeclaringType,
                     returnType = getFullTypeName(m.ReturnType),
                     isOverride = !m.DeclaringType.IsInterface,
                     parameters = m.GetParameters(),
@@ -411,7 +413,8 @@ namespace DirectTests.Compile
                 }
 
                 output.Append(
-                    (method.method.IsProtected || method.method.IsProtectedInternal ? "protected " : method.method.IsOverride ? "public " : string.Empty) +
+                    (method.method.IsProtected || method.method.IsProtectedInternal ? "protected " : 
+                        method.method.IsOverride || method.declaringType == baseType ? "public " : string.Empty) +
                     (method.method.IsOverride ? "override " : "") +
                     method.returnType + " " +
                     method.method.InterfaceName  + method.name);

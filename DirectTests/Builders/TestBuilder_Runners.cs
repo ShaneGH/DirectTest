@@ -61,7 +61,7 @@ namespace DirectTests.Builders
             Action work = () =>
             {
                 foreach (var act in Filter(arrange, a => !a._UseBaseAct, a => a._Act))
-                    result = act(arranger.Copy());
+                    result = act(arranger);
             };
             
             var throws = Filter(arrange, a => !a._UseBaseThrows, a => a._Throws);
@@ -83,7 +83,7 @@ namespace DirectTests.Builders
             }
 
             foreach (var ass in Filter(arrange, a => !a._UseBaseAssert, a => a._Assert))
-                ass(arranger.Copy(), result);
+                ass(arranger, result);
 
             foreach (var thr in throws)
             {
@@ -93,7 +93,7 @@ namespace DirectTests.Builders
                 if (!thr.Key.IsAssignableFrom(exception.GetType()))
                     throw new InvalidOperationException();//TODO
 
-                thr.Value(arranger.Copy(), exception);
+                thr.Value(arranger, exception);
             }
         }
     }

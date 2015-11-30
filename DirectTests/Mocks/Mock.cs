@@ -57,7 +57,7 @@ namespace DirectTests.Mocks
                     var param = Expression.Parameter(typeof(ObjectBase));
                     Constructors.Add(MockType, 
                         Expression.Lambda<Func<ObjectBase, object>>(
-                            Expression.New(compiled.GetConstructor(new[] { typeof(ObjectBase) }), param), param).Compile());
+                            Expression.Convert(Expression.New(compiled.GetConstructor(new[] { typeof(ObjectBase) }), param), MockType), param).Compile());
                 }
             }
         }

@@ -93,9 +93,10 @@ namespace DirectTests.Mocks
 
             if (binder.Name == Settings.As)
             {
+                Type convert = null;
                 if (args.Length == 1 && args[0] is Type)
                 {
-                    result = Mock(args[0] as Type);
+                    convert = args[0] as Type;
                 }
                 else
                 {
@@ -103,8 +104,10 @@ namespace DirectTests.Mocks
                     if (typeArgs == null || typeArgs.Count != 1)
                         throw new InvalidOperationException("A call to " + Settings.As + " must have 1 generic type argument or 1 argument for return type.");
 
-                    result = Mock(typeArgs[0]);
+                    convert = typeArgs[0];
                 }
+
+                result = Mock(convert);
             }
             else
             {

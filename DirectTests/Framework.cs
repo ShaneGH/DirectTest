@@ -93,5 +93,64 @@ namespace DirectTests
         }
 
         #endregion
+
+        #region MethodCallback
+
+        public static IMethodCallback Method(Action callback)
+        {
+            return new MethodCallback(callback);
+        }
+
+        public static IMethodCallback Method<T>(Action<T> callback)
+        {
+            return new MethodCallback<T>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2>(Action<T1, T2> callback)
+        {
+            return new MethodCallback<T1, T2>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3>(Action<T1, T2, T3> callback)
+        {
+            return new MethodCallback<T1, T2, T3>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3, T4>(Action<T1, T2, T3, T4> callback)
+        {
+            return new MethodCallback<T1, T2, T3, T4>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> callback)
+        {
+            return new MethodCallback<T1, T2, T3, T4, T5>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> callback)
+        {
+            return new MethodCallback<T1, T2, T3, T4, T5, T6>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> callback)
+        {
+            return new MethodCallback<T1, T2, T3, T4, T5, T6, T7>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7, T8>(Action<T1, T2, T3, T4, T5, T6, T7, T8> callback)
+        {
+            return new MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> callback)
+        {
+            return new MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8, T9>(callback);
+        }
+
+        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> callback)
+        {
+            return new MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(callback);
+        }
+
+        #endregion
     }
 }

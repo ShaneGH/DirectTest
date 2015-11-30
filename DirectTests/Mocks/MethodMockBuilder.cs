@@ -36,10 +36,14 @@ namespace DirectTests.Mocks
     {
         public readonly IMethodAssert ArgChecker;
         public object ReturnValue { get; private set; }
+        //public bool MustBeCalled { get; private set; }
+        //public bool WasCalled { get; private set; }
 
         readonly IEnumerable<Type> GenericArguments;
-        readonly ReadOnlyDictionary<string, Action<object[]>> SpecialActions;
+        readonly ReadOnlyDictionary<string, Func<object[], bool>> SpecialActions;
         readonly MockBuilder NextPiece;
+
+        readonly List<IMethodCallback> Actions = new List<IMethodCallback>();
 
         public MethodMockBuilder(MockBuilder nextPiece, IEnumerable<object> args)
             : this(nextPiece, Enumerable.Empty<Type>(), args)
@@ -68,33 +72,50 @@ namespace DirectTests.Mocks
             GenericArguments = Array.AsReadOnly((genericArgs ?? Enumerable.Empty<Type>()).ToArray());
             ReturnValue = nextPiece;
             NextPiece = nextPiece;
+            //MustBeCalled = false;
+            //WasCalled = false;
 
-            SpecialActions = new ReadOnlyDictionary<string, Action<object[]>>(new Dictionary<string, Action<object[]>> 
+            SpecialActions = new ReadOnlyDictionary<string, Func<object[], bool>>(new Dictionary<string, Func<object[], bool>> 
             {
-                //TODO, some of these will stop all other functions
                 { settings.Returns, Returns },
                 //{ settings.Ensure, Ensure },
                 //{ settings.Clear, Clear },
-                //{ settings.Do, Do }
+                { settings.Do, Do }
             });
         }
 
-        void Returns(object[] args)
+        bool Returns(object[] args)
         {
             if (args.Length != 1)
                 throw new InvalidOperationException("You must specify a single argument to return.");
 
             ReturnValue = args[0];
+
+            return false;
         }
 
-        //void Ensure(object[] args)
+        //bool Ensure(object[] args)
         //{
         //    if (args != null && args.Any())
         //        throw new InvalidOperationException("You cannot pass any argments into ensure");
+
+        //    this.MustBeCalled = true;
+
+        //    return true;
         //}
 
-        void Clear(object[] args) { }
-        void Do(object[] args) { }
+        bool Do(object[] args)
+        {
+            if (args.Length != 1)
+                throw new InvalidOperationException("You must specify the action to do."); //TODO
+
+            if (!(args[0] is IMethodCallback))
+                throw new InvalidOperationException("The first arg must be an IMethodCallback."); //TODO
+
+            Actions.Add(args[0] as IMethodCallback);
+
+            return true;
+        }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
@@ -116,8 +137,11 @@ namespace DirectTests.Mocks
             if (!SpecialActions.ContainsKey(binder.Name))
                 return NextPiece.TryInvokeMember(binder, args, out result);
 
-            SpecialActions[binder.Name](args);
-            result = this;
+            if (SpecialActions[binder.Name](args))
+                result = this;
+            else
+                result = null;
+
             return true;
         }
 
@@ -125,8 +149,7 @@ namespace DirectTests.Mocks
         {
             return TryInvoke(Enumerable.Empty<Type>(), arguments, out result);
         }
-
-
+        
         public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<object> arguments, out object result)
         {
             var gen1 = GenericArguments.ToArray();
@@ -149,6 +172,10 @@ namespace DirectTests.Mocks
             if (ArgChecker.TestArgs(arguments))
             {
                 result = ReturnValue;
+                foreach (var after in Actions)
+                    if (!after.Do(arguments))
+                        throw new InvalidOperationException("Bad type args");
+
                 return true;
             }
 
