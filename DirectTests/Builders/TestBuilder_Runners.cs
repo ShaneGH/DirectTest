@@ -25,6 +25,14 @@ namespace DirectTests.Builders
             Run(selectedTest, module);
         }
 
+        static IEnumerable<T> Filter<T>(IList<TestBuilder> orderedSet, Func<TestBuilder, bool> stopAt, Func<TestBuilder, IEnumerable<T>> selectMany)
+        {
+            int tmp;
+            return orderedSet
+                .Take((tmp = orderedSet.IndexOf(orderedSet.FirstOrDefault(stopAt))) == -1 ? int.MaxValue : (tmp + 1))
+                .Reverse().SelectMany(selectMany);
+        }
+
         static void Run(TestBuilder test, ITestModule module)
         {
             string last;
@@ -41,7 +49,6 @@ namespace DirectTests.Builders
                 arrange.Add(current);
             }
 
-            int tmp;
             var arranger = new TestArranger();
             foreach (var arr in (arrange as IEnumerable<TestBuilder>).Reverse().SelectMany(a => a._Arrange))
             {
@@ -53,13 +60,11 @@ namespace DirectTests.Builders
             Exception exception = null;
             Action work = () =>
             {
-                foreach (var act in arrange.Take((tmp = arrange.IndexOf(arrange.FirstOrDefault(a => !a._UseBaseAct))) == -1 ? int.MaxValue : (tmp + 1))
-                    .Reverse().SelectMany(a => a._Act))
+                foreach (var act in Filter(arrange, a => !a._UseBaseAct, a => a._Act))
                     result = act(arranger.Copy());
             };
-
-            var throws = arrange.Take((tmp = arrange.IndexOf(arrange.FirstOrDefault(a => !a._UseBaseThrows))) == -1 ? int.MaxValue : (tmp + 1))
-                .Reverse().SelectMany(a => a._Throws);
+            
+            var throws = Filter(arrange, a => !a._UseBaseThrows, a => a._Throws);
 
             if (throws.Any())
             {
@@ -77,8 +82,7 @@ namespace DirectTests.Builders
                 work();
             }
 
-            foreach (var ass in arrange.Take((tmp = arrange.IndexOf(arrange.FirstOrDefault(a => !a._UseBaseAssert))) == -1 ? int.MaxValue : (tmp + 1))
-                .Reverse().SelectMany(a => a._Assert))
+            foreach (var ass in Filter(arrange, a => !a._UseBaseAssert, a => a._Assert))
                 ass(arranger.Copy(), result);
 
             foreach (var thr in throws)
