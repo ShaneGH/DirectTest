@@ -15,6 +15,8 @@ namespace DirectTests.Mocks
 
     internal class MethodApplicabilityChecker : IMethodAssert
     {
+        public static readonly object Any = AnyValue.Instance;
+
         public virtual IEnumerable<Type> InputTypes
         {
             get
@@ -38,7 +40,7 @@ namespace DirectTests.Mocks
 
             for (var i = 0; i < methodArgs.Length; i++)
             {
-                if (methodArgs[i] == typeof(Any)) ;
+                if (methodArgs[i] == typeof(AnyValue)) ;
                 else if (inputArgs[i] == null)
                 {
                     if (methodArgs[i].IsValueType)
@@ -58,6 +60,11 @@ namespace DirectTests.Mocks
             return !args.Any();
         }
 
-        protected sealed class Any { }
+        protected sealed class AnyValue 
+        {
+            public static readonly AnyValue Instance = new AnyValue();
+
+            private AnyValue() { }
+        }
     }
 }

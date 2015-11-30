@@ -10,6 +10,14 @@ namespace DirectTests
 {
     public static class Framework
     {
+        public static object Any
+        {
+            get
+            {
+                return MethodApplicabilityChecker.Any;
+            }
+        }
+
         public static IArrange Test(string testName)
         {
             return new TestBuilder(testName);

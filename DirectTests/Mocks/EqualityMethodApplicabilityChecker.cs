@@ -12,7 +12,7 @@ namespace DirectTests.Mocks
         {
             get
             {
-                return Args.Select(a => a == null ? typeof(Any) : a.GetType());
+                return Args.Select(a => a == null ? typeof(AnyValue) : a.GetType());
             }
         }
 
@@ -29,7 +29,8 @@ namespace DirectTests.Mocks
             var a2 = Args.ToArray();
             for (var i = 0; i < a1.Length; i++)
             {
-                if (a1[i] == null)
+                if (a2[i] is AnyValue) ;
+                else if (a1[i] == null)
                 {
                     if (a2[i] != null)
                         return false;
