@@ -14,45 +14,20 @@ namespace DirectTests
 {
     public class Program
     {
-
-        //TODO: mock or rather set fields (comment not really related to this class)
-        public abstract class LostOfMethods<T>
+        public interface ICurrentTest
         {
-            public abstract TOut GM2<TOut>(int arg1);
+            ICurrentTest DoSomething();
+            ICurrentTest GetSomething { get; }
+            int Result { get; }
         }
 
         public static void Main(string[] args)
         {
-
-            Func<int, IEnumerable<Type>, MethodGroup> mock2 = (val, generic) =>
-            {
-                dynamic builder = new MethodMockBuilder(null, generic, new object[] { val });
-                builder.Return("M-" + val);
-
-                return new MethodGroup(builder);
-            };
-
-            Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
-
-            var subject = (LostOfMethods<string>)
-                Compiler.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-                {
-                    //{"M1", mock(2)},
-                    //{"M4", mock(2)},
-                    //{"M5", mock(2)},
-                    
-                    //{"VM1", mock(2)},
-                    //{"VM4", mock(2)},
-                    //{"VM5", mock(2)},
-                    
-                    //{"AM1", mock(2)},
-                    //{"AM5", mock(2)},
-                    
-                    //{"GM1", mock(2)},
-                    {"GM2", mock2(2, new[]{typeof(string)})},
-                })) });
-
-            subject.GM2<string>(2);
+            Framework.Test("")
+                .Arrange(bag => { bag.subject.DoSomething().GetSomething.DoSomething().Result = 8; })
+                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething().GetSomething.DoSomething().Result)
+                .Assert((bag, result) => { })
+                .Run();
         }
     }
 }

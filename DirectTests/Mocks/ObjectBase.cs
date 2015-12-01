@@ -82,10 +82,13 @@ namespace DirectTests.Mocks
                 }
             }
 
-            if (!(property.Value is TProperty))
+            if (property.Value is MockBuilder)
+                result = (TProperty)(property.Value as MockBuilder).Mock(typeof(TProperty));
+            else if (!(property.Value is TProperty))
                 throw new InvalidOperationException("Bad type");
+            else
+                result = (TProperty)property.Value;
 
-            result = (TProperty)property.Value;
             return true;
         }
 

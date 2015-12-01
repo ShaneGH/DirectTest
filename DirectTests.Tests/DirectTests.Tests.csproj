@@ -46,6 +46,7 @@
     <Compile Include="Features\Mocks\Any.cs" />
     <Compile Include="Features\Mocks\Ensure.cs" />
     <Compile Include="Features\Mocks\Do.cs" />
+    <Compile Include="Features\Mocks\MethodsAndProperties.cs" />
     <Compile Include="Features\Mocks\Returns.cs" />
     <Compile Include="Features\TestSetup.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckersTests.cs" />
