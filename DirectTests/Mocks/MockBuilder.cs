@@ -190,9 +190,15 @@ namespace DirectTests.Mocks
             get
             {
                 return Values
+                    // methods
                     .Where(v => v.Value is MethodGroup)
                     .Select(v => new { name = v.Key, args = (v.Value as MethodGroup).ShouldHaveBeenCalled })
-                    .SelectMany(v => v.args.Select(a => "Method: " + v.name + (a.Any() ? "{ " + a  + " }" : string.Empty)));
+                    .SelectMany(v => v.args.Select(a => "Method: " + v.name + (a.Any() ? "{ " + a  + " }" : string.Empty)))
+                    .Concat(Values
+                        // properties
+                        .Where(v => v.Value is MockBuilder)
+                        .Select(v => new { name = v.Key, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
+                        .SelectMany(v => v.args.Select(a => "Method: " + v.name + (a.Any() ? "{ " + a + " }" : string.Empty))));
             }
         }
     }

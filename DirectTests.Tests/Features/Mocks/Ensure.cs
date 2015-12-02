@@ -15,10 +15,11 @@ namespace DirectTests.Tests.Features.Mocks
         {
             void DoSomething(string val);
             ICurrentTest GetAnother();
+            ICurrentTest Another { get; }
         }
 
         [Test]
-        public void Ok()
+        public void Method_Ok()
         {
             Framework.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
@@ -27,7 +28,7 @@ namespace DirectTests.Tests.Features.Mocks
         }
 
         [Test]
-        public void NotOk()
+        public void Method_NotOk()
         {
             var test = Framework.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
@@ -37,7 +38,7 @@ namespace DirectTests.Tests.Features.Mocks
         }
 
         [Test]
-        public void Ok_Deep()
+        public void Method_Ok_Deep()
         {
             Framework.Test("")
                 .Arrange(bag => bag.subject.GetAnother().Ensure().DoSomething("Hello").Ensure())
@@ -46,11 +47,30 @@ namespace DirectTests.Tests.Features.Mocks
         }
 
         [Test]
-        public void NotOk_Deep()
+        public void Method_NotOk_Deep()
         {
             var test = Framework.Test("")
                 .Arrange(bag => bag.subject.GetAnother().DoSomething("Hello").Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().GetAnother().DoSomething("Not hello"); });
+
+            Assert.Throws<InvalidOperationException>(() => test.Run());
+        }
+
+        [Test]
+        public void Method_Ok_AfterProperty()
+        {
+            Framework.Test("")
+                .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
+                .Act(bag => { bag.subject.As<ICurrentTest>().Another.DoSomething("Hello"); })
+                .Run();
+        }
+
+        [Test]
+        public void Method_NotOk_AfterProperty()
+        {
+            var test = Framework.Test("")
+                .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
+                .Act(bag => { bag.subject.As<ICurrentTest>().Another.DoSomething("Not hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
