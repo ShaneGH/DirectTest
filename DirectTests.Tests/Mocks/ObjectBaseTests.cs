@@ -69,6 +69,68 @@ namespace DirectTests.Tests.Mocks
 
         #endregion
 
+        #region Indexes
+
+        [Test]
+        public void GetSetIndexes()
+        {
+            // arrange
+            var key1 = new object[]{new object(), "asdsadoihasoid"};
+            var key2 = new object[]{4, new List()};
+            var val1 = new object();
+            var val2 = new object();
+            var val3 = new object();
+            var subject = new ObjectBase(new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> 
+                {
+                    { key1, val1 } 
+                }));
+
+            // act
+            Assert.AreEqual(val1, subject.GetIndex<object>(key1));
+            subject.SetIndex(key1, val2);
+            Assert.AreEqual(val2, subject.GetIndex<object>(key1));
+            subject.SetIndex(key2, val3);
+            Assert.AreEqual(val3, subject.GetIndex<object>(key2));
+        }
+
+        [Test]
+        public void GetIndexeDoesntExistNonStrict()
+        {
+            // arrange
+            var subject = new ObjectBase();
+
+            // act
+            // assert
+            Assert.AreEqual(null, subject.GetIndex<object>(new object[0]));
+            Assert.AreEqual(0, subject.GetIndex<int>(new object[0]));
+        }
+
+        [Test]
+        public void GetIndexeDoesntExistStrict()
+        {
+            // arrange
+            var subject = new ObjectBase(true);
+
+            // act
+            // assert
+            Assert.Throws(typeof(InvalidOperationException), () => subject.GetIndex<object>(new object[0]));
+        }
+
+        [Test]
+        public void GetInvalidIndexeType()
+        {
+            var key = new[] { "asdsadas" };
+
+            // arrange
+            var subject = new ObjectBase(new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> { { key, new object() } }));
+
+            // act
+            // assert
+            Assert.Throws(typeof(InvalidOperationException), () => subject.GetIndex<string>(key));
+        }
+
+        #endregion
+
         #region Invoke void
 
         [Test]

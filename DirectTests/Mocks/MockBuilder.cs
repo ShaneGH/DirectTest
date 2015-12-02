@@ -185,6 +185,9 @@ namespace DirectTests.Mocks
             return result;
         }
 
+        /// <summary>
+        /// Gets a list of messages, each one detailing a method which was marked for being called
+        /// </summary>
         public IEnumerable<string> ShouldHaveBeenCalled
         {
             get

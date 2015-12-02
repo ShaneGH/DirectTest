@@ -12,6 +12,16 @@ namespace DirectTests.Mocks
         readonly bool StrictMock;
         readonly ReadOnlyDictionary<string, object> Members;
         readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string,object>();
+        readonly ReadOnlyDictionary<IEnumerable<object>, object> MockedIndexes;
+        readonly Dictionary<IEnumerable<object>, object> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, object>();
+
+        IEnumerable<KeyValuePair<IEnumerable<object>, object>> Indexes
+        {
+            get
+            {
+                return ExtraAddedIndexes.Concat(MockedIndexes);
+            }
+        }
 
         IEnumerable<KeyValuePair<string, object>> Properties
         {
@@ -32,15 +42,26 @@ namespace DirectTests.Mocks
             }
         }
 
-        public ObjectBase(ReadOnlyDictionary<string, object> members, bool strictMock = false)
+        public ObjectBase(bool strictMock = false)
+            : this(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), strictMock)
         {
-            StrictMock = strictMock;
-            Members = members;
         }
 
-        public ObjectBase(bool strictMock = false)
-            : this (new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), strictMock)
+        public ObjectBase(ReadOnlyDictionary<string, object> members, bool strictMock = false)
+            : this(members, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object>()), strictMock)
         {
+        }
+
+        public ObjectBase(ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
+            : this(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), indexes, strictMock)
+        {
+        }
+
+        public ObjectBase(ReadOnlyDictionary<string, object> members, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
+        {
+            StrictMock = strictMock;
+            MockedIndexes = indexes;
+            Members = members;
         }
 
         public void SetProperty(string propertyName, object propertyValue)
@@ -57,7 +78,9 @@ namespace DirectTests.Mocks
         public TProperty GetProperty<TProperty>(string propertyName)
         {
             TProperty result;
-            TryGetProperty(propertyName, out result);
+            if (!TryGetProperty(propertyName, out result))
+                result = default(TProperty);
+
             return result;
         }
 
@@ -82,14 +105,71 @@ namespace DirectTests.Mocks
                 }
             }
 
-            if (property.Value is MockBuilder)
-                result = (TProperty)(property.Value as MockBuilder).Mock(typeof(TProperty));
-            else if (!(property.Value is TProperty))
+            result = ConvertAndReturn<TProperty>(property.Value);
+            return true;
+        }
+
+        public TIndexed GetIndex<TIndexed>(IEnumerable<object> indexValues)
+        {
+            TIndexed result;
+            if (!TryGetIndex(indexValues, out result))
+                result = default(TIndexed);
+
+            return result;
+        }
+
+        public void SetIndex(IEnumerable<object> indexValues, object value)
+        {
+            var values = indexValues.ToArray();
+            lock (ExtraAddedIndexes)
+            {
+                var kvp = ExtraAddedIndexes.FirstOrDefault(idx =>
+                    idx.Key.Count() == values.Length &&
+                    idx.Key.Select((k, i) => (k == null && values[i] == null) || (k != null && k.Equals(values[i]))).All(a => a));
+
+                if (!kvp.Equals(default(KeyValuePair<IEnumerable<object>, object>)))
+                    ExtraAddedIndexes[kvp.Key] = value;
+                else
+                    ExtraAddedIndexes.Add(indexValues, value);
+            }
+        }
+
+        public bool TryGetIndex<TIndexed>(IEnumerable<object> indexValues, out TIndexed result)
+        {
+            KeyValuePair<IEnumerable<object>, object> value;
+            lock (ExtraAddedProperties)
+            {
+                var values = indexValues.ToArray();
+                value = Indexes.FirstOrDefault(idx =>
+                    idx.Key.Count() == values.Length &&
+                    idx.Key.Select((k, i) =>  (k == null && values[i] == null) || (k != null && k.Equals(values[i]))).All(a => a));
+            }
+
+            if (value.Equals(default(KeyValuePair<IEnumerable<object>, object>)))
+            {
+                if (StrictMock)
+                {
+                    throw new InvalidOperationException("Property has not been mocked");    //TODO
+                }
+                else
+                {
+                    result = default(TIndexed);
+                    return false;
+                }
+            }
+
+            result = ConvertAndReturn<TIndexed>(value.Value);
+            return true;
+        }
+
+        static TValue ConvertAndReturn<TValue>(object input)
+        {
+            if (input is MockBuilder)
+                return (TValue)(input as MockBuilder).Mock(typeof(TValue));
+            else if (!(input is TValue))
                 throw new InvalidOperationException("Bad type");
             else
-                result = (TProperty)property.Value;
-
-            return true;
+                return (TValue)input;
         }
 
         /// <summary>
