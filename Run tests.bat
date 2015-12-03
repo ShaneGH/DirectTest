@@ -1,0 +1,1 @@
+"packages\NUnit.Console.3.0.1\tools\nunit3-console.exe" "Dynamox.Tests\bin\Debug\Dynamox.Tests.exe"
