@@ -64,6 +64,18 @@ namespace Dynamox.Mocks
             Members = members;
         }
 
+        static TValue ConvertAndReturn<TValue>(object input)
+        {
+            if (input is MockBuilder)
+                return (TValue)(input as MockBuilder).Mock(typeof(TValue));
+            else if (!(input is TValue))
+                throw new InvalidOperationException("Bad type");
+            else
+                return (TValue)input;
+        }
+
+        #region Properties
+
         public void SetProperty(string propertyName, object propertyValue)
         {
             lock (ExtraAddedProperties)
@@ -108,6 +120,10 @@ namespace Dynamox.Mocks
             result = ConvertAndReturn<TProperty>(property.Value);
             return true;
         }
+
+        #endregion
+
+        #region Index
 
         public TIndexed GetIndex<TIndexed>(IEnumerable<object> indexValues)
         {
@@ -162,15 +178,9 @@ namespace Dynamox.Mocks
             return true;
         }
 
-        static TValue ConvertAndReturn<TValue>(object input)
-        {
-            if (input is MockBuilder)
-                return (TValue)(input as MockBuilder).Mock(typeof(TValue));
-            else if (!(input is TValue))
-                throw new InvalidOperationException("Bad type");
-            else
-                return (TValue)input;
-        }
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Invoke a method with no return value
@@ -278,5 +288,7 @@ namespace Dynamox.Mocks
 
             throw new InvalidOperationException("Bad type");    //TODO
         }
+
+        #endregion
     }
 }

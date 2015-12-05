@@ -111,8 +111,8 @@ namespace Dynamox.Builders
 
             var action = Underlying.Act<TReturnVal>(testBag =>
             {
-                //TODO: better way (DirectTests_Builders_IParameterizedArrange) 
-                var args = testBag.DirectTests_Builders_IParameterizedArrange;
+                //TODO: better way (Dynamox_Builders_IParameterizedArrange) 
+                var args = testBag.Dynamox_Builders_IParameterizedArrange;
 
                 var constructorArgs = GetArgs(Constructor.GetParameters(), (TestArranger)args.CArgs).ToArray();
                 var methodArgs = GetArgs(method.GetParameters(), (TestArranger)args.Args).ToArray();
@@ -164,7 +164,7 @@ namespace Dynamox.Builders
                 Builder.Arrange(testBag =>
                 {
                     var data = new TestData(testBag);
-                    testBag.DirectTests_Builders_IParameterizedArrange = data;
+                    testBag.Dynamox_Builders_IParameterizedArrange = data;
                     arrange(data);
                 });
 
