@@ -141,7 +141,7 @@ namespace Dynamox.Compile
 
 
             var errors = new CompilerResult();
-            var @class = new StringBuilder("namespace DirectTests.Proxy." + baseType.Namespace);//TODO: no namespace
+            var @class = new StringBuilder("namespace Dynamox.Proxy." + baseType.Namespace);//TODO: no namespace
             @class.AppendLine("{");
             @class.AppendLine("public class " + className + ": " + getFullTypeName(baseType));  //TODO: sealed class, generic parameters
             @class.AppendLine("{");
@@ -182,7 +182,7 @@ namespace Dynamox.Compile
                 return errors;
 
             Assembly assembly = results.CompiledAssembly;
-            Built[baseType] = assembly.GetType("DirectTests.Proxy." + baseType.Namespace + "." + className);   //TODO: no namespace
+            Built[baseType] = assembly.GetType("Dynamox.Proxy." + baseType.Namespace + "." + className);   //TODO: no namespace
 
             return new CompilerResult();
         }

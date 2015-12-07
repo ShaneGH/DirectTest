@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compile\CompileTests.cs" />
+    <Compile Include="Compile\TypeDescriptorTests.cs" />
     <Compile Include="Features\Mocks\Any.cs" />
     <Compile Include="Features\Mocks\Ensure.cs" />
     <Compile Include="Features\Mocks\Do.cs" />
