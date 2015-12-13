@@ -1,0 +1,4 @@
+﻿
+Write simple methods and use ILDasm to check the actual IL emitted
+virtual set methods. Do you attempt to use base class at all?
+Set properties

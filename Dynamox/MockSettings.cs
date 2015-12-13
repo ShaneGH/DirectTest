@@ -25,6 +25,7 @@ namespace Dynamox
         }
 
         public MockSettings(object settings)
+            : this()
         {
             var properties = settings.GetType().GetProperties();
             var fields = settings.GetType().GetFields();

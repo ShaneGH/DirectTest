@@ -54,8 +54,17 @@
     <Compile Include="Builders\TestBuilder_Runners.cs" />
     <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
+    <Compile Include="Compile\AbstractMethodBuilderNoReturn.cs" />
+    <Compile Include="Compile\PropertySetterBuilder.cs" />
     <Compile Include="Compile\Compiler.cs" />
     <Compile Include="Compile\Compiler2.cs" />
+    <Compile Include="Compile\VirtualMethodBuilderNoReturn.cs" />
+    <Compile Include="Compile\PropertyBuilder.cs" />
+    <Compile Include="Compile\VirtualMethodBuilderWithReturn.cs" />
+    <Compile Include="Compile\AbstractPropertyGetterBuilder.cs" />
+    <Compile Include="Compile\VirtualPropertyGetterBuilder.cs" />
+    <Compile Include="Compile\AbstractMethodBuilderWithReturn.cs" />
+    <Compile Include="Compile\MethodBuilder.cs" />
     <Compile Include="Compile\MethodInfoComparer.cs" />
     <Compile Include="Compile\TypeDescriptor.cs" />
     <Compile Include="Framework.cs" />
@@ -78,7 +87,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="TODO.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

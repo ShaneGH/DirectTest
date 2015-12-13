@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Dynamox.Mocks;
 
 namespace Dynamox.Compile
-{//TypeBuilder
+{
     public class Compiler2
     {
         private readonly ConcurrentDictionary<Type, Type> Built = new ConcurrentDictionary<Type, Type>();
@@ -26,52 +24,33 @@ namespace Dynamox.Compile
         }
 
         readonly AssemblyBuilder Assembly;
+        readonly ModuleBuilder Module;
 
         private Compiler2()
         {
             Assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(RootNamespace), AssemblyBuilderAccess.Run);
+            Module = Assembly.DefineDynamicModule(RootNamespace);
         }
 
         Type _Compile(Type baseType)
         {
             if (!Built.ContainsKey(baseType))
             {
-                var result = CompileAndCache(baseType);
-                if (result.CompilerErrors.Any())
-                    throw new InvalidOperationException(string.Join(@"\n", result.CompilerErrors));  //TODO
+                CompileAndCache(baseType);
             }
 
             return Built[baseType];
         }
 
-        class CompilerResult
+        void CompileAndCache(Type baseType)
         {
-            public readonly List<string> CompilerErrors;
-
-            public CompilerResult(params string[] errors)
+            lock (baseType) //TODO: not the best object to lock
             {
-                CompilerErrors = new List<string>(errors ?? new string[0]);
+                if (!Built.ContainsKey(baseType))
+                {
+                    Built.TryAdd(baseType, BuildType(baseType));
+                }
             }
-        }
-
-        CompilerResult CompileAndCache(Type baseType)
-        {
-            if (!Built.ContainsKey(baseType))
-            {
-                Built.TryAdd(baseType, BuildType(baseType));
-            }
-
-            return new CompilerResult();
-        }
-
-        MethodInfo GetMethodOverride(Type childType, MethodInfo parentMethod)
-        {
-            return childType.AllClassesAndInterfaces()
-                    .SelectMany(c => c.GetMethods(AllMembers))
-                    .Where(m => m.Name == parentMethod.Name && m != parentMethod && m.DeclaringType != parentMethod.DeclaringType &&
-                        parentMethod.DeclaringType.IsAssignableFrom(m.DeclaringType) && m.ReturnType == parentMethod.ReturnType &&
-                         AreEqual(m.GetParameters().Select(p => p.ParameterType), parentMethod.GetParameters().Select(p => p.ParameterType)))
-                    .FirstOrDefault();
         }
 
         bool AreEqual<T>(IEnumerable<T> array1, IEnumerable<T> array2)
@@ -91,23 +70,17 @@ namespace Dynamox.Compile
 
         Type BuildType(Type baseType)
         {
-            if (baseType.AllClassesAndInterfaces()
-                    .SelectMany(c => c.GetMethods(AllMembers))
-                    .Any(m => m.IsAbstract && m.IsAssembly && GetMethodOverride(baseType, m) == null))
-                throw new InvalidOperationException("Cannot mock a class with an internal abstract member");
+            var typeDescriptor = new TypeOverrideDescriptor(baseType);
+            if (typeDescriptor.HasAbstractInternal)
+throw new InvalidOperationException("Cannot mock a class with an internal abstract member");
+var type = Module.DefineType(
+"Dynamox.Proxy." + baseType.Namespace + "." + GetFullTypeName(baseType, false), 
+TypeAttributes.Public | TypeAttributes.Class,
+baseType.IsInterface ? typeof(object) : baseType,
+typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());
 
-            var interfaces = baseType.IsInterface ? new []{baseType} : new Type[0];
-            if (interfaces.Any())
-                baseType = typeof(object);
-
-            var module = Assembly.DefineDynamicModule(RootNamespace);
-            var type = module.DefineType(
-                "Dynamox.Proxy." + baseType.Namespace + "." + GetFullTypeName(baseType, false), 
-                TypeAttributes.Public | TypeAttributes.Class, 
-                baseType.IsInterface ? typeof(object) : baseType,
-                interfaces);
-
-            var objBase = type.DefineField(GetFreeMemberName(baseType, UnderlyingObject), typeof(ObjectBase), FieldAttributes.NotSerialized | FieldAttributes.Private | FieldAttributes.InitOnly);
+            var objBase = type.DefineField(GetFreeMemberName(baseType, UnderlyingObject),
+                typeof(ObjectBase), FieldAttributes.NotSerialized | FieldAttributes.Private | FieldAttributes.InitOnly);
 
             foreach (var constructor in baseType.GetConstructors(AllMembers)
                 .Where(c => !c.IsAssembly || c.IsFamilyOrAssembly))
@@ -115,10 +88,24 @@ namespace Dynamox.Compile
                 AddConstructor(type, objBase, constructor);
             }
 
-            foreach (var property in baseType.GetProperties(AllMembers)
-                .Where(p => p.GetAccessors(true).Any(a => !a.IsAssembly && !a.IsPrivate)))
+            //TODO: interface properties
+            foreach (var property in typeDescriptor.OverridableProperties)
             {
                 AddProperty(type, objBase, property);
+            }
+
+            //TODO: interface methods
+            foreach (var method in typeDescriptor.OverridableMethods)
+            {
+                var builder = method.IsAbstract ?
+                    (method.ReturnType == typeof(void) ? 
+                        (MethodBuilder)new AbstractMethodBuilderNoReturn(type, objBase, method) : 
+                        new AbstractMethodBuilderWithReturn(type, objBase, method)) :
+                    (method.ReturnType == typeof(void) ? 
+                        (MethodBuilder)new VirtualMethodBuilderNoReturn(type, objBase, method) : 
+                        new VirtualMethodBuilderWithReturn(type, objBase, method));
+
+                builder.Build();
             }
 
             return type.CreateType();
@@ -144,69 +131,26 @@ namespace Dynamox.Compile
 
             var property = toType.DefineProperty(parentProperty.Name, PropertyAttributes.None, parentProperty.PropertyType, null);
 
-            Func<MethodInfo, MethodAttributes> getAttrs = a =>
-                {
-                    var _base = MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual;
-                    if (a.IsPublic)
-                        _base = _base | MethodAttributes.Public;
-                    else if (a.IsFamilyOrAssembly)
-                        _base = _base | MethodAttributes.FamORAssem;
-                    else if (a.IsFamily)
-                        _base = _base | MethodAttributes.Family;
-                    else if (a.IsAssembly)
-                        _base = _base | MethodAttributes.Assembly;
-                    else if (a.IsFamilyAndAssembly)
-                        _base = _base | MethodAttributes.FamANDAssem;
-                    else if (a.IsPrivate)
-                        _base = _base | MethodAttributes.Private;
-
-                    return _base;
-                };
-
-            if (parentProperty.GetMethod != null)
+            if (parentProperty.GetMethod != null && 
+                (parentProperty.GetMethod.IsAbstract || parentProperty.GetMethod.IsVirtual) && 
+                !parentProperty.GetMethod.IsPrivate && !parentProperty.GetMethod.IsAssembly)
             {
-                var getAttr = getAttrs(parentProperty.GetMethod);
+                var builder = parentProperty.GetMethod.IsAbstract ?
+                    (MethodBuilder)new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) :
+                    (MethodBuilder)new VirtualPropertyGetterBuilder(toType, objBase, parentProperty);
 
-                // Define the "get" accessor method for CustomerName.
-                var getter = toType.DefineMethod("get_" + parentProperty.Name, getAttr, parentProperty.PropertyType, Type.EmptyTypes);
-                //TODO: DefineMethodOverride
-                var body = getter.GetILGenerator();
-
-                body.Emit(OpCodes.Ldarg_0);
-                body.Emit(OpCodes.Ldfld, objBase);
-
-                body.Emit(OpCodes.Ldstr, parentProperty.Name);
-                if (parentProperty.IsAbstract())
-                    body.Emit(OpCodes.Call, typeof(ObjectBase).GetMethod("GetProperty").MakeGenericMethod(parentProperty.PropertyType));
-                else
-                    throw new NotImplementedException();
-
-                body.Emit(OpCodes.Ret);
-
-                property.SetGetMethod(getter);
+                builder.Build();
+                property.SetGetMethod(builder.Method);
             }
 
-            if (parentProperty.SetMethod != null)
+            if (parentProperty.SetMethod != null &&
+                (parentProperty.SetMethod.IsAbstract || parentProperty.SetMethod.IsVirtual) &&
+                !parentProperty.SetMethod.IsPrivate && !parentProperty.SetMethod.IsAssembly)
             {
-                var setAttr = getAttrs(parentProperty.SetMethod);
+                var builder = new PropertySetterBuilder(toType, objBase, parentProperty);
 
-                // Define the "get" accessor method for CustomerName.
-                var setter = toType.DefineMethod("set_" + parentProperty.Name, setAttr, null, new []{ parentProperty.PropertyType });
-                var body = setter.GetILGenerator();
-
-                body.Emit(OpCodes.Ldarg_0);
-                body.Emit(OpCodes.Ldfld, objBase);
-
-                body.Emit(OpCodes.Ldstr, parentProperty.Name);
-                body.Emit(OpCodes.Ldarg_1);
-                if (parentProperty.IsAbstract())
-                    body.Emit(OpCodes.Call, typeof(ObjectBase).GetMethod("SetProperty"));
-                else
-                    throw new NotImplementedException();
-
-                body.Emit(OpCodes.Ret);
-
-                property.SetSetMethod(setter);
+                builder.Build();
+                property.SetSetMethod(builder.Method);
             }
         }
 

@@ -11,7 +11,6 @@ namespace Dynamox.Compile
     internal interface ITypeOverrideDescriptor
     {
         IEnumerable<PropertyInfo> OverridableProperties { get; }
-        IEnumerable<MethodInfo> OverridablePropertyAccessors { get; }
         IEnumerable<MethodInfo> OverridableMethods { get; }
         bool HasAbstractInternal { get; }
     }
@@ -33,17 +32,25 @@ namespace Dynamox.Compile
         {
             get
             {
-                return _OverridableProperties ?? ( _OverridableProperties = Array.AsReadOnly(Interface.GetProperties()));
+                return _OverridableProperties ?? (_OverridableProperties = Array.AsReadOnly(Interface.GetProperties()));
             }
         }
 
-        IEnumerable<MethodInfo> _OverridablePropertyAccessors;
-        public IEnumerable<MethodInfo> OverridablePropertyAccessors
+        IEnumerable<MethodInfo> _AllPropertyAccessors;
+        public IEnumerable<MethodInfo> AllPropertyAccessors
         {
-            get 
+            get
             {
-                return _OverridablePropertyAccessors ?? (_OverridablePropertyAccessors =
-                    Array.AsReadOnly(OverridableProperties.SelectMany(p => p.GetAccessors(true)).ToArray()));
+                if (_AllPropertyAccessors == null)
+                {
+                    _AllPropertyAccessors = Interface.GetProperties()
+                        .SelectMany(p => p.GetAccessors(true))
+                        .Distinct()
+                        .ToList()
+                        .AsReadOnly();
+                }
+
+                return _AllPropertyAccessors;
             }
         }
 
@@ -52,8 +59,8 @@ namespace Dynamox.Compile
         {
             get
             {
-                return _OverridableMethods ?? (_OverridableMethods = 
-                    Array.AsReadOnly(Interface.GetMethods().Where(m => !OverridablePropertyAccessors.Contains(m)).ToArray()));
+                return _OverridableMethods ?? (_OverridableMethods =
+                    Array.AsReadOnly(Interface.GetMethods().Where(m => !AllPropertyAccessors.Contains(m)).ToArray()));
             }
         }
 
@@ -79,8 +86,8 @@ namespace Dynamox.Compile
         {
             get
             {
-                return _HasAbstractInternal ?? 
-                    (_HasAbstractInternal = OverridablePropertyAccessors.Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly) ||
+                return _HasAbstractInternal ??
+                    (_HasAbstractInternal = OverridableProperties.SelectMany(p => p.GetAccessors()).Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly) ||
                     OverridableMethods.Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly)).Value;
             }
         }
@@ -109,8 +116,6 @@ namespace Dynamox.Compile
             {
                 if (_OverridableProperties == null)
                 {
-                    //_OverridableProperties = Type.GetProperties(AllInstanceMembers)
-                    //    .Where(p => !p.IsPrivate())
                     _OverridableProperties = InheritanceTree
                         .SelectMany(p => p.GetProperties(AllInstanceMembers))
                         // PropertyName*System.Int32
@@ -125,20 +130,22 @@ namespace Dynamox.Compile
             }
         }
 
-        IEnumerable<MethodInfo> _OverridablePropertyAccessors;
-        public IEnumerable<MethodInfo> OverridablePropertyAccessors
+        IEnumerable<MethodInfo> _AllPropertyAccessors;
+        public IEnumerable<MethodInfo> AllPropertyAccessors
         {
             get
             {
-                if (_OverridablePropertyAccessors == null)
+                if (_AllPropertyAccessors == null)
                 {
-                    _OverridablePropertyAccessors = 
-                        OverridableProperties.SelectMany(p => p.GetAccessors())
-                            .ToList()
-                            .AsReadOnly();
+                    _AllPropertyAccessors = InheritanceTree
+                        .SelectMany(p => p.GetProperties(AllInstanceMembers))
+                        .SelectMany(p => p.GetAccessors(true))
+                        .Distinct()
+                        .ToList()
+                        .AsReadOnly();
                 }
 
-                return _OverridablePropertyAccessors;
+                return _AllPropertyAccessors;
             }
         }
 
@@ -149,16 +156,8 @@ namespace Dynamox.Compile
             {
                 if (_OverridableMethods == null)
                 {
-                    //_OverridableMethods = InheritanceTree
-                    //    .SelectMany(m => m.GetMethods(AllInstanceMembers))
                     _OverridableMethods = Type.GetMethods(AllInstanceMembers)
-                        .Where(m => !m.IsPrivate && !OverridablePropertyAccessors.Contains(m))
-                        // MethodName*System.Void*System.Int32*System.Int32=5*System.String=$null$
-                        //.GroupBy(t => t.Name + "*" +
-                        //    t.ReturnType.AssemblyQualifiedName +
-                        //    t.GetParameters().Select(p => "*" + p.ParameterType.AssemblyQualifiedName +
-                        //        (p.HasDefaultValue ? ("=" + p.DefaultValue == null ? "$null$" : p.DefaultValue.GetHashCode().ToString()) : "")))
-                        //.Select(m => Youngest(m))
+                        .Where(m => !m.IsPrivate && !AllPropertyAccessors.Contains(m))
                         .Where(m => (m.IsAbstract || m.IsVirtual) && !m.IsFinal)
                         .Where(m => m.Name != "Finalize" || m.ReturnType != typeof(void) || m.GetParameters().Length != 0)
                         .ToList()
