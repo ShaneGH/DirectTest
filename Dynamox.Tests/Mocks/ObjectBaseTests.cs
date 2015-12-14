@@ -155,7 +155,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            subject.Invoke("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            subject.Invoke("abc", new[] { new MethodArg<object>(arg) });
             Assert.IsTrue(ok);
         }
 
@@ -172,7 +172,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            subject.Invoke("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            subject.Invoke("abc", new[] { new MethodArg<object>(arg) });
         }
 
         [Test]
@@ -191,7 +191,7 @@ namespace Dynamox.Tests.Mocks
             // act
             // assert
             Assert.Throws(typeof(InvalidOperationException), () =>
-                subject.Invoke("abc", new[] { new MethodArg(arg.GetType(), arg) }));
+                subject.Invoke("abc", new[] { new MethodArg<object>(arg) }));
         }
 
         [Test]
@@ -219,7 +219,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            subject.Invoke("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            subject.Invoke("abc", new[] { new MethodArg<object>(arg) });
             Assert.IsTrue(ok);
         }
 
@@ -247,7 +247,7 @@ namespace Dynamox.Tests.Mocks
             // act
             // assert
             Assert.Throws(typeof(InvalidOperationException), () =>
-                subject.Invoke("abc", new[] { new MethodArg(arg.GetType(), arg) }));
+                subject.Invoke("abc", new[] { new MethodArg<object>(arg) }));
         }
 
         #endregion
@@ -280,7 +280,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<object>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<object>("abc", new[] { new MethodArg<object>(arg) });
             Assert.AreEqual(returnVal, output);
             Assert.IsTrue(ok);
         }
@@ -311,7 +311,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<object>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<object>("abc", new[] { new MethodArg<object>( arg) });
             Assert.AreEqual(returnVal, output);
             Assert.IsTrue(ok);
         }
@@ -342,7 +342,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<int>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<int>("abc", new[] { new MethodArg<object>( arg) });
             Assert.AreEqual(returnVal, output);
             Assert.IsTrue(ok);
         }
@@ -373,7 +373,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<object>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<object>("abc", new[] { new MethodArg<object>(arg) });
             Assert.AreEqual(returnVal, output);
             Assert.IsTrue(ok);
         }
@@ -402,7 +402,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<object>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<object>("abc", new[] { new MethodArg<object>( arg) });
             Assert.IsNull(output);
             Assert.IsTrue(ok);
         }
@@ -431,7 +431,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<int>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<int>("abc", new[] { new MethodArg<object>(arg) });
             Assert.AreEqual(output, 0);
             Assert.IsTrue(ok);
         }
@@ -451,7 +451,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<object>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<object>("abc", new[] { new MethodArg<object>( arg) });
             Assert.IsNull(output);
         }
 
@@ -471,7 +471,7 @@ namespace Dynamox.Tests.Mocks
             // act
             // assert
             Assert.Throws(typeof(InvalidOperationException), () =>
-                subject.Invoke("abc", new[] { new MethodArg(arg.GetType(), arg) }));
+                subject.Invoke("abc", new[] { new MethodArg<object>(arg) }));
         }
 
         [Test]
@@ -499,7 +499,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            var output = subject.Invoke<object>("abc", new[] { new MethodArg(arg.GetType(), arg) });
+            var output = subject.Invoke<object>("abc", new[] { new MethodArg<object>( arg) });
             Assert.IsTrue(ok);
             Assert.IsNull(output);
         }
@@ -528,7 +528,7 @@ namespace Dynamox.Tests.Mocks
             // act
             // assert
             Assert.Throws(typeof(InvalidOperationException), () =>
-                subject.Invoke("abc", new[] { new MethodArg(arg.GetType(), arg) }));
+                subject.Invoke("abc", new[] { new MethodArg<object>(arg) }));
         }
 
         #endregion

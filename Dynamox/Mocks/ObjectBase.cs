@@ -17,7 +17,7 @@ namespace Dynamox.Mocks
             var3 = true;
             return 3;
         }
-        public virtual string DoSomething3(int var1, string var2, out bool var3, ref string var4, out decimal var5)
+        public virtual string DoSomething3<T>(int var1, string var2, out bool var3, ref string var4, out decimal var5)
         {
             var5 = 99;
             var3 = true;
@@ -100,7 +100,7 @@ namespace Dynamox.Mocks
             {
                 var args = new[]
                 {
-                    new MethodArg(typeof(int), value)
+                    new MethodArg<int>(value)
                 };
 
                 SetProperty("BeSomething", args[0].Arg);
@@ -110,13 +110,13 @@ namespace Dynamox.Mocks
         public override int DoSomething(int var1, string var2, out bool var3, ref string var4, out decimal var5)
         {
             int result;
-            var args = new[]
+            var args = new MethodArg[]
             {
-                new MethodArg(typeof(int), var1),
-                new MethodArg(typeof(string), var2),
-                new MethodArg(typeof(bool), null),
-                new MethodArg(typeof(string), var4),
-                new MethodArg(typeof(int), null)
+                new MethodArg<int>(var1),
+                new MethodArg<string>(var2),
+                new MethodArg<bool>(),
+                new MethodArg<string>(var4),
+                new MethodArg<int>()
             };
             if (TryInvoke<int>("DoSomething", args, out result))
             {
@@ -132,18 +132,18 @@ namespace Dynamox.Mocks
             return result;
         }
 
-        public override string DoSomething3(int var1, string var2, out bool var3, ref string var4, out decimal var5)
+        public override string DoSomething3<T>(int var1, string var2, out bool var3, ref string var4, out decimal var5)
         {
             string result;
-            var args = new[]
+            var args = new MethodArg[]
             {
-                new MethodArg(typeof(int), var1),
-                new MethodArg(typeof(string), var2),
-                new MethodArg(typeof(bool), null),
-                new MethodArg(typeof(string), var4),
-                new MethodArg(typeof(int), null)
+                new MethodArg<int>(var1),
+                new MethodArg<string>(var2),
+                new MethodArg<bool>(),
+                new MethodArg<string>(var4),
+                new MethodArg<int>()
             };
-            if (TryInvoke<string>("DoSomething", args, out result))
+            if (TryInvoke<string>("DoSomething", new [] {typeof(T)}, args, out result))
             {
                 var3 = (bool)args[2].Arg;
                 var4 = (string)args[3].Arg;
@@ -151,7 +151,7 @@ namespace Dynamox.Mocks
             }
             else
             {
-                result = base.DoSomething3(var1, var2, out var3, ref var4, out var5);
+                result = base.DoSomething3<T>(var1, var2, out var3, ref var4, out var5);
             }
 
             return result;
@@ -458,15 +458,32 @@ namespace Dynamox.Mocks
         #endregion
     }
 
-    public class MethodArg
+    public abstract class MethodArg
     {
-        public readonly Type ArgType;
+        public abstract Type ArgType { get; }
         public readonly object Arg;
 
-        public MethodArg(Type argType, object arg)
+        public MethodArg(object arg) 
         {
-            ArgType = argType;
             Arg = arg;
+        }
+    }
+
+    public class MethodArg<T> : MethodArg
+    {
+        public override Type ArgType
+        {
+            get { return typeof(T); }
+        }
+
+        public MethodArg(T arg)
+            : base(arg)
+        {
+        }
+
+        public MethodArg()
+            : base(null)
+        {
         }
     }
 }

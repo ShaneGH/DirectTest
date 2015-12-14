@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compile\CompileTests.cs" />
     <Compile Include="Compile\CompileTests2.cs" />
     <Compile Include="Compile\TypeDescriptorTests.cs" />
     <Compile Include="Features\Mocks\Any.cs" />

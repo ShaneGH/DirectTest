@@ -64,7 +64,6 @@ namespace Dynamox.Tests.Compile
                 m => Assert.AreEqual(m, typeof(MethodTestType3).GetMethod("Overridable1", allMembers, null, Type.EmptyTypes, null)),
                 m => Assert.AreEqual(m, typeof(MethodTestType3).GetMethod("Overridable2", allMembers)),
                 m => Assert.AreEqual(m, typeof(MethodTestType3).GetMethod("Overridable4", allMembers), "XX"),
-                m => Assert.AreEqual(m, typeof(MethodTestType3).GetMethod("Overridable5", allMembers), "YY"),
                 m => Assert.AreEqual(m, typeof(MethodTestType3).GetMethod("Overridable6", allMembers), "ZZ"),
                 m => Assert.AreEqual(m, typeof(MethodTestType3).GetMethod("Overridable3", allMembers)),
                 m => Assert.AreEqual(m, typeof(MethodTestType3).GetMethod("ToString", allMembers)),

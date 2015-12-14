@@ -5,6 +5,7 @@ using Dynamox.Builders;
 using Dynamox.Compile;
 using Dynamox.Mocks;
 using Dynamox.Tests.Compile;
+using Dynamox.Tests.Features.Mocks;
 
 namespace Dynamox.Tests
 {
@@ -12,7 +13,10 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            new CompileTests2().TTYTRRT();
+            new MethodsAndProperties().M_P_M_P();
+            new MethodsAndProperties().P_M_P_M();
+            new MethodsAndProperties().M_M_M();
+            new MethodsAndProperties().P_P_P();
         }
     }
 }

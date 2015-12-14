@@ -56,7 +56,6 @@
     <Compile Include="Builders\TestModule.cs" />
     <Compile Include="Compile\AbstractMethodBuilderNoReturn.cs" />
     <Compile Include="Compile\PropertySetterBuilder.cs" />
-    <Compile Include="Compile\Compiler.cs" />
     <Compile Include="Compile\Compiler2.cs" />
     <Compile Include="Compile\VirtualMethodBuilderNoReturn.cs" />
     <Compile Include="Compile\PropertyBuilder.cs" />

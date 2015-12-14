@@ -74,11 +74,18 @@ namespace Dynamox.Compile
     {
         public static readonly BindingFlags AllInstanceMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-        public readonly Type Type;
+        private readonly Type _Type;
+        public Type Type 
+        {
+            get
+            {
+                return _Type.IsInterface ? typeof(object) : _Type;
+            }
+        }
 
         public TypeOverrideDescriptor(Type type)
         {
-            Type = type;
+            _Type = type;
         }
         
         bool? _HasAbstractInternal;
@@ -87,8 +94,7 @@ namespace Dynamox.Compile
             get
             {
                 return _HasAbstractInternal ??
-                    (_HasAbstractInternal = OverridableProperties.SelectMany(p => p.GetAccessors()).Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly) ||
-                    OverridableMethods.Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly)).Value;
+                    (_HasAbstractInternal = Type.GetMethods(AllInstanceMembers).Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly)).Value;
             }
         }
 
@@ -100,7 +106,7 @@ namespace Dynamox.Compile
                 if (_OverridableInterfaces == null)
                 {
                     _OverridableInterfaces = Array.AsReadOnly(
-                        (Type.IsInterface ? new[] { Type } : new Type[0]).Union(Type.GetInterfaces())
+                        (_Type.IsInterface ? new[] { _Type } : new Type[0]).Union(_Type.GetInterfaces())
                         .Select(i => new InterfaceDescriptor(i))
                         .ToArray());
                 }
@@ -157,7 +163,7 @@ namespace Dynamox.Compile
                 if (_OverridableMethods == null)
                 {
                     _OverridableMethods = Type.GetMethods(AllInstanceMembers)
-                        .Where(m => !m.IsPrivate && !AllPropertyAccessors.Contains(m))
+                        .Where(m => !m.IsAssembly && !m.IsPrivate && !AllPropertyAccessors.Contains(m))
                         .Where(m => (m.IsAbstract || m.IsVirtual) && !m.IsFinal)
                         .Where(m => m.Name != "Finalize" || m.ReturnType != typeof(void) || m.GetParameters().Length != 0)
                         .ToList()
@@ -224,9 +230,6 @@ namespace Dynamox.Compile
         {
             get
             {
-                if (Type == null || Type.IsInterface)
-                    return Enumerable.Empty<Type>();
-
                 var type = Type;
                 var output = new List<Type>();
                 while (type != null)

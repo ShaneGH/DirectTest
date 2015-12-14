@@ -53,7 +53,7 @@ namespace Dynamox.Mocks
             {
                 if (!Constructors.ContainsKey(MockType))
                 {
-                    var compiled = Compiler.Compile(MockType);
+                    var compiled = Compiler2.Compile(MockType);
                     var param = Expression.Parameter(typeof(ObjectBase));
                     Constructors.Add(MockType, 
                         Expression.Lambda<Func<ObjectBase, object>>(

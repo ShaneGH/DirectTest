@@ -16,13 +16,15 @@ namespace Dynamox.Compile
     public abstract class MethodBuilder
     {
         protected static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
-        protected static readonly ConstructorInfo MethodArgConstructor = typeof(MethodArg).GetConstructor(new[] { typeof(Type), typeof(object) });
+        //protected static readonly ConstructorInfo MethodArgConstructor1 = typeof(MethodArg<>).GetConstructor(new[] { typeof(MethodArg<>).GetGenericArguments()[0] });
+        //protected static readonly ConstructorInfo MethodArgConstructor2 = typeof(MethodArg<>).GetConstructor(Type.EmptyTypes);
         protected static readonly FieldInfo MethodArg_Arg = typeof(MethodArg).GetField("Arg");
 
         protected readonly TypeBuilder ToType;
         protected readonly FieldInfo ObjBase;
         protected readonly MethodInfo ParentMethod;
 
+        protected readonly GenericTypeParameterBuilder[] Generics;
         protected readonly ParameterInfo[] Parameters;
         protected readonly Type[] ParameterTypes;
         public readonly System.Reflection.Emit.MethodBuilder Method;
@@ -33,11 +35,21 @@ namespace Dynamox.Compile
             ToType = toType;
             ObjBase = objBase;
             ParentMethod = parentMethod;
-            
+
             Parameters = ParentMethod.GetParameters();
             ParameterTypes = Parameters.Select(p => p.ParameterType).ToArray();
             Method = ToType.DefineMethod(ParentMethod.Name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);
             Body = Method.GetILGenerator();
+
+            if (!ParentMethod.ContainsGenericParameters)
+            {
+                Generics = new GenericTypeParameterBuilder[0];
+            }
+            else
+            {
+                var generics = ParentMethod.GetGenericArguments();
+                Generics = Method.DefineGenericParameters(generics.Select((g, i) => "T" + 1).ToArray());
+            }
         }
 
         protected virtual MethodAttributes GetAttrs(MethodInfo forMethod)
@@ -71,26 +83,22 @@ namespace Dynamox.Compile
 
         void AddParameterToInputArray(int index, LocalBuilder array)
         {
+            var mockType = typeof(MethodArg<>).MakeGenericType(ParameterTypes[index]);
+
             Body.Emit(OpCodes.Ldloc, array);
             Body.Emit(OpCodes.Ldc_I4, index);
 
-            // typeof(ParameterType)
-            Body.Emit(OpCodes.Ldtoken, ParameterTypes[index]);
-            Body.Emit(OpCodes.Call, GetTypeFromHandle);
-
             if (Parameters[index].IsOut)
             {
-                Body.Emit(OpCodes.Ldnull);
+                Body.Emit(OpCodes.Newobj, mockType.GetConstructor(Type.EmptyTypes));
             }
             else
             {
                 Body.Emit(OpCodes.Ldarg, index + 1);
-                if (ParameterTypes[index].IsValueType)
-                    Body.Emit(OpCodes.Box);
+                Body.Emit(OpCodes.Newobj, mockType.GetConstructor(new [] { ParameterTypes[index] }));
             }
             
-            // = new MethodArg(type, value);
-            Body.Emit(OpCodes.Newobj, MethodArgConstructor);
+            // = new MethodArg<T>(value);
             Body.Emit(OpCodes.Stelem_Ref);
         }
 
@@ -189,7 +197,7 @@ namespace Dynamox.Compile
             var argsForCall = Body.DeclareLocal(typeof(MethodArg[]));
 
             Body.Emit(OpCodes.Nop);
-            var generics = CreateArray(typeof(Type), 0);
+            var generics = CreateGenerics();
 
             var argArrayBuilder = CreateArray(typeof(MethodArg), ParameterTypes.Length);
             for (var i = 0; i < ParameterTypes.Length; i++)
@@ -214,6 +222,22 @@ namespace Dynamox.Compile
 
             Body.MarkLabel(onReturn);
             OnReturn(methodOut);
+        }
+
+        public LocalBuilder CreateGenerics()
+        {
+            var generics = CreateArray(typeof(Type), Generics.Length);
+            for (var i = 0; i < Generics.Length; i++)
+            {
+                // generics[i] = typeof(TParamater);
+                Body.Emit(OpCodes.Ldloc, generics);
+                Body.Emit(OpCodes.Ldc_I4, i);
+                Body.Emit(OpCodes.Ldtoken, Generics[i]);
+                Body.Emit(OpCodes.Call, GetTypeFromHandle);
+                Body.Emit(OpCodes.Stelem_Ref);
+            }
+            
+            return generics;
         }
 
 

@@ -68,42 +68,60 @@ namespace Dynamox.Compile
             return true;
         }
 
+        static int iiiiiiiiii = 0;
         Type BuildType(Type baseType)
         {
             var typeDescriptor = new TypeOverrideDescriptor(baseType);
             if (typeDescriptor.HasAbstractInternal)
-throw new InvalidOperationException("Cannot mock a class with an internal abstract member");
-var type = Module.DefineType(
-"Dynamox.Proxy." + baseType.Namespace + "." + GetFullTypeName(baseType, false), 
-TypeAttributes.Public | TypeAttributes.Class,
-baseType.IsInterface ? typeof(object) : baseType,
-typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());
+                throw new InvalidOperationException("Cannot mock a class with an internal abstract member");
+
+            var type = Module.DefineType(
+                "Dynamox.Proxy." + baseType.Namespace + "." + baseType.Name + "_" + (++iiiiiiiiii), 
+                TypeAttributes.Public | TypeAttributes.Class,
+                typeDescriptor.Type,
+                typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());
 
             var objBase = type.DefineField(GetFreeMemberName(baseType, UnderlyingObject),
                 typeof(ObjectBase), FieldAttributes.NotSerialized | FieldAttributes.Private | FieldAttributes.InitOnly);
 
-            foreach (var constructor in baseType.GetConstructors(AllMembers)
+            foreach (var constructor in typeDescriptor.Type.GetConstructors(AllMembers)
                 .Where(c => !c.IsAssembly || c.IsFamilyOrAssembly))
             {
                 AddConstructor(type, objBase, constructor);
             }
 
-            //TODO: interface properties
             foreach (var property in typeDescriptor.OverridableProperties)
             {
                 AddProperty(type, objBase, property);
             }
 
-            //TODO: interface methods
             foreach (var method in typeDescriptor.OverridableMethods)
             {
                 var builder = method.IsAbstract ?
-                    (method.ReturnType == typeof(void) ? 
-                        (MethodBuilder)new AbstractMethodBuilderNoReturn(type, objBase, method) : 
+                    (method.ReturnType == typeof(void) ?
+                        (MethodBuilder)new AbstractMethodBuilderNoReturn(type, objBase, method) :
                         new AbstractMethodBuilderWithReturn(type, objBase, method)) :
-                    (method.ReturnType == typeof(void) ? 
-                        (MethodBuilder)new VirtualMethodBuilderNoReturn(type, objBase, method) : 
+                    (method.ReturnType == typeof(void) ?
+                        (MethodBuilder)new VirtualMethodBuilderNoReturn(type, objBase, method) :
                         new VirtualMethodBuilderWithReturn(type, objBase, method));
+
+                builder.Build();
+            }
+
+            foreach (var property in typeDescriptor.OverridableInterfaces.SelectMany(i => i.OverridableProperties))
+            {
+                //TODO: if property signature is available
+
+                AddProperty(type, objBase, property);
+            }
+
+            foreach (var method in typeDescriptor.OverridableInterfaces.SelectMany(i => i.OverridableMethods))
+            {
+                //TODO: if method signature is available
+
+                var builder = (method.ReturnType == typeof(void) ?
+                    (MethodBuilder)new AbstractMethodBuilderNoReturn(type, objBase, method) :
+                    new AbstractMethodBuilderWithReturn(type, objBase, method));
 
                 builder.Build();
             }
@@ -177,35 +195,6 @@ typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());
             body.Emit(OpCodes.Call, constructor);
 
             body.Emit(OpCodes.Ret);
-        }
-
-        static readonly ConcurrentDictionary<Type, string> NameCache = new ConcurrentDictionary<Type, string>(new Dictionary<Type, string> { { typeof(void), "void" } });
-        static string GetFullTypeName(Type type, bool includeNamespace = true)
-        {
-            if (!NameCache.ContainsKey(type))
-            {
-                var name = type.IsGenericParameter ? type.Name : ("global::" + type.FullName).Replace("+", ".");
-                if (!name.Contains("`"))
-                {
-                    NameCache.TryAdd(type, name);
-                }
-                else
-                {
-                    var generics = new List<string>();
-                    var output = name.Substring(0, name.IndexOf("`"));
-                    foreach (var generic in type.GetGenericArguments())
-                    {
-                        generics.Add(GetFullTypeName(generic));
-                    }
-
-                    NameCache.TryAdd(type, output + "<" + string.Join(", ", generics) + ">");
-                }
-            }
-
-            string result;
-            NameCache.TryGetValue(type, out result);
-
-            return includeNamespace || type.IsGenericParameter ? result : RemoveNamespace(result);
         }
 
         static readonly Regex _global = new Regex(@"^\s*global::\s*");
