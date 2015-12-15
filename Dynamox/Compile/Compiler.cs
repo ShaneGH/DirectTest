@@ -27,7 +27,7 @@ namespace Dynamox.Compile
             {
                 var result = CompileAndCache(baseType);
                 if (result.CompilerErrors.Any())
-                    throw new InvalidOperationException(string.Join(@"\n", result.CompilerErrors));  //TODO
+                    throw new InvalidOperationException(string.Join(@"\n", result.CompilerErrors));  //TODE
             }
 
             return Built[baseType];
@@ -207,7 +207,7 @@ namespace Dynamox.Compile
                     new[] { Enumerable.Empty<Type>() };
 
             if (!constructors.Any())
-                throw new InvalidOperationException("No public constructors");  //TODO
+                throw new InvalidOperationException("No public constructors");  //TODE
 
             var arg1 = new[]{ typeof(ObjectBase)};
             foreach (var constructor in constructors)

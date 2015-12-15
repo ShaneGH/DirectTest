@@ -22,7 +22,7 @@ namespace Dynamox.Builders
                 BasedOn._Assert.Add((a, b) =>
                 {
                     if ((typeof(TExpectedResult).IsValueType && b == null) || (b != null && !(b is TExpectedResult)))
-                        throw new InvalidOperationException("Invalid return type"); //TODO
+                        throw new InvalidOperationException("Invalid return type"); //TODE
 
                     result(a, (TExpectedResult)b);
                 });

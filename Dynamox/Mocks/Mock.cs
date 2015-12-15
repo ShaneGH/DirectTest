@@ -40,7 +40,7 @@ namespace Dynamox.Mocks
         public Mock(Type mockType, MockBuilder builder)
         {
             if (mockType.IsSealed)
-                throw new InvalidOperationException("Cannot mock sealed");  //TODO
+                throw new InvalidOperationException("Cannot mock sealed");  //TODE
 
             MockType = mockType;
             Builder = builder.Values;
