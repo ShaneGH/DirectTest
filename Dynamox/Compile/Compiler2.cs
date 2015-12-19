@@ -68,15 +68,15 @@ namespace Dynamox.Compile
             return true;
         }
 
-        static int iiiiiiiiii = 0;
+        static int TypeIncrement = new Random().Next(99999);
         Type BuildType(Type baseType)
         {
             var typeDescriptor = new TypeOverrideDescriptor(baseType);
             if (typeDescriptor.HasAbstractInternal)
-                throw new InvalidOperationException("Cannot mock a class with an internal abstract member");
+                throw new InvalidOperationException("You cannot mock a class with an internal abstract member");
 
             var type = Module.DefineType(
-                "Dynamox.Proxy." + baseType.Namespace + "." + baseType.Name + "_" + (++iiiiiiiiii), 
+                "Dynamox.Proxy." + baseType.Namespace + "." + baseType.Name + "_" + (++TypeIncrement), 
                 TypeAttributes.Public | TypeAttributes.Class,
                 typeDescriptor.Type,
                 typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());

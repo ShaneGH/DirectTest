@@ -16,8 +16,6 @@ namespace Dynamox.Compile
     public abstract class MethodBuilder
     {
         protected static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
-        //protected static readonly ConstructorInfo MethodArgConstructor1 = typeof(MethodArg<>).GetConstructor(new[] { typeof(MethodArg<>).GetGenericArguments()[0] });
-        //protected static readonly ConstructorInfo MethodArgConstructor2 = typeof(MethodArg<>).GetConstructor(Type.EmptyTypes);
         protected static readonly FieldInfo MethodArg_Arg = typeof(MethodArg).GetField("Arg");
 
         protected readonly TypeBuilder ToType;
