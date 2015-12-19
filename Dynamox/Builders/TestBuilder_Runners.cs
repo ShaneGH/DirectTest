@@ -20,7 +20,7 @@ namespace Dynamox.Builders
 
             var selectedTest = module.FirstOrDefault(t => t.TestName == singleTest);
             if (selectedTest == null)
-                throw new InvalidOperationException("Test not found");    //TODO
+                throw new InvalidOperationException("Test not found");    //TODE
 
             Run(selectedTest, module);
         }
@@ -83,7 +83,7 @@ namespace Dynamox.Builders
             }
 
             if (arranger.ShouldHaveBeenCalled.Any())
-                throw new InvalidOperationException("methods not called\n" + string.Join("\n", arranger.ShouldHaveBeenCalled));  //TODO
+                throw new InvalidOperationException("methods not called\n" + string.Join("\n", arranger.ShouldHaveBeenCalled));  //TODE
             
 
             foreach (var ass in Filter(arrange, a => !a._UseBaseAssert, a => a._Assert))
@@ -92,10 +92,10 @@ namespace Dynamox.Builders
             foreach (var thr in throws)
             {
                 if (exception == null)
-                    throw new InvalidOperationException();  //TODO
+                    throw new InvalidOperationException();  //TODE
 
                 if (!thr.Key.IsAssignableFrom(exception.GetType()))
-                    throw new InvalidOperationException();//TODO
+                    throw new InvalidOperationException();//TODE
 
                 thr.Value(arranger, exception);
             }

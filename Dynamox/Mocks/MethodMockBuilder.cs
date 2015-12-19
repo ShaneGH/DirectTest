@@ -79,7 +79,7 @@ namespace Dynamox.Mocks
             if (args.Count() == 1 && args.First() is IMethodAssert)
                 ArgChecker = args.First() as IMethodAssert;
             else if (args.Any(a => a is IMethodAssert))
-                throw new InvalidOperationException("Arg checker must be first and only arg");  //TODO
+                throw new InvalidOperationException("Arg checker must be first and only arg");  //TODE
             else
                 ArgChecker = new EqualityMethodApplicabilityChecker(args);
 
@@ -121,10 +121,10 @@ namespace Dynamox.Mocks
         bool Do(object[] args)
         {
             if (args.Length != 1)
-                throw new InvalidOperationException("You must specify the action to do."); //TODO
+                throw new InvalidOperationException("You must specify the action to do."); //TODE
 
             if (!(args[0] is IMethodCallback))
-                throw new InvalidOperationException("The first arg must be an IMethodCallback."); //TODO
+                throw new InvalidOperationException("The first arg must be an IMethodCallback."); //TODE
 
             Actions.Add(args[0] as IMethodCallback);
 

@@ -201,7 +201,7 @@ namespace Dynamox.Mocks
             {
                 if (StrictMock)
                 {
-                    throw new InvalidOperationException("Property has not been mocked");    //TODO
+                    throw new InvalidOperationException("Property has not been mocked");    //TODE
                 }
                 else
                 {
@@ -258,7 +258,7 @@ namespace Dynamox.Mocks
             {
                 if (StrictMock)
                 {
-                    throw new InvalidOperationException("Property has not been mocked");    //TODO
+                    throw new InvalidOperationException("Property has not been mocked");    //TODE
                 }
                 else
                 {
@@ -328,7 +328,7 @@ namespace Dynamox.Mocks
                 .FirstOrDefault(m => m.Value.TryInvoke(genericArguments, arguments.Select(a => a.Arg), out dummy));
 
             if (StrictMock && method.Equals(default(KeyValuePair<string, MethodGroup>)))
-                throw new InvalidOperationException("Method has not been mocked");    //TODO
+                throw new InvalidOperationException("Method has not been mocked");    //TODE
 
             return method.Equals(default(KeyValuePair<string, MethodGroup>));
         }
@@ -355,7 +355,7 @@ namespace Dynamox.Mocks
             {
                 if (StrictMock)
                 {
-                    throw new InvalidOperationException("Method has not been mocked");    //TODO
+                    throw new InvalidOperationException("Method has not been mocked");    //TODE
                 }
                 else
                 {
@@ -379,7 +379,7 @@ namespace Dynamox.Mocks
                 return false;
             }
 
-            throw new InvalidOperationException("Bad type");    //TODO
+            throw new InvalidOperationException("Bad type");    //TODE
         }
 
         #endregion

@@ -38,7 +38,7 @@ namespace Dynamox.Builders
             }
 
             if (!(body is NewExpression))
-                throw new InvalidOperationException("Must be constructor"); // TODO
+                throw new InvalidOperationException("Must be constructor"); // TODE
 
             Subject((body as NewExpression).Constructor);
 
@@ -66,7 +66,7 @@ namespace Dynamox.Builders
 
                 //TODO: extend to allow property calls
                 if (!(fromExpression is MethodCallExpression))
-                    throw new InvalidOperationException("Must be a method call"); // TODO
+                    throw new InvalidOperationException("Must be a method call"); // TODE
 
                 return (fromExpression as MethodCallExpression).Method;
             }
@@ -137,7 +137,7 @@ namespace Dynamox.Builders
 
                 if ((value == null && param.ParameterType.IsValueType) ||
                     (value != null && !param.ParameterType.IsAssignableFrom(value.GetType())))
-                    throw new InvalidOperationException("Invalid type");    //TODO
+                    throw new InvalidOperationException("Invalid type");    //TODE
 
                 yield return value;
             }
