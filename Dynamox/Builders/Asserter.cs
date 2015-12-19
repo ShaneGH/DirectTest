@@ -77,7 +77,7 @@ namespace Dynamox.Builders
 
             public void Run() 
             {
-                Framework.Run(this);
+                Dx.Run(this);
             }
 
             public TestBuilder Builder

@@ -32,7 +32,7 @@ namespace Dynamox.Tests.Features
         public void BasicFunctionality()
         {
             DateTime? point1 = null, point2 = null, point3 = null;
-            Framework.Test("")
+            Dx.Test("")
                 .Arrange(a => point1 = UniqueDateTime())
                 .Act(a => point2 = UniqueDateTime())
                 .Assert(a => point3 = UniqueDateTime())
@@ -50,7 +50,7 @@ namespace Dynamox.Tests.Features
         {
             DateTime? point1 = null, point2 = null, point3 = null, point4 = null, point5 = null, point6 = null;
 
-            var module = Framework.Module("bla");
+            var module = Dx.Module("bla");
             module.Add("t1")
                 .Arrange(a => point1 = UniqueDateTime())
                 .Act(a => point3 = UniqueDateTime())
@@ -65,7 +65,7 @@ namespace Dynamox.Tests.Features
                 .SkipParentAssert(false)
                 .Assert(a => point6 = UniqueDateTime());
 
-            Framework.Run(module, "t2");
+            Dx.Run(module, "t2");
 
             Assert.IsTrue(point1.HasValue);
             Assert.IsTrue(point2.HasValue);
@@ -82,7 +82,7 @@ namespace Dynamox.Tests.Features
         {
             DateTime? point1 = null, point2 = null, point3 = null, point4 = null, point5 = null, point6 = null;
 
-            var module = Framework.Module("bla");
+            var module = Dx.Module("bla");
             module.Add("t1")
                 .Arrange(a => point1 = UniqueDateTime())
                 .Act(a => point3 = UniqueDateTime())
@@ -94,7 +94,7 @@ namespace Dynamox.Tests.Features
                 .Act(a => point4 = UniqueDateTime())
                 .Assert(a => point6 = UniqueDateTime());
 
-            Framework.Run(module, "t2");
+            Dx.Run(module, "t2");
 
             Assert.IsTrue(point1.HasValue);
             Assert.IsTrue(point2.HasValue);
@@ -111,7 +111,7 @@ namespace Dynamox.Tests.Features
         {
             DateTime? point1 = null, point2 = null, point3 = null, point4 = null, point5 = null, point6 = null;
 
-            var module = Framework.Module("bla");
+            var module = Dx.Module("bla");
             module.Add("t1")
                 .Arrange(a => point1 = UniqueDateTime())
                 .Act(a => point3 = UniqueDateTime())
@@ -126,7 +126,7 @@ namespace Dynamox.Tests.Features
                 .SkipParentAssert(true)
                 .Assert(a => point6 = UniqueDateTime());
 
-            Framework.Run(module, "t2");
+            Dx.Run(module, "t2");
 
             Assert.IsTrue(point1.HasValue);
             Assert.IsTrue(point2.HasValue);
@@ -157,7 +157,7 @@ namespace Dynamox.Tests.Features
         public void ConstructorMethodSyntax1()
         {
             bool ok = false;
-            Framework.Test("bla")
+            Dx.Test("bla")
                 .Subject(typeof(MyClass).GetConstructors()[0])
                 .For(typeof(MyClass).GetMethod("Add"))
                 .Arrange(bag =>
@@ -179,7 +179,7 @@ namespace Dynamox.Tests.Features
         public void ConstructorMethodSyntax2()
         {
             bool ok = false;
-            Framework.Test("bla")
+            Dx.Test("bla")
                 .Subject(() => new MyClass(0))
                 .For(a => a.Add(0))
                 .Arrange(bag =>
@@ -201,7 +201,7 @@ namespace Dynamox.Tests.Features
         public void Throws()
         {
             bool ok = false;
-            Framework.Test("bla")
+            Dx.Test("bla")
                 .Arrange(bag =>
                 {
                     bag.CArgs.val = 2;
@@ -226,7 +226,7 @@ namespace Dynamox.Tests.Features
         [Test]
         public void Throws_WrongExceptionType()
         {
-            var test = Framework.Test("bla")
+            var test = Dx.Test("bla")
                 .Arrange(bag =>
                 {
                     bag.CArgs.val = 2;
@@ -248,7 +248,7 @@ namespace Dynamox.Tests.Features
         {
             DateTime? point1 = null, point2 = null;
 
-            var module = Framework.Module("bla");
+            var module = Dx.Module("bla");
             module.Add("t1")
                 .Arrange(a => { })
                 .Act(a => { })
@@ -261,7 +261,7 @@ namespace Dynamox.Tests.Features
                 .Act(a => { throw new InvalidOperationException(); })
                 .Throws<InvalidOperationException>((a, b) => point2 = UniqueDateTime());
 
-            Framework.Run(module, "t2");
+            Dx.Run(module, "t2");
 
             Assert.IsFalse(point1.HasValue);
             Assert.IsTrue(point2.HasValue);
@@ -272,7 +272,7 @@ namespace Dynamox.Tests.Features
         {
             DateTime? point1 = null, point2 = null;
 
-            var module = Framework.Module("bla");
+            var module = Dx.Module("bla");
             module.Add("t1")
                 .Arrange(a => { })
                 .Act(a => { })
@@ -286,7 +286,7 @@ namespace Dynamox.Tests.Features
                 .SkipParentThrows(false)
                 .Throws<InvalidOperationException>((a, b) => point2 = UniqueDateTime());
 
-            Framework.Run(module, "t2");
+            Dx.Run(module, "t2");
 
             Assert.IsTrue(point1.HasValue);
             Assert.IsTrue(point2.HasValue);
@@ -299,7 +299,7 @@ namespace Dynamox.Tests.Features
         {
             DateTime? point1 = null, point2 = null;
 
-            var module = Framework.Module("bla");
+            var module = Dx.Module("bla");
             module.Add("t1")
                 .Arrange(a => { })
                 .Act(a => { })
@@ -313,7 +313,7 @@ namespace Dynamox.Tests.Features
                 .SkipParentThrows()
                 .Throws<InvalidOperationException>((a, b) => point2 = UniqueDateTime());
 
-            Framework.Run(module, "t2");
+            Dx.Run(module, "t2");
 
             Assert.IsFalse(point1.HasValue);
             Assert.IsTrue(point2.HasValue);

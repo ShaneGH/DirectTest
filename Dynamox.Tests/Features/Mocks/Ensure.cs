@@ -21,7 +21,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Method_Ok()
         {
-            Framework.Test("")
+            Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
                 .Run();
@@ -30,7 +30,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Method_NotOk()
         {
-            var test = Framework.Test("")
+            var test = Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Not hello"); });
 
@@ -40,7 +40,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Method_Ok_Deep()
         {
-            Framework.Test("")
+            Dx.Test("")
                 .Arrange(bag => bag.subject.GetAnother().Ensure().DoSomething("Hello").Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().GetAnother().DoSomething("Hello"); })
                 .Run();
@@ -49,7 +49,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Method_NotOk_Deep()
         {
-            var test = Framework.Test("")
+            var test = Dx.Test("")
                 .Arrange(bag => bag.subject.GetAnother().DoSomething("Hello").Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().GetAnother().DoSomething("Not hello"); });
 
@@ -59,7 +59,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Method_Ok_AfterProperty()
         {
-            Framework.Test("")
+            Dx.Test("")
                 .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().Another.DoSomething("Hello"); })
                 .Run();
@@ -68,7 +68,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Method_NotOk_AfterProperty()
         {
-            var test = Framework.Test("")
+            var test = Dx.Test("")
                 .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().Another.DoSomething("Not hello"); });
 

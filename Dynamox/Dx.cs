@@ -8,7 +8,7 @@ using Dynamox.Mocks;
 
 namespace Dynamox
 {
-    public static class Framework
+    public static class Dx
     {
         public static object Any
         {
@@ -42,6 +42,25 @@ namespace Dynamox
         {
             TestBuilder.Run(tests, singleTestName);
         }
+
+        #region Properties
+
+        public static IPropertyAssertBuilder<TProperty> Property<TProperty>()
+        {
+            return new PropertyAssertBuilder<TProperty>();
+        }
+
+        public static IPropertyAssertBuilder<TProperty> Property<TProperty>(TProperty property)
+        {
+            return new PropertyAssertBuilder<TProperty>(property);
+        }
+
+        public static IPropertyAssertBuilder<TProperty> Property<TProperty>(Func<TProperty> property, bool canSet = false)
+        {
+            return new PropertyAssertBuilder<TProperty>(property, canSet);
+        }
+
+        #endregion
 
         #region MethodApplicabilityChecker
 

@@ -81,7 +81,16 @@ namespace Dynamox.Compile
                 typeDescriptor.Type,
                 typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());
 
-            var objBase = type.DefineField(GetFreeMemberName(baseType, UnderlyingObject),
+            var allMembers = baseType.GetMembers(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Select(m => m.Name).ToArray();
+
+            var fieldName = UnderlyingObject;
+            for (var i = 1; allMembers.Contains(fieldName); i++)
+            {
+                fieldName = UnderlyingObject + i;
+            }
+
+            var objBase = type.DefineField(GetFreeMemberName(baseType, fieldName),
                 typeof(ObjectBase), FieldAttributes.NotSerialized | FieldAttributes.Private | FieldAttributes.InitOnly);
 
             foreach (var constructor in typeDescriptor.Type.GetConstructors(AllMembers)

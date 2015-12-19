@@ -20,8 +20,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void ReferenceType()
         {
-            Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething(Framework.Any).Ensure())
+            Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething(Dx.Any).Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
                 .Run();
         }
@@ -29,8 +29,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void ValueType()
         {
-            Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething(Framework.Any).Ensure())
+            Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething(Dx.Any).Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething(4); })
                 .Run();
         }
@@ -38,8 +38,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Null()
         {
-            Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething(Framework.Any).Ensure())
+            Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething(Dx.Any).Ensure())
                 .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething(null); })
                 .Run();
         }

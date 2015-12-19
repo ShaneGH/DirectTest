@@ -8,30 +8,7 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Mocks
 {
-    public class XXX
-    {
-
-        public virtual int DoSomething(int var1, string var2, out bool var3, ref string var4, out decimal var5)
-        {
-            var5 = 99;
-            var3 = true;
-            return 3;
-        }
-        public virtual string DoSomething3<T>(int var1, string var2, out bool var3, ref string var4, out decimal var5)
-        {
-            var5 = 99;
-            var3 = true;
-            return "aaaa";
-        }
-
-        public virtual int BeSomething
-        {
-            get;
-            set;
-        }
-    }
-
-    public class ObjectBase : XXX
+    public class ObjectBase
     {
         public static readonly Meta Reflection = new Meta();
 
@@ -90,77 +67,12 @@ namespace Dynamox.Mocks
             Members = members;
         }
 
-        public override int BeSomething
-        {
-            get
-            {
-                return base.BeSomething;
-            }
-            set
-            {
-                var args = new[]
-                {
-                    new MethodArg<int>(value)
-                };
-
-                SetProperty("BeSomething", args[0].Arg);
-            }
-        }
-
-        public override int DoSomething(int var1, string var2, out bool var3, ref string var4, out decimal var5)
-        {
-            int result;
-            var args = new MethodArg[]
-            {
-                new MethodArg<int>(var1),
-                new MethodArg<string>(var2),
-                new MethodArg<bool>(),
-                new MethodArg<string>(var4),
-                new MethodArg<int>()
-            };
-            if (TryInvoke<int>("DoSomething", args, out result))
-            {
-                var3 = (bool)args[2].Arg;
-                var4 = (string)args[3].Arg;
-                var5 = (decimal)args[3].Arg;
-            }
-            else
-            {
-                result = base.DoSomething(var1, var2, out var3, ref var4, out var5);
-            }
-
-            return result;
-        }
-
-        public override string DoSomething3<T>(int var1, string var2, out bool var3, ref string var4, out decimal var5)
-        {
-            string result;
-            var args = new MethodArg[]
-            {
-                new MethodArg<int>(var1),
-                new MethodArg<string>(var2),
-                new MethodArg<bool>(),
-                new MethodArg<string>(var4),
-                new MethodArg<int>()
-            };
-            if (TryInvoke<string>("DoSomething", new [] {typeof(T)}, args, out result))
-            {
-                var3 = (bool)args[2].Arg;
-                var4 = (string)args[3].Arg;
-                var5 = (decimal)args[3].Arg;
-            }
-            else
-            {
-                result = base.DoSomething3<T>(var1, var2, out var3, ref var4, out var5);
-            }
-
-            return result;
-        }
-
         static TValue ConvertAndReturn<TValue>(object input)
         {
             if (input is MockBuilder)
                 return (TValue)(input as MockBuilder).Mock(typeof(TValue));
+            else if (input is IPropertyAssertAccessor)
+                return (input as IPropertyAssertAccessor).Get<TValue>();
             else if (!(input is TValue))
                 throw new InvalidOperationException("Bad type");
             else
@@ -173,10 +85,21 @@ namespace Dynamox.Mocks
         {
             lock (ExtraAddedProperties)
             {
-                if (ExtraAddedProperties.ContainsKey(propertyName))
+                if (Members.ContainsKey(propertyName) && Members[propertyName] is IPropertyAssertAccessor)
+                {
+                    (Members[propertyName] as IPropertyAssertAccessor).Set(propertyValue);
+
+                    if (ExtraAddedProperties.ContainsKey(propertyName))
+                        ExtraAddedProperties.Remove(propertyName);
+                }
+                else if (ExtraAddedProperties.ContainsKey(propertyName))
+                {
                     ExtraAddedProperties[propertyName] = propertyValue;
+                }
                 else
+                {
                     ExtraAddedProperties.Add(propertyName, propertyValue);
+                }
             }
         }
 
@@ -318,19 +241,17 @@ namespace Dynamox.Mocks
         }
 
         /// <summary>
+        /// Just a floag to say the method has no retunr value
+        /// </summary>
+        private sealed class MethodVoid { private MethodVoid() { } }
+
+        /// <summary>
         /// Invoke a method with no return value
         /// </summary>
         public bool TryInvoke(string methodName, IEnumerable<Type> genericArguments, IEnumerable<MethodArg> arguments)
         {
-            object dummy = null;
-            var method = Methods
-                .Where(m => m.Key == methodName)
-                .FirstOrDefault(m => m.Value.TryInvoke(genericArguments, arguments.Select(a => a.Arg), out dummy));
-
-            if (StrictMock && method.Equals(default(KeyValuePair<string, MethodGroup>)))
-                throw new InvalidOperationException("Method has not been mocked");    //TODE
-
-            return method.Equals(default(KeyValuePair<string, MethodGroup>));
+            MethodVoid dummy = null;
+            return TryInvoke<MethodVoid>(methodName, genericArguments, arguments, out dummy);
         }
 
         /// <summary>
@@ -362,6 +283,12 @@ namespace Dynamox.Mocks
                     result = default(TResult);
                     return false;
                 }
+            }
+
+            if (typeof(TResult) == typeof(MethodVoid))
+            {
+                result = default(TResult);
+                return true;
             }
 
             if (tmp is MockBuilder)

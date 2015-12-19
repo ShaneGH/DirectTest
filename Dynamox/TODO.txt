@@ -1,7 +1,10 @@
 ﻿
 
 mess with IL http://www.codeproject.com/Articles/14058/Parsing-the-IL-of-a-Method-Body
-
+mock or rather set fields (comment not really related to this class)
 Write simple methods and use ILDasm to check the actual IL emitted
 virtual set methods. Do you attempt to use base class at all?
 Set properties
+Mock events
+out parameters in mocked methods
+Dictionaries

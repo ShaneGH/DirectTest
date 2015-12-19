@@ -19,7 +19,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Returns_CorrectInput()
         {
-            Framework.Test("")
+            Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns("hello"))
                 .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(33))
                 .Assert((bag, val) => Assert.AreEqual(val, "hello"))
@@ -29,7 +29,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Returns_Null()
         {
-            Framework.Test("")
+            Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns(null))
                 .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(33))
                 .Assert((bag, val) => Assert.IsNull(val))
@@ -39,7 +39,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Returns_IncorrectInput()
         {
-            Framework.Test("")
+            Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns("hello"))
                 .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(44))
                 .Assert((bag, val) => Assert.AreEqual(val, null))
@@ -49,7 +49,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void Returns_IncorrectReturnType()
         {
-            var test = Framework.Test("")
+            var test = Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns(new object()))
                 .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(33))
                 .Assert((bag, val) => Assert.Fail());

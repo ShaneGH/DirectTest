@@ -14,7 +14,6 @@ namespace Dynamox.Tests.Compile
     [TestFixture]
     public class CompileTests2
     {
-        //TODO: mock or rather set fields (comment not really related to this class)
         public abstract class LostOfProperties<T>
         {
             int _Prop0 = 1;
@@ -80,23 +79,21 @@ namespace Dynamox.Tests.Compile
         {
             Assert.Throws(typeof(InvalidOperationException), () =>
                 Compiler2.Compile(typeof(InternalAstractProperty)));
-
-            //TODO assert
         }
-        public interface Interfce<T>
+        public interface ILostOfProperties<T>
         {
             int Prop0 { get; set; }
-            int Prop1 { set; }  //TODO: callback on interface accessor
+            int Prop1 { set; }
             int Prop2 { get; }
 
             T Prop3 { get; set; }
         }
 
         [Test]
-        public void Interface()
+        public void ILotsOfProperties()
         {
-            var subject = (Interfce<string>)
-                Compiler2.Compile(typeof(Interfce<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = (ILostOfProperties<string>)
+                Compiler2.Compile(typeof(ILostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"Prop0", 22},
                     {"Prop1", 33},
@@ -117,7 +114,6 @@ namespace Dynamox.Tests.Compile
             Assert.AreEqual(subject.Prop3, "somethinfg");
         }
 
-        //TODO: mock or rather set fields (comment not really related to this class)
         public abstract class LostOfMethods<T>
         {
             public string M1(int arg1) { return "O-" + arg1.ToString(); }
@@ -209,11 +205,8 @@ namespace Dynamox.Tests.Compile
         {
             Assert.Throws(typeof(InvalidOperationException), () =>
                 Compiler2.Compile(typeof(InternalAstractMethod)));
-
-            //TODO assert
         }
 
-        //TODO: mock or rather set fields (comment not really related to this class)
         public interface ILostOfMethods<T>
         {
             string M1(int arg1);
@@ -251,6 +244,111 @@ namespace Dynamox.Tests.Compile
             Assert.AreEqual(subject.GM2<string>(2), "M-2");
             Assert.AreEqual(subject.GM2<object>(1), default(object));
             Assert.AreEqual(subject.GM2<object>(2), default(object));
+        }
+
+        public interface IInterfaceAndClass
+        {
+            int Prop { get; set; }
+            int Method();
+        }
+
+        public class InterfaceAndClass1
+        {
+            public virtual int Prop
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public virtual int Method()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class InterfaceAndClass2 : InterfaceAndClass1, IInterfaceAndClass
+        {
+        }
+        
+        [Test]
+        public void InterfaceAndClassTests()
+        {
+            dynamic builder = new MockBuilder();
+            builder.Prop = 77;
+            builder.Method().Returns(88);
+
+            var subject = (InterfaceAndClass2)Compiler2.Compile(typeof(InterfaceAndClass2))
+                    .GetConstructors()[0]
+                        .Invoke(new object[] { new ObjectBase(builder.Values) });
+
+            Assert.AreEqual(subject.Prop, 77);
+            Assert.AreEqual(subject.Method(), 88);
+        }
+
+        public interface IExplicitInterface
+        {
+            int Prop { get; set; }
+            int Method();
+        }
+
+        public class ExplicitInterface : IExplicitInterface
+        {
+            public virtual int Prop
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public virtual int Method()
+            {
+                throw new NotImplementedException();
+            }
+
+            int IExplicitInterface.Prop
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            int IExplicitInterface.Method()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Test]
+        public void ExplicitInterfaceTests()
+        {
+            dynamic builder = new MockBuilder();
+            builder.Prop = 77;
+            builder.Method().Returns(88);
+
+            var subject = (ExplicitInterface)Compiler2.Compile(typeof(ExplicitInterface))
+                    .GetConstructors()[0]
+                        .Invoke(new object[] { new ObjectBase(builder.Values) });
+
+            Assert.AreEqual(subject.Prop, 77);
+            Assert.AreEqual(subject.Method(), 88);
+            Assert.AreEqual(((IExplicitInterface)subject).Prop, 77);
+            Assert.AreEqual(((IExplicitInterface)subject).Method(), 88);
         }
     }
 }

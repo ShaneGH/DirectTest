@@ -15,6 +15,10 @@ namespace Dynamox.Tests
     public class Program
     {
         public static void Main(string[] args)
-        { }
+        {
+            var tests = new Properties();
+
+            tests.DynamicPropertyVal_CannotSet();
+        }
     }
 }

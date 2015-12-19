@@ -19,8 +19,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void CorrectInput()
         {
-            Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Framework.Method<string>(a =>
+            Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Method<string>(a =>
                 {
                     Assert.AreEqual("Hello", a);
                     bag.ok = true;
@@ -33,8 +33,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void NullInput()
         {
-            Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething(null).Do(Framework.Method<string>(a =>
+            Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething(null).Do(Dx.Method<string>(a =>
                 {
                     Assert.IsNull(a);
                     bag.ok = true;
@@ -47,8 +47,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void NoInput()
         {
-            Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Framework.Method(() => bag.ok = true)))
+            Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Method(() => bag.ok = true)))
                 .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
@@ -57,8 +57,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void ParentTypeArg()
         {
-            Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Framework.Method<object>(a =>
+            Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Method<object>(a =>
                 {
                     Assert.AreEqual("Hello", a);
                     bag.ok = true;
@@ -71,8 +71,8 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void InvalidTypeArg()
         {
-            var test = Framework.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Framework.Method<int>(a => { })))
+            var test = Dx.Test("")
+                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Method<int>(a => { })))
                 .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());

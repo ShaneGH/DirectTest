@@ -64,13 +64,13 @@ namespace Dynamox.Tests.SmokeTests
         [Test]
         public void SimpleMethodMock()
         {
-            Framework.Test("My test")
+            Dx.Test("My test")
                 .Arrange(bag =>
                 {
                     bag.entityNumber = 2;
                     bag.id = 55;
                     bag.repo
-                        .GetEntity(Framework.Method<int>(a => a == bag.id))
+                        .GetEntity(Dx.Method<int>(a => a == bag.id))
                         .Returns(new Add.Entity { Id = bag.id, Number = bag.entityNumber });
                 })
 
@@ -95,14 +95,14 @@ namespace Dynamox.Tests.SmokeTests
         [Test]
         public void FactoryTypeMock()
         {
-            Framework.Test("My test")
+            Dx.Test("My test")
                 .Arrange(bag =>
                 {
                     bag.entityNumber = 2;
                     bag.commandId = 55;
                     bag.factory
                         .GetRepo(true)
-                        .GetEntity(Framework.Method<int>(a => a == bag.commandId))
+                        .GetEntity(Dx.Method<int>(a => a == bag.commandId))
                         .Returns(new Add.Entity { Number = bag.entityNumber });
                 })
 
@@ -127,7 +127,7 @@ namespace Dynamox.Tests.SmokeTests
         [Test]
         public void SimpleForSubjectAct_Reflection_ReturnVal()
         {
-            Framework.Test("My test")
+            Dx.Test("My test")
                 .Subject(typeof(Add).GetConstructor(new Type[] { typeof(IRepo1) }))
                 .For(typeof(Add).GetMethod("Execute1"))
                 .Arrange(bag =>
@@ -135,7 +135,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
@@ -153,7 +153,7 @@ namespace Dynamox.Tests.SmokeTests
         public void SimpleForSubjectAct_Reflection_NonReturnVal()
         {
             bool ok = false;
-            Framework.Test("My test")
+            Dx.Test("My test")
                 .Subject(typeof(Add).GetConstructor(new Type[] { typeof(IRepo1) }))
                 .For(typeof(Add).GetMethod("Execute3"))
 
@@ -162,7 +162,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
@@ -178,7 +178,7 @@ namespace Dynamox.Tests.SmokeTests
         [Test]
         public void SimpleForSubjectAct_Expression_ReturnVal()
         {
-            Framework.Test("My test")
+            Dx.Test("My test")
                 .Subject(() => new Add((IRepo1)null))
                 .For(a => a.Execute1(0, 0))
                 .Arrange(bag =>
@@ -186,7 +186,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
@@ -204,7 +204,7 @@ namespace Dynamox.Tests.SmokeTests
         public void SimpleForSubjectAct_Expression_NonReturnVal()
         {
             bool ok = false;
-            Framework.Test("My test")
+            Dx.Test("My test")
                 .Subject(() => new Add((IRepo1)null))
                 .For(a => a.Execute3(0, 0))
 
@@ -213,7 +213,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Framework.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
