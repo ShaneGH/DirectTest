@@ -106,7 +106,7 @@ namespace Dynamox.Compile
                 if (_OverridableInterfaces == null)
                 {
                     _OverridableInterfaces = Array.AsReadOnly(
-                        (_Type.IsInterface ? new[] { _Type } : new Type[0]).Union(_Type.GetInterfaces())
+                        (_Type.IsInterface ? new[] { _Type } : Type.EmptyTypes).Union(_Type.GetInterfaces())
                         .Select(i => new InterfaceDescriptor(i))
                         .ToArray());
                 }
@@ -123,7 +123,7 @@ namespace Dynamox.Compile
                 if (_OverridableProperties == null)
                 {
                     _OverridableProperties = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
-                        .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal() && !p.IsAssembly())
+                        .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal() && !p.IsAssembly() && !p.IsPrivate())
                         .ToArray());
                 }
 
@@ -131,19 +131,36 @@ namespace Dynamox.Compile
             }
         }
 
-        IEnumerable<FieldInfo> _OverridableFields;
-        public IEnumerable<FieldInfo> OverridableFields
+        IEnumerable<FieldInfo> _SettableFields;
+        public IEnumerable<FieldInfo> SettableFields
         {
             get
             {
-                if (_OverridableFields == null)
+                if (_SettableFields == null)
                 {
-                    _OverridableFields = Array.AsReadOnly(Type.GetFields(AllInstanceMembers)
+                    _SettableFields = Array.AsReadOnly(Type.GetFields(AllInstanceMembers)
                         .Where(f => !f.IsPrivate && !f.IsAssembly && !f.IsInitOnly)
                         .ToArray());
                 }
 
-                return _OverridableFields;
+                return _SettableFields;
+            }
+        }
+
+        IEnumerable<PropertyInfo> _SettableProperties;
+        public IEnumerable<PropertyInfo> SettableProperties
+        {
+            get
+            {
+                if (_SettableProperties == null)
+                {
+                    _SettableProperties = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
+                        .Where(p => !OverridableProperties.Contains(p))
+                        .Where(p => p.SetMethod != null && !p.SetMethod.IsPrivate && !p.SetMethod.IsAssembly)
+                        .ToArray());
+                }
+
+                return _SettableProperties;
             }
         }
 
@@ -173,8 +190,8 @@ namespace Dynamox.Compile
                 if (_OverridableMethods == null)
                 {
                     _OverridableMethods = Array.AsReadOnly(Type.GetMethods(AllInstanceMembers)
-                        .Where(m => !m.IsAssembly && !m.IsPrivate && !AllPropertyAccessors.Contains(m))
                         .Where(m => (m.IsAbstract || m.IsVirtual) && !m.IsFinal)
+                        .Where(m => !m.IsAssembly && !m.IsPrivate && !AllPropertyAccessors.Contains(m))
                         .Where(m => m.Name != "Finalize" || m.ReturnType != typeof(void) || m.GetParameters().Length != 0)
                         .ToArray());
                 }
