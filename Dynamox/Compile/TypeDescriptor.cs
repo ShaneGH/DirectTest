@@ -37,14 +37,14 @@ namespace Dynamox.Compile
             }
         }
 
-        IEnumerable<IEnumerable<ParameterInfo>> _OverridableIndexes;
-        public IEnumerable<IEnumerable<ParameterInfo>> OverridableIndexes
+        IEnumerable<PropertyInfo> _OverridableIndexes;
+        public IEnumerable<PropertyInfo> OverridableIndexes
         {
             get
             {
                 return _OverridableIndexes ?? (_OverridableIndexes =
-                    Array.AsReadOnly(Interface.GetProperties().Select(p => p.GetIndexParameters())
-                        .Where(p => p.Any()).ToArray()));
+                    Array.AsReadOnly(Interface.GetProperties()
+                        .Where(p => p.GetIndexParameters().Any()).ToArray()));
             }
         }
 
@@ -183,21 +183,20 @@ namespace Dynamox.Compile
             }
         }
 
-        IEnumerable<IEnumerable<ParameterInfo>> _Indexes;
-        public IEnumerable<IEnumerable<ParameterInfo>> OverridableIndexes
+        IEnumerable<PropertyInfo> _OverridableIndexes;
+        public IEnumerable<PropertyInfo> OverridableIndexes
         {
             get
             {
-                if (_Indexes == null)
+                if (_OverridableIndexes == null)
                 {
-                    _Indexes = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
+                    _OverridableIndexes = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
                         .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal())
-                        .Select(p => p.GetIndexParameters())
-                        .Where(p => p.Any())
+                        .Where(p => p.GetIndexParameters().Any())
                         .ToArray());
                 }
 
-                return _Indexes;
+                return _OverridableIndexes;
             }
         }
 
