@@ -41,7 +41,7 @@ namespace Dynamox.Tests.Compile
         public void LotsOfProperties()
         {
             var subject = (LostOfProperties<string>)
-                Compiler2.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"Prop1", 22},
                     {"Prop6", 33},
@@ -80,7 +80,7 @@ namespace Dynamox.Tests.Compile
         public void InternalAbstractProperty()
         {
             Assert.Throws(typeof(InvalidOperationException), () =>
-                Compiler2.Compile(typeof(InternalAstractProperty)));
+                Compiler.Compile(typeof(InternalAstractProperty)));
         }
         public interface ILostOfProperties<T>
         {
@@ -95,7 +95,7 @@ namespace Dynamox.Tests.Compile
         public void ILotsOfProperties()
         {
             var subject = (ILostOfProperties<string>)
-                Compiler2.Compile(typeof(ILostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(ILostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"Prop0", 22},
                     {"Prop1", 33},
@@ -152,7 +152,7 @@ namespace Dynamox.Tests.Compile
             Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
 
             var subject = (LostOfMethods<string>)
-                Compiler2.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"M1", mock1(2)},
                     {"M4", mock1(2)},
@@ -206,7 +206,7 @@ namespace Dynamox.Tests.Compile
         public void InternalAbstractMethod()
         {
             Assert.Throws(typeof(InvalidOperationException), () =>
-                Compiler2.Compile(typeof(InternalAstractMethod)));
+                Compiler.Compile(typeof(InternalAstractMethod)));
         }
 
         public interface ILostOfMethods<T>
@@ -230,7 +230,7 @@ namespace Dynamox.Tests.Compile
             Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
 
             var subject = (ILostOfMethods<string>)
-                Compiler2.Compile(typeof(ILostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(ILostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"M1", mock1(2)},                    
                     {"GM1", mock1(2)},
@@ -285,7 +285,7 @@ namespace Dynamox.Tests.Compile
             builder.Prop = 77;
             builder.Method().Returns(88);
 
-            var subject = (InterfaceAndClass2)Compiler2.Compile(typeof(InterfaceAndClass2))
+            var subject = (InterfaceAndClass2)Compiler.Compile(typeof(InterfaceAndClass2))
                     .GetConstructors()[0]
                         .Invoke(new object[] { new ObjectBase(builder.Values) });
 
@@ -343,7 +343,7 @@ namespace Dynamox.Tests.Compile
             builder.Prop = 77;
             builder.Method().Returns(88);
 
-            var subject = (ExplicitInterface)Compiler2.Compile(typeof(ExplicitInterface))
+            var subject = (ExplicitInterface)Compiler.Compile(typeof(ExplicitInterface))
                     .GetConstructors()[0]
                         .Invoke(new object[] { new ObjectBase(builder.Values) });
 
@@ -363,7 +363,7 @@ namespace Dynamox.Tests.Compile
         public void IndexesTests()
         {
             var subject = (Indexes)
-                Compiler2.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(
+                Compiler.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(
                     new ReadOnlyDictionary<IEnumerable<object>, object>(
                         new Dictionary<IEnumerable<object>, object>
                         {

@@ -9,7 +9,7 @@ using Dynamox.Mocks;
 
 namespace Dynamox.Compile
 {
-    public class Compiler2
+    public class Compiler
     {
         private readonly ConcurrentDictionary<Type, Type> Built = new ConcurrentDictionary<Type, Type>();
         const string _ObjectBase = "_ObjectBase";
@@ -17,7 +17,7 @@ namespace Dynamox.Compile
         private const string UnderlyingObject = "__DynamoxTests_BaseObject";    //TODO: ensure unique
         private static readonly BindingFlags AllMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-        static readonly Compiler2 Instance = new Compiler2();
+        static readonly Compiler Instance = new Compiler();
         public static Type Compile(Type baseType) 
         {
             return Instance._Compile(baseType);
@@ -26,7 +26,7 @@ namespace Dynamox.Compile
         readonly AssemblyBuilder Assembly;
         readonly ModuleBuilder Module;
 
-        private Compiler2()
+        private Compiler()
         {
             Assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(RootNamespace), AssemblyBuilderAccess.Run);
             Module = Assembly.DefineDynamicModule(RootNamespace);
