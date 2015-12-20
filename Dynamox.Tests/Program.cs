@@ -17,9 +17,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new ObjectBaseTests();
+            var tests = new CompileTests2();
 
-            tests.GetSetIndexes();
+            tests.IndexesTests();
         }
     }
 }

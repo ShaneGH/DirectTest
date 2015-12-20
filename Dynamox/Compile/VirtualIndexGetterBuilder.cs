@@ -13,15 +13,15 @@ namespace Dynamox.Compile
     /// Build a method for a dynamic type based on a method in the parent class
     /// Dumb cass which is not not thread safe
     /// </summary>
-    public class PropertySetterBuilder : PropertyBuilder
+    public class VirtualIndexGetterBuilder : PropertyBuilder
     {
         readonly string PropertyName;
 
-        public PropertySetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
-            : base(toType, objBase, parentProperty.SetMethod)
+        public VirtualIndexGetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
+            : base(toType, objBase, parentProperty.GetMethod)
         {
-            if (parentProperty.SetMethod == null)
-                throw new InvalidOperationException("Cannot overrided setter"); //TODO
+            if (parentProperty.GetMethod == null)
+                throw new InvalidOperationException("Cannot overrided getter"); //TODO
 
             PropertyName = parentProperty.Name;
         }
@@ -30,21 +30,16 @@ namespace Dynamox.Compile
         {
             var ifResult = Body.DeclareLocal(typeof(bool));
 
-            // this.ObjectBase.SetProperty("PropertyName", args[0].Arg)
+            // this.ObjectBase.TryGetIndex<TVal>(args, out methodOut);
             Body.Emit(OpCodes.Ldarg_0);
             Body.Emit(OpCodes.Ldfld, ObjBase);
-
-            Body.Emit(OpCodes.Ldstr, PropertyName);
-
             Body.Emit(OpCodes.Ldloc, args);
-            Body.Emit(OpCodes.Ldc_I4_0);
-            Body.Emit(OpCodes.Ldelem_Ref);
-            Body.Emit(OpCodes.Ldfld, MethodArg_Arg);
+            Body.Emit(OpCodes.Ldloca, methodOut);
+            Body.Emit(OpCodes.Call, ObjectBase.Reflection.TryGetIndex.MakeGenericMethod(ParentMethod.ReturnType));
 
-            Body.Emit(OpCodes.Call, ObjectBase.Reflection.SetProperty);
-
-            // ifResult = true
+            // ifResult = topOfStack == 1
             Body.Emit(OpCodes.Ldc_I4_1);
+            Body.Emit(OpCodes.Ceq);
             Body.Emit(OpCodes.Stloc, ifResult);
 
             return ifResult;

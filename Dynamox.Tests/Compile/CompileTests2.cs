@@ -33,6 +33,8 @@ namespace Dynamox.Tests.Compile
             protected abstract internal int Prop11 { get; set; }
 
             public virtual T Prop12 { get; set; }
+
+            public abstract int this[string val] { get; set; }
         }
 
         [Test]
@@ -349,6 +351,30 @@ namespace Dynamox.Tests.Compile
             Assert.AreEqual(subject.Method(), 88);
             Assert.AreEqual(((IExplicitInterface)subject).Prop, 77);
             Assert.AreEqual(((IExplicitInterface)subject).Method(), 88);
+        }
+
+        public abstract class Indexes
+        {
+            public abstract int this[string val] { get; set; }
+            public virtual int this[bool val] { get { throw new NotImplementedException(); } set { } }
+        }
+
+        [Test]
+        public void IndexesTests()
+        {
+            var subject = (Indexes)
+                Compiler2.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(
+                    new ReadOnlyDictionary<IEnumerable<object>, object>(
+                        new Dictionary<IEnumerable<object>, object>
+                        {
+                            {new object[]{"hello"}, 22},
+                            {new object[]{true}, 44}
+                        })) });
+
+            Assert.AreEqual(subject["hello"], 22);
+            subject["hello"] = 33;
+            //Assert.AreEqual(subject["hello"], 33);
+            //Assert.AreEqual(subject[true], 44);
         }
     }
 }

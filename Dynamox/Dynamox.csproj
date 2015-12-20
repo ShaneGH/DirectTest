@@ -55,12 +55,15 @@
     <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
     <Compile Include="Compile\AbstractMethodBuilderNoReturn.cs" />
+    <Compile Include="Compile\AbstractIndexGetterBuilder.cs" />
+    <Compile Include="Compile\IndexSetterBuilder.cs" />
     <Compile Include="Compile\PropertySetterBuilder.cs" />
     <Compile Include="Compile\Compiler2.cs" />
     <Compile Include="Compile\VirtualMethodBuilderNoReturn.cs" />
     <Compile Include="Compile\PropertyBuilder.cs" />
     <Compile Include="Compile\VirtualMethodBuilderWithReturn.cs" />
     <Compile Include="Compile\AbstractPropertyGetterBuilder.cs" />
+    <Compile Include="Compile\VirtualIndexGetterBuilder.cs" />
     <Compile Include="Compile\VirtualPropertyGetterBuilder.cs" />
     <Compile Include="Compile\AbstractMethodBuilderWithReturn.cs" />
     <Compile Include="Compile\MethodBuilder.cs" />
@@ -68,6 +71,7 @@
     <Compile Include="Compile\TypeDescriptor.cs" />
     <Compile Include="Dx.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
+    <Compile Include="Mocks\MethodArg.cs" />
     <Compile Include="Mocks\MethodCallback.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckers.cs" />
     <Compile Include="Mocks\MethodApplicabilityChecker.cs" />

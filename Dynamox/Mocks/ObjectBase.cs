@@ -333,6 +333,10 @@ namespace Dynamox.Mocks
             public readonly MethodInfo TryGetProperty;
             public readonly MethodInfo SetProperty;
             public readonly MethodInfo GetProperty;
+
+            public readonly MethodInfo GetIndex;
+            public readonly MethodInfo SetIndex;
+            public readonly MethodInfo TryGetIndex;
             
             public Meta() 
             {
@@ -384,38 +388,13 @@ namespace Dynamox.Mocks
                 TryGetProperty = methods.Single(m => m.name == "TryGetProperty").raw;
                 SetProperty = methods.Single(m => m.name == "SetProperty").raw;
                 GetProperty = methods.Single(m => m.name == "GetProperty").raw;
+
+                GetIndex = methods.Single(m => m.name == "GetIndex").raw;
+                SetIndex = methods.Single(m => m.name == "SetIndex").raw;
+                TryGetIndex = methods.Single(m => m.name == "TryGetIndex").raw;
             }
         }
 
         #endregion
-    }
-
-    public abstract class MethodArg
-    {
-        public abstract Type ArgType { get; }
-        public readonly object Arg;
-
-        public MethodArg(object arg) 
-        {
-            Arg = arg;
-        }
-    }
-
-    public class MethodArg<T> : MethodArg
-    {
-        public override Type ArgType
-        {
-            get { return typeof(T); }
-        }
-
-        public MethodArg(T arg)
-            : base(arg)
-        {
-        }
-
-        public MethodArg()
-            : base(null)
-        {
-        }
     }
 }

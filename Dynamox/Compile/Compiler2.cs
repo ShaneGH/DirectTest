@@ -165,10 +165,10 @@ namespace Dynamox.Compile
             {
                 var builder = parameterTypes.Any() ?
                     (parentProperty.GetMethod.IsAbstract ?
-                        (MethodBuilder)new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) :
-                        new VirtualPropertyGetterBuilder(toType, objBase, parentProperty)) :
+                        new AbstractIndexGetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
+                        new VirtualIndexGetterBuilder(toType, objBase, parentProperty)) :
                     (parentProperty.GetMethod.IsAbstract ?
-                        (MethodBuilder)new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) :
+                        new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
                         new VirtualPropertyGetterBuilder(toType, objBase, parentProperty));
 
                 builder.Build();
@@ -179,7 +179,9 @@ namespace Dynamox.Compile
                 (parentProperty.SetMethod.IsAbstract || parentProperty.SetMethod.IsVirtual) &&
                 !parentProperty.SetMethod.IsPrivate && !parentProperty.SetMethod.IsAssembly)
             {
-                var builder = new PropertySetterBuilder(toType, objBase, parentProperty);
+                var builder = parameterTypes.Any() ?
+                    new IndexSetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
+                    new PropertySetterBuilder(toType, objBase, parentProperty);
 
                 builder.Build();
                 property.SetSetMethod(builder.Method);
