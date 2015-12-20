@@ -18,31 +18,34 @@ namespace Dynamox.Mocks
     {
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();
 
-        private MockSettings _Settings;
-        internal MockSettings Settings 
+        public readonly DxSettings TestSettings;
+
+        private MockSettings _MockSettings;
+        internal MockSettings MockSettings 
         {
             get 
             {
-                return _Settings ?? (_Settings = new MockSettings());
+                return _MockSettings ?? (_MockSettings = new MockSettings());
             }
             set 
             {
-                _Settings = value;
+                _MockSettings = value;
             }
         }
 
-        public MockBuilder()
-            : this(new MockSettings())
+        public MockBuilder(DxSettings testSettings)
+            : this(new MockSettings(), testSettings)
         {
         }
 
-        public MockBuilder(MockSettings settings)
+        public MockBuilder(MockSettings mockSettings, DxSettings testSettings)
         {
-            Settings = settings;
+            MockSettings = mockSettings;
+            TestSettings = testSettings;
         }
 
-        public MockBuilder(object settings)
-            : this(new MockSettings(settings))
+        public MockBuilder(object mockSettings, DxSettings testSettings)
+            : this(new MockSettings(mockSettings), testSettings)
         {
         }
 
@@ -77,21 +80,21 @@ namespace Dynamox.Mocks
             if (base.TryGetMember(binder, out result))
                 return true;
 
-            SetMember(binder.Name, new MockBuilder(Settings));
+            SetMember(binder.Name, new MockBuilder(MockSettings, TestSettings));
 
             return base.TryGetMember(binder, out result);
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder.Name == Settings.Clear)
+            if (binder.Name == MockSettings.Clear)
             {
                 Clear();
                 result = this;
                 return true;
             }
 
-            if (binder.Name == Settings.As)
+            if (binder.Name == MockSettings.As)
             {
                 Type convert = null;
                 if (args.Length == 1 && args[0] is Type)
@@ -102,7 +105,7 @@ namespace Dynamox.Mocks
                 {
                     var typeArgs = GenericArguments(binder);
                     if (typeArgs == null || typeArgs.Count != 1)
-                        throw new InvalidOperationException("A call to " + Settings.As + " must have 1 generic type argument or 1 argument for return type.");
+                        throw new InvalidOperationException("A call to " + MockSettings.As + " must have 1 generic type argument or 1 argument for return type.");
 
                     convert = typeArgs[0];
                 }
@@ -128,7 +131,7 @@ namespace Dynamox.Mocks
         {
             if (args.Length == 1 && args[0] is MockSettings)
             {
-                Settings = args[0] as MockSettings;
+                MockSettings = args[0] as MockSettings;
                 result = this;
             }
             else
@@ -145,12 +148,12 @@ namespace Dynamox.Mocks
             if (base.TryGetMember(name, out result))
             {
                 if (result is MockBuilder)
-                    (result as MockBuilder).Settings = Settings;
+                    (result as MockBuilder).MockSettings = MockSettings;
 
                 return result;
             }
 
-            SetMember(name, result = new MockBuilder(Settings));
+            SetMember(name, result = new MockBuilder(MockSettings, TestSettings));
             return result;
         }
 
@@ -159,7 +162,7 @@ namespace Dynamox.Mocks
             lock (Concrete)
             {
                 if (!Concrete.ContainsKey(mockType))
-                    Concrete.Add(mockType, new Mock(mockType, this));
+                    Concrete.Add(mockType, new Mock(mockType, this, TestSettings));
 
                 return Concrete[mockType].Object;
             }
@@ -171,7 +174,7 @@ namespace Dynamox.Mocks
             if (TryGetMember(name, out existingMock) && !(existingMock is MethodGroup))
                 throw new InvalidOperationException("The member \"" + name + "\" has already been set as a parameter, and cannot be mocked now as a function");    //TODM
 
-            var result = new MethodMockBuilder(Settings, new MockBuilder(Settings), genericArgs, args);
+            var result = new MethodMockBuilder(MockSettings, new MockBuilder(MockSettings, TestSettings), genericArgs, args);
             if (existingMock == null)
             {
                 existingMock = new MethodGroup(result);

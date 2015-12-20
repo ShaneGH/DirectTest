@@ -22,7 +22,7 @@ namespace Dynamox.Tests.Mocks
             var prop1 = new object();
             var prop2 = new object();
             var prop3 = new object();
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object> { { "abc", prop1 } }));
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object> { { "abc", prop1 } }));
 
             // act
             // 
@@ -37,7 +37,7 @@ namespace Dynamox.Tests.Mocks
         public void GetPropertyDoesntExistNonStrict()
         {
             // arrange
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), false);
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), false);
 
             // act
             // assert
@@ -49,7 +49,7 @@ namespace Dynamox.Tests.Mocks
         public void GetPropertyDoesntExistStrict()
         {
             // arrange
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), true);
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), true);
 
             // act
             // assert
@@ -60,7 +60,7 @@ namespace Dynamox.Tests.Mocks
         public void GetInvalidPropertyType()
         {
             // arrange
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object> { { "abc", new object() } }));
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object> { { "abc", new object() } }));
 
             // act
             // assert
@@ -80,7 +80,7 @@ namespace Dynamox.Tests.Mocks
             var val1 = new object();
             var val2 = new object();
             var val3 = new object();
-            var subject = new ObjectBase(new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> 
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> 
                 {
                     { key1.Select(k => k.Arg), val1 } 
                 }));
@@ -97,7 +97,7 @@ namespace Dynamox.Tests.Mocks
         public void GetIndexeDoesntExistNonStrict()
         {
             // arrange
-            var subject = new ObjectBase();
+            var subject = new ObjectBase(DxSettings.GlobalSettings);
 
             // act
             // assert
@@ -109,7 +109,7 @@ namespace Dynamox.Tests.Mocks
         public void GetIndexeDoesntExistStrict()
         {
             // arrange
-            var subject = new ObjectBase(true);
+            var subject = new ObjectBase(DxSettings.GlobalSettings, true);
 
             // act
             // assert
@@ -122,7 +122,7 @@ namespace Dynamox.Tests.Mocks
             var key = new[] { new MethodArg<string>("asdsadas") };
 
             // arrange
-            var subject = new ObjectBase(new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> { { key.Select(k => k.Arg), new object() } }));
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> { { key.Select(k => k.Arg), new object() } }));
 
             // act
             // assert
@@ -148,7 +148,7 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -165,7 +165,7 @@ namespace Dynamox.Tests.Mocks
             // arrange
             var arg = new object();
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup() }
             }));
@@ -183,7 +183,7 @@ namespace Dynamox.Tests.Mocks
             // arrange
             var arg = new object();
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup() }
             }), true);
@@ -212,7 +212,7 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -239,7 +239,7 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }), true);
@@ -273,7 +273,7 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).Returns(returnVal);
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -304,7 +304,7 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).Returns(returnVal);
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -335,7 +335,7 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).Returns(returnVal);
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -366,7 +366,7 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).Returns(returnVal);
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -395,7 +395,7 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -424,7 +424,7 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -444,7 +444,7 @@ namespace Dynamox.Tests.Mocks
             // arrange
             var arg = new object();
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup() }
             }));
@@ -463,7 +463,7 @@ namespace Dynamox.Tests.Mocks
             // arrange
             var arg = new object();
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup() }
             }), true);
@@ -492,7 +492,7 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }));
@@ -520,7 +520,7 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
                 { "abc", new MethodGroup(method) }
             }), true);

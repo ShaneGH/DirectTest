@@ -123,11 +123,27 @@ namespace Dynamox.Compile
                 if (_OverridableProperties == null)
                 {
                     _OverridableProperties = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
-                        .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal())
+                        .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal() && !p.IsAssembly())
                         .ToArray());
                 }
 
                 return _OverridableProperties;
+            }
+        }
+
+        IEnumerable<FieldInfo> _OverridableFields;
+        public IEnumerable<FieldInfo> OverridableFields
+        {
+            get
+            {
+                if (_OverridableFields == null)
+                {
+                    _OverridableFields = Array.AsReadOnly(Type.GetFields(AllInstanceMembers)
+                        .Where(f => !f.IsPrivate && !f.IsAssembly && !f.IsInitOnly)
+                        .ToArray());
+                }
+
+                return _OverridableFields;
             }
         }
 

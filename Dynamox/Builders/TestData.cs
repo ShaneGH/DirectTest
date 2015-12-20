@@ -21,11 +21,11 @@ namespace Dynamox.Builders
         public dynamic Args { get; private set; }
         public dynamic CArgs { get; private set; }
 
-        public TestData(DynamicBag testBag)
+        public TestData(DynamicBag testBag, DxSettings settings)
         {
             TestBag = testBag;
-            Args = new TestArranger();
-            CArgs = new TestArranger();
+            Args = new TestArranger(settings);
+            CArgs = new TestArranger(settings);
         }
     }
 }

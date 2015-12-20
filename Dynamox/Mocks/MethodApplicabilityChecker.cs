@@ -10,6 +10,9 @@ namespace Dynamox.Mocks
     {
         bool TestArgs(IEnumerable<object> args);
 
+        //TODO: out params
+        bool TestArgTypes(IEnumerable<Type> types);
+
         IEnumerable<Type> InputTypes { get; }
     }
 
@@ -28,6 +31,26 @@ namespace Dynamox.Mocks
         public bool TestArgs()
         {
             return TestArgs(Enumerable.Empty<object>());
+        }
+
+        public bool TestArgTypes(IEnumerable<Type> types)
+        {
+            var methodArgTypes = InputTypes.ToArray();
+            var inputArgTypes = types.ToArray();
+
+            if (methodArgTypes.Length != inputArgTypes.Length)
+                return false;
+
+            for (var i = 0; i < methodArgTypes.Length; i++)
+            {
+                if (methodArgTypes[i] == typeof(AnyValue)) ;
+                else if (!methodArgTypes[i].IsAssignableFrom(inputArgTypes[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public bool TestArgs(IEnumerable<object> args)

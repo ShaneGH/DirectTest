@@ -15,12 +15,14 @@ namespace Dynamox.Builders
 
     public class TestModule : ITestModule
     {
-        readonly string ModuleName;
+        public readonly DxSettings TestSettings;
+        public readonly string ModuleName;
         readonly List<TestBuilder> Tests = new List<TestBuilder>();
 
-        public TestModule(string moduleName = null)
+        public TestModule(string moduleName = null, DxSettings settings = null)
         {
             ModuleName = moduleName ?? "Unnamed";
+            TestSettings = settings ?? new DxSettings();
         }
 
         public TestModule(ITest test)
@@ -41,7 +43,7 @@ namespace Dynamox.Builders
 
         public IBasedOn Add(string name)
         {
-            var test = new TestBuilder(name);
+            var test = new TestBuilder(name, TestSettings);
             Tests.Add(test);
             return test;
         }

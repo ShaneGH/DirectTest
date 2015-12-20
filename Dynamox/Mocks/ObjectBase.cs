@@ -13,9 +13,10 @@ namespace Dynamox.Mocks
         public static readonly Meta Reflection = new Meta();
 
         readonly bool StrictMock;
-        readonly ReadOnlyDictionary<string, object> Members;
-        readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string,object>();
-        readonly ReadOnlyDictionary<IEnumerable<object>, object> MockedIndexes;
+        public readonly DxSettings Settings;
+        public readonly ReadOnlyDictionary<string, object> Members;
+        public readonly ReadOnlyDictionary<IEnumerable<object>, object> MockedIndexes;
+        readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string, object>();
         readonly Dictionary<IEnumerable<object>, object> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, object>();
 
         IEnumerable<KeyValuePair<IEnumerable<object>, object>> Indexes
@@ -45,23 +46,24 @@ namespace Dynamox.Mocks
             }
         }
 
-        public ObjectBase(bool strictMock = false)
-            : this(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), strictMock)
+        public ObjectBase(DxSettings settings, bool strictMock = false)
+            : this(settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), strictMock)
         {
         }
 
-        public ObjectBase(ReadOnlyDictionary<string, object> members, bool strictMock = false)
-            : this(members, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object>()), strictMock)
+        public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, bool strictMock = false)
+            : this(settings, members, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object>()), strictMock)
         {
         }
 
-        public ObjectBase(ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
-            : this(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), indexes, strictMock)
+        public ObjectBase(DxSettings settings, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
+            : this(settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), indexes, strictMock)
         {
         }
 
-        public ObjectBase(ReadOnlyDictionary<string, object> members, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
+        public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
         {
+            Settings = settings;
             StrictMock = strictMock;
             MockedIndexes = indexes;
             Members = members;

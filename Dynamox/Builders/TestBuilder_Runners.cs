@@ -49,7 +49,7 @@ namespace Dynamox.Builders
                 arrange.Add(current);
             }
 
-            var arranger = new TestArranger();
+            var arranger = new TestArranger(DxSettings.GlobalSettings);
             foreach (var arr in (arrange as IEnumerable<TestBuilder>).Reverse().SelectMany(a => a._Arrange))
             {
                 arr(arranger);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -162,6 +163,19 @@ namespace Dynamox.Mocks
         public bool TryInvoke(IEnumerable<object> arguments, out object result)
         {
             return TryInvoke(Enumerable.Empty<Type>(), arguments, out result);
+        }
+
+        public bool RepresentsMethod(MethodInfo method)
+        {
+            //TODO: generic constraints???
+            if (GenericArguments.Count() != method.GetGenericArguments().Length)
+            {
+                // TODO: reason
+                return false;
+            }
+
+            //TODO: out params
+            return ArgChecker.TestArgTypes(method.GetParameters().Select(p => p.ParameterType));
         }
         
         public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<object> arguments, out object result)

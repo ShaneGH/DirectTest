@@ -10,6 +10,8 @@ namespace Dynamox
 {
     public static class Dx
     {
+        public static readonly DxSettings GlobalSettings = DxSettings.GlobalSettings;
+
         public static object Any
         {
             get
@@ -18,14 +20,14 @@ namespace Dynamox
             }
         }
 
-        public static IArrange Test(string testName)
+        public static IArrange Test(string testName, DxSettings settings = null)
         {
-            return new TestBuilder(testName);
+            return new TestBuilder(testName, settings ?? new DxSettings());
         }
 
-        public static ITestModule Module(string moduleName = null)
+        public static ITestModule Module(string moduleName = null, DxSettings settings = null)
         {
-            return new TestModule(moduleName);
+            return new TestModule(moduleName, settings ?? new DxSettings());
         }
 
         public static void Run(ITest test)

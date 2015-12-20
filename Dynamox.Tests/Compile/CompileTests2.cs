@@ -41,7 +41,7 @@ namespace Dynamox.Tests.Compile
         public void LotsOfProperties()
         {
             var subject = (LostOfProperties<string>)
-                Compiler.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"Prop1", 22},
                     {"Prop6", 33},
@@ -95,7 +95,7 @@ namespace Dynamox.Tests.Compile
         public void ILotsOfProperties()
         {
             var subject = (ILostOfProperties<string>)
-                Compiler.Compile(typeof(ILostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(ILostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"Prop0", 22},
                     {"Prop1", 33},
@@ -152,7 +152,7 @@ namespace Dynamox.Tests.Compile
             Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
 
             var subject = (LostOfMethods<string>)
-                Compiler.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"M1", mock1(2)},
                     {"M4", mock1(2)},
@@ -230,7 +230,7 @@ namespace Dynamox.Tests.Compile
             Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
 
             var subject = (ILostOfMethods<string>)
-                Compiler.Compile(typeof(ILostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+                Compiler.Compile(typeof(ILostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"M1", mock1(2)},                    
                     {"GM1", mock1(2)},
@@ -281,7 +281,7 @@ namespace Dynamox.Tests.Compile
         [Test]
         public void InterfaceAndClassTests()
         {
-            dynamic builder = new MockBuilder();
+            dynamic builder = new MockBuilder(Dx.GlobalSettings);
             builder.Prop = 77;
             builder.Method().Returns(88);
 
@@ -339,7 +339,7 @@ namespace Dynamox.Tests.Compile
         [Test]
         public void ExplicitInterfaceTests()
         {
-            dynamic builder = new MockBuilder();
+            dynamic builder = new MockBuilder(Dx.GlobalSettings);
             builder.Prop = 77;
             builder.Method().Returns(88);
 
@@ -363,7 +363,7 @@ namespace Dynamox.Tests.Compile
         public void IndexesTests()
         {
             var subject = (Indexes)
-                Compiler.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(
+                Compiler.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(Dx.GlobalSettings,
                     new ReadOnlyDictionary<IEnumerable<object>, object>(
                         new Dictionary<IEnumerable<object>, object>
                         {

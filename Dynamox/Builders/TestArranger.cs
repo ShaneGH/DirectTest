@@ -9,10 +9,17 @@ namespace Dynamox.Builders
 {
     public class TestArranger : DynamicBag
     {
+        public readonly DxSettings Settings;
+
+        public TestArranger(DxSettings settings)
+        {
+            Settings = settings;
+        }
+
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             if (!base.TryGetMember(binder, out result))
-                SetMember(binder.Name, result = new MockBuilder());   //TODO
+                SetMember(binder.Name, result = new MockBuilder(Settings));   //TODO
 
             return true;
         }
@@ -24,14 +31,14 @@ namespace Dynamox.Builders
 
             if (!base.TryGetMember(binder.Name, out result))
             {
-                SetMember(binder.Name, result = new MockBuilder(args[0] is MockSettings ? args[0] as MockSettings : args[0]));
+                SetMember(binder.Name, result = new MockBuilder(args[0] is MockSettings ? args[0] as MockSettings : args[0], Settings));
                 return true;
             }
 
             if (!(result is MockBuilder))
                 throw new InvalidOperationException("The member \"" + binder.Name + "\" has already been set as a property, and cannot be mocked");    //TODM
 
-            (result as MockBuilder).Settings = args[0] is MockSettings ? args[0] as MockSettings : new MockSettings(args[0]);
+            (result as MockBuilder).MockSettings = args[0] is MockSettings ? args[0] as MockSettings : new MockSettings(args[0]);
 
             return true;
         }
@@ -39,7 +46,7 @@ namespace Dynamox.Builders
         public void SetAllSettingsToDefault() 
         {
             foreach (var builder in Values.Values.OfType<MockBuilder>())
-                builder.Settings = null;
+                builder.MockSettings = null;
         }
 
         public IEnumerable<string> ShouldHaveBeenCalled

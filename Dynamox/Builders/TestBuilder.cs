@@ -22,10 +22,12 @@ namespace Dynamox.Builders
         readonly List<KeyValuePair<Type, Action<dynamic, Exception>>> _Throws = new List<KeyValuePair<Type, Action<dynamic, Exception>>>();
 
         public readonly string TestName;
+        public readonly DxSettings Settings;
 
-        public TestBuilder(string testName)
+        public TestBuilder(string testName, DxSettings settings = null)
         {
             TestName = testName;
+            Settings = settings ?? new DxSettings();
         }
 
         public IArrange BasedOn(string basedOn)

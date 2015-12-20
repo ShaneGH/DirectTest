@@ -8,6 +8,7 @@ namespace Dynamox.Mocks
 {
     internal class Mock
     {
+        public readonly DxSettings Settings;
         public readonly Type MockType;
         public readonly ReadOnlyDictionary<string, object> Builder;
 
@@ -25,18 +26,29 @@ namespace Dynamox.Mocks
             }
         }
 
-        public Mock(object value)
+        public Mock(object value, DxSettings settings)
+            : this(settings)
         {
             _Object = value;
         }
 
-        public Mock(Type mockType, MockBuilder builder)
+        public Mock(Type mockType, MockBuilder builder, DxSettings settings)
+            : this(settings)
         {
             if (mockType.IsSealed)
                 throw new InvalidOperationException("Cannot mock sealed");  //TODE
 
             MockType = mockType;
             Builder = builder.Values;
+        }
+
+        /// <summary>
+        /// Must be used in conjunction with another constructor
+        /// </summary>
+        /// <param name="settings"></param>
+        private Mock(DxSettings settings)
+        {
+            Settings = settings;
         }
 
         private static readonly Dictionary<Type, Func<ObjectBase, object>> Constructors = new Dictionary<Type, Func<ObjectBase, object>>();
@@ -59,7 +71,7 @@ namespace Dynamox.Mocks
         {
             Compile();
 
-            return Constructors[MockType](new ObjectBase(Builder));
+            return Constructors[MockType](new ObjectBase(Settings, Builder));
         }
     }
 }

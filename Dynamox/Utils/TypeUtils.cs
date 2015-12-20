@@ -42,6 +42,11 @@ namespace System
             return property.GetAccessors(true).Any(a => a.IsFinal);
         }
 
+        public static bool IsAssembly(this PropertyInfo property)
+        {
+            return property.GetAccessors(true).All(a => a.IsAssembly);
+        }
+
         //These functions are not correct
         //public static bool IsPublic(this PropertyInfo property)
         //{

@@ -163,7 +163,7 @@ namespace Dynamox.Builders
             {
                 Builder.Arrange(testBag =>
                 {
-                    var data = new TestData(testBag);
+                    var data = new TestData(testBag, Builder.Settings);
                     testBag.Dynamox_Builders_IParameterizedArrange = data;
                     arrange(data);
                 });
