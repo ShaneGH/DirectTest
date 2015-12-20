@@ -373,8 +373,8 @@ namespace Dynamox.Tests.Compile
 
             Assert.AreEqual(subject["hello"], 22);
             subject["hello"] = 33;
-            //Assert.AreEqual(subject["hello"], 33);
-            //Assert.AreEqual(subject[true], 44);
+            Assert.AreEqual(subject["hello"], 33);
+            Assert.AreEqual(subject[true], 44);
         }
     }
 }
