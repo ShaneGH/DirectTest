@@ -75,14 +75,14 @@ namespace Dynamox.Tests.Mocks
         public void GetSetIndexes()
         {
             // arrange
-            var key1 = new object[]{new object(), "asdsadoihasoid"};
-            var key2 = new object[]{4, new List()};
+            var key1 = new MethodArg[] { new MethodArg<object>(new object()), new MethodArg<string>("asdsadoihasoid") };
+            var key2 = new MethodArg[] { new MethodArg<int>(4), new MethodArg<List>(new List()) };
             var val1 = new object();
             var val2 = new object();
             var val3 = new object();
             var subject = new ObjectBase(new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> 
                 {
-                    { key1, val1 } 
+                    { key1.Select(k => k.Arg), val1 } 
                 }));
 
             // act
@@ -101,8 +101,8 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(null, subject.GetIndex<object>(new object[0]));
-            Assert.AreEqual(0, subject.GetIndex<int>(new object[0]));
+            Assert.AreEqual(null, subject.GetIndex<object>(new MethodArg[0]));
+            Assert.AreEqual(0, subject.GetIndex<int>(new MethodArg[0]));
         }
 
         [Test]
@@ -113,16 +113,16 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () => subject.GetIndex<object>(new object[0]));
+            Assert.Throws(typeof(InvalidOperationException), () => subject.GetIndex<object>(new MethodArg[0]));
         }
 
         [Test]
         public void GetInvalidIndexeType()
         {
-            var key = new[] { "asdsadas" };
+            var key = new[] { new MethodArg<string>("asdsadas") };
 
             // arrange
-            var subject = new ObjectBase(new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> { { key, new object() } }));
+            var subject = new ObjectBase(new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> { { key.Select(k => k.Arg), new object() } }));
 
             // act
             // assert

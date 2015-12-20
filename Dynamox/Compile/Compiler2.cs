@@ -156,15 +156,20 @@ namespace Dynamox.Compile
             if (!parentProperty.IsAbstract() && !parentProperty.IsVirtual())
                 throw new InvalidOperationException();  //TODO
 
-            var property = toType.DefineProperty(parentProperty.Name, PropertyAttributes.None, parentProperty.PropertyType, null);
+            var parameterTypes = parentProperty.GetIndexParameters().Select(pt => pt.ParameterType).ToArray();
+            var property = toType.DefineProperty(parentProperty.Name, PropertyAttributes.None, parentProperty.PropertyType, parameterTypes.Any() ? parameterTypes : null);
 
             if (parentProperty.GetMethod != null && 
                 (parentProperty.GetMethod.IsAbstract || parentProperty.GetMethod.IsVirtual) && 
                 !parentProperty.GetMethod.IsPrivate && !parentProperty.GetMethod.IsAssembly)
             {
-                var builder = parentProperty.GetMethod.IsAbstract ?
-                    (MethodBuilder)new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) :
-                    (MethodBuilder)new VirtualPropertyGetterBuilder(toType, objBase, parentProperty);
+                var builder = parameterTypes.Any() ?
+                    (parentProperty.GetMethod.IsAbstract ?
+                        (MethodBuilder)new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) :
+                        new VirtualPropertyGetterBuilder(toType, objBase, parentProperty)) :
+                    (parentProperty.GetMethod.IsAbstract ?
+                        (MethodBuilder)new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) :
+                        new VirtualPropertyGetterBuilder(toType, objBase, parentProperty));
 
                 builder.Build();
                 property.SetGetMethod(builder.Method);

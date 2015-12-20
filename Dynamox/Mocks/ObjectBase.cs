@@ -141,7 +141,7 @@ namespace Dynamox.Mocks
 
         #region Index
 
-        public TIndexed GetIndex<TIndexed>(IEnumerable<object> indexValues)
+        public TIndexed GetIndex<TIndexed>(IEnumerable<MethodArg> indexValues)
         {
             TIndexed result;
             if (!TryGetIndex(indexValues, out result))
@@ -150,28 +150,33 @@ namespace Dynamox.Mocks
             return result;
         }
 
-        public void SetIndex(IEnumerable<object> indexValues, object value)
+        public void SetIndex(IEnumerable<MethodArg> indexValues, object value)
         {
-            var values = indexValues.ToArray();
+            var values = indexValues.Select(v => v.Arg).ToArray();
             lock (ExtraAddedIndexes)
             {
                 var kvp = ExtraAddedIndexes.FirstOrDefault(idx =>
                     idx.Key.Count() == values.Length &&
                     idx.Key.Select((k, i) => (k == null && values[i] == null) || (k != null && k.Equals(values[i]))).All(a => a));
 
+                //TODO: if existing property is IPropertyMockAccessor (or whatever the index version of this might be)
                 if (!kvp.Equals(default(KeyValuePair<IEnumerable<object>, object>)))
+                {
                     ExtraAddedIndexes[kvp.Key] = value;
+                }
                 else
-                    ExtraAddedIndexes.Add(indexValues, value);
+                {
+                    ExtraAddedIndexes.Add(values, value);
+                }
             }
         }
 
-        public bool TryGetIndex<TIndexed>(IEnumerable<object> indexValues, out TIndexed result)
+        public bool TryGetIndex<TIndexed>(IEnumerable<MethodArg> indexValues, out TIndexed result)
         {
             KeyValuePair<IEnumerable<object>, object> value;
             lock (ExtraAddedProperties)
             {
-                var values = indexValues.ToArray();
+                var values = indexValues.Select(v => v.Arg).ToArray();
                 value = Indexes.FirstOrDefault(idx =>
                     idx.Key.Count() == values.Length &&
                     idx.Key.Select((k, i) =>  (k == null && values[i] == null) || (k != null && k.Equals(values[i]))).All(a => a));

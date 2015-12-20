@@ -9,6 +9,7 @@ using Dynamox.Compile;
 using Dynamox.Mocks;
 using Dynamox.Tests.Compile;
 using Dynamox.Tests.Features.Mocks;
+using Dynamox.Tests.Mocks;
 
 namespace Dynamox.Tests
 {
@@ -16,9 +17,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new MethodsAndProperties();
+            var tests = new ObjectBaseTests();
 
-            tests.MethodPrecedence();
+            tests.GetSetIndexes();
         }
     }
 }
