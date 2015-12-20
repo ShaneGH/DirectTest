@@ -125,10 +125,10 @@ namespace Dynamox.Tests.Compile
             {
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable1", allMembers)),
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable2", allMembers)),
-                m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable3", allMembers)),
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable4", allMembers)),
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable5", allMembers)),
-                m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable6", allMembers))
+                m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable6", allMembers)),
+                m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable3", allMembers))
             };
 
             Assert.AreEqual(propertyAsserts.Count(), subject.OverridableProperties.Count());
@@ -225,20 +225,20 @@ namespace Dynamox.Tests.Compile
             if (typeof(I2).IsAssignableFrom(toTest))
                 interfaceAsserts.Add(i =>
                 {
-                    Assert.AreEqual(i.OverridableIndexes.Count(), 1);
-                    Assert.AreEqual(i.OverridableIndexes.ElementAt(0).GetIndexParameters().ElementAt(0).ParameterType, typeof(int));
-                    Assert.AreEqual(i.OverridableProperties.Count(), 1);
-                    Assert.AreEqual(i.OverridableProperties.ElementAt(0), typeof(I2).GetProperty("Overridable3", allMembers));
+                    Assert.AreEqual(i.OverridableProperties.Where(p => p.GetIndexParameters().Any()).Count(), 1);
+                    Assert.AreEqual(i.OverridableProperties.Where(p => p.GetIndexParameters().Any()).ElementAt(0).GetIndexParameters().ElementAt(0).ParameterType, typeof(int));
+                    Assert.AreEqual(i.OverridableProperties.Where(p => !p.GetIndexParameters().Any()).Count(), 1);
+                    Assert.AreEqual(i.OverridableProperties.Where(p => !p.GetIndexParameters().Any()).ElementAt(0), typeof(I2).GetProperty("Overridable3", allMembers));
                     Assert.AreEqual(i.OverridableMethods.Count(), 1);
                     Assert.AreEqual(i.OverridableMethods.ElementAt(0), typeof(I2).GetMethod("Overridable4", allMembers));
                 });
             if (typeof(I1).IsAssignableFrom(toTest))
                 interfaceAsserts.Add(i =>
                 {
-                    Assert.AreEqual(i.OverridableIndexes.Count(), 1);
-                    Assert.AreEqual(i.OverridableIndexes.ElementAt(0).GetIndexParameters().ElementAt(0).ParameterType, typeof(int));
-                    Assert.AreEqual(i.OverridableProperties.Count(), 1);
-                    Assert.AreEqual(i.OverridableProperties.ElementAt(0), typeof(I1).GetProperty("Overridable1", allMembers));
+                    Assert.AreEqual(i.OverridableProperties.Where(p => p.GetIndexParameters().Any()).Count(), 1);
+                    Assert.AreEqual(i.OverridableProperties.Where(p => p.GetIndexParameters().Any()).ElementAt(0).GetIndexParameters().ElementAt(0).ParameterType, typeof(int));
+                    Assert.AreEqual(i.OverridableProperties.Where(p => !p.GetIndexParameters().Any()).Count(), 1);
+                    Assert.AreEqual(i.OverridableProperties.Where(p => !p.GetIndexParameters().Any()).ElementAt(0), typeof(I1).GetProperty("Overridable1", allMembers));
                     Assert.AreEqual(i.OverridableMethods.Count(), 1);
                     Assert.AreEqual(i.OverridableMethods.ElementAt(0), typeof(I1).GetMethod("Overridable2", allMembers));
                 });
@@ -290,10 +290,10 @@ namespace Dynamox.Tests.Compile
             var desc = new TypeOverrideDescriptor(typeof(TheIndexes));
 
             // assert
-            Assert.AreEqual(desc.OverridableIndexes.Count(), 1);
-            Assert.AreEqual(desc.OverridableIndexes.ElementAt(0).GetIndexParameters().Count(), 2);
-            Assert.AreEqual(desc.OverridableIndexes.ElementAt(0).GetIndexParameters().ElementAt(0).ParameterType, typeof(int));
-            Assert.AreEqual(desc.OverridableIndexes.ElementAt(0).GetIndexParameters().ElementAt(1).ParameterType, typeof(string));
+            Assert.AreEqual(desc.OverridableProperties.Where(p => p.GetIndexParameters().Any()).Count(), 1);
+            Assert.AreEqual(desc.OverridableProperties.Where(p => p.GetIndexParameters().Any()).ElementAt(0).GetIndexParameters().Count(), 2);
+            Assert.AreEqual(desc.OverridableProperties.Where(p => p.GetIndexParameters().Any()).ElementAt(0).GetIndexParameters().ElementAt(0).ParameterType, typeof(int));
+            Assert.AreEqual(desc.OverridableProperties.Where(p => p.GetIndexParameters().Any()).ElementAt(0).GetIndexParameters().ElementAt(1).ParameterType, typeof(string));
         }
     }
 }

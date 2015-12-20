@@ -33,18 +33,7 @@ namespace Dynamox.Compile
             get
             {
                 return _OverridableProperties ?? (_OverridableProperties =
-                    Array.AsReadOnly(Interface.GetProperties().Where(p => !p.GetIndexParameters().Any()).ToArray()));
-            }
-        }
-
-        IEnumerable<PropertyInfo> _OverridableIndexes;
-        public IEnumerable<PropertyInfo> OverridableIndexes
-        {
-            get
-            {
-                return _OverridableIndexes ?? (_OverridableIndexes =
-                    Array.AsReadOnly(Interface.GetProperties()
-                        .Where(p => p.GetIndexParameters().Any()).ToArray()));
+                    Array.AsReadOnly(Interface.GetProperties().ToArray()));
             }
         }
 
@@ -133,12 +122,7 @@ namespace Dynamox.Compile
             {
                 if (_OverridableProperties == null)
                 {
-                    _OverridableProperties = Array.AsReadOnly(InheritanceTree
-                        .SelectMany(p => p.GetProperties(AllInstanceMembers))
-                        .Where(p => !p.GetIndexParameters().Any())
-                        // PropertyName*System.Int32
-                        .GroupBy(t => t.Name + "*" + t.PropertyType)
-                        .Select(m => Youngest(m))
+                    _OverridableProperties = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
                         .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal())
                         .ToArray());
                 }
@@ -180,23 +164,6 @@ namespace Dynamox.Compile
                 }
 
                 return _OverridableMethods;
-            }
-        }
-
-        IEnumerable<PropertyInfo> _OverridableIndexes;
-        public IEnumerable<PropertyInfo> OverridableIndexes
-        {
-            get
-            {
-                if (_OverridableIndexes == null)
-                {
-                    _OverridableIndexes = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
-                        .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal())
-                        .Where(p => p.GetIndexParameters().Any())
-                        .ToArray());
-                }
-
-                return _OverridableIndexes;
             }
         }
 
