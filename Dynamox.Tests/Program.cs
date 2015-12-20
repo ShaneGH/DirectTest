@@ -19,7 +19,7 @@ namespace Dynamox.Tests
         {
             var tests = new CompileTests2();
 
-            tests.IndexesTests();
+            tests.ExplicitInterfaceTests();
         }
     }
 }

@@ -126,7 +126,6 @@ namespace Dynamox.Tests.Compile
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable1", allMembers)),
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable2", allMembers)),
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable4", allMembers)),
-                m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable5", allMembers)),
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable6", allMembers)),
                 m => Assert.AreEqual(m, typeof(PropertyTestType3).GetProperty("Overridable3", allMembers))
             };
