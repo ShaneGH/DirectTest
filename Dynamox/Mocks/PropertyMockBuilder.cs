@@ -6,22 +6,22 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Mocks
 {
-    public interface IPropertyAssertAccessor
+    public interface IPropertyMockAccessor
     {
         TProperty Get<TProperty>();
         void Set(object value);
     }
 
-    public interface IPropertyAssertBuilder<TProperty>
+    public interface IPropertyMockBuilder<TProperty>
     {
-        IPropertyAssertBuilder<TProperty> OnGet(Action<TProperty> get);
-        IPropertyAssertBuilder<TProperty> OnGet(Action get);
+        IPropertyMockBuilder<TProperty> OnGet(Action<TProperty> get);
+        IPropertyMockBuilder<TProperty> OnGet(Action get);
 
-        IPropertyAssertBuilder<TProperty> OnSet(Action<TProperty, TProperty> set);
-        IPropertyAssertBuilder<TProperty> OnSet(Action set);
+        IPropertyMockBuilder<TProperty> OnSet(Action<TProperty, TProperty> set);
+        IPropertyMockBuilder<TProperty> OnSet(Action set);
     }
 
-    internal class PropertyAssertBuilder<TProperty> : IPropertyAssertBuilder<TProperty>, IPropertyAssertAccessor
+    internal class PropertyMockBuilder<TProperty> : IPropertyMockBuilder<TProperty>, IPropertyMockAccessor
     {
         Func<TProperty> GetProperty { get; set; }
 
@@ -29,40 +29,40 @@ namespace Dynamox.Mocks
         readonly List<Action<TProperty>> OnGetActions = new List<Action<TProperty>>();
         readonly bool CanSet;
 
-        public PropertyAssertBuilder()
+        public PropertyMockBuilder()
             : this(default(TProperty))
         {
         }
 
-        public PropertyAssertBuilder(TProperty propertyValue)
+        public PropertyMockBuilder(TProperty propertyValue)
             : this(() => propertyValue, true)
         {
         }
 
-        public PropertyAssertBuilder(Func<TProperty> propertyValue, bool canSet = false)
+        public PropertyMockBuilder(Func<TProperty> propertyValue, bool canSet = false)
         {
             CanSet = canSet;
             GetProperty = propertyValue;
         }
 
-        public IPropertyAssertBuilder<TProperty> OnGet(Action<TProperty> get)
+        public IPropertyMockBuilder<TProperty> OnGet(Action<TProperty> get)
         {
             OnGetActions.Add(get);
             return this;
         }
 
-        public IPropertyAssertBuilder<TProperty> OnGet(Action get)
+        public IPropertyMockBuilder<TProperty> OnGet(Action get)
         {
             return OnGet(a => get());
         }
 
-        public IPropertyAssertBuilder<TProperty> OnSet(Action<TProperty, TProperty> set)
+        public IPropertyMockBuilder<TProperty> OnSet(Action<TProperty, TProperty> set)
         {
             OnSetActions.Add(set);
             return this;
         }
 
-        public IPropertyAssertBuilder<TProperty> OnSet(Action set)
+        public IPropertyMockBuilder<TProperty> OnSet(Action set)
         {
             return OnSet((a, b) => set());
         }

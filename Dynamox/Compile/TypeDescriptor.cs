@@ -32,7 +32,19 @@ namespace Dynamox.Compile
         {
             get
             {
-                return _OverridableProperties ?? (_OverridableProperties = Array.AsReadOnly(Interface.GetProperties()));
+                return _OverridableProperties ?? (_OverridableProperties =
+                    Array.AsReadOnly(Interface.GetProperties().Where(p => !p.GetIndexParameters().Any()).ToArray()));
+            }
+        }
+
+        IEnumerable<IEnumerable<ParameterInfo>> _OverridableIndexes;
+        public IEnumerable<IEnumerable<ParameterInfo>> OverridableIndexes
+        {
+            get
+            {
+                return _OverridableIndexes ?? (_OverridableIndexes =
+                    Array.AsReadOnly(Interface.GetProperties().Select(p => p.GetIndexParameters())
+                        .Where(p => p.Any()).ToArray()));
             }
         }
 
@@ -43,11 +55,10 @@ namespace Dynamox.Compile
             {
                 if (_AllPropertyAccessors == null)
                 {
-                    _AllPropertyAccessors = Interface.GetProperties()
+                    _AllPropertyAccessors = Array.AsReadOnly(Interface.GetProperties()
                         .SelectMany(p => p.GetAccessors(true))
                         .Distinct()
-                        .ToList()
-                        .AsReadOnly();
+                        .ToArray());
                 }
 
                 return _AllPropertyAccessors;
@@ -122,14 +133,14 @@ namespace Dynamox.Compile
             {
                 if (_OverridableProperties == null)
                 {
-                    _OverridableProperties = InheritanceTree
+                    _OverridableProperties = Array.AsReadOnly(InheritanceTree
                         .SelectMany(p => p.GetProperties(AllInstanceMembers))
+                        .Where(p => !p.GetIndexParameters().Any())
                         // PropertyName*System.Int32
                         .GroupBy(t => t.Name + "*" + t.PropertyType)
                         .Select(m => Youngest(m))
                         .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal())
-                        .ToList()
-                        .AsReadOnly();
+                        .ToArray());
                 }
 
                 return _OverridableProperties;
@@ -143,12 +154,11 @@ namespace Dynamox.Compile
             {
                 if (_AllPropertyAccessors == null)
                 {
-                    _AllPropertyAccessors = InheritanceTree
+                    _AllPropertyAccessors = Array.AsReadOnly(InheritanceTree
                         .SelectMany(p => p.GetProperties(AllInstanceMembers))
                         .SelectMany(p => p.GetAccessors(true))
                         .Distinct()
-                        .ToList()
-                        .AsReadOnly();
+                        .ToArray());
                 }
 
                 return _AllPropertyAccessors;
@@ -162,15 +172,32 @@ namespace Dynamox.Compile
             {
                 if (_OverridableMethods == null)
                 {
-                    _OverridableMethods = Type.GetMethods(AllInstanceMembers)
+                    _OverridableMethods = Array.AsReadOnly(Type.GetMethods(AllInstanceMembers)
                         .Where(m => !m.IsAssembly && !m.IsPrivate && !AllPropertyAccessors.Contains(m))
                         .Where(m => (m.IsAbstract || m.IsVirtual) && !m.IsFinal)
                         .Where(m => m.Name != "Finalize" || m.ReturnType != typeof(void) || m.GetParameters().Length != 0)
-                        .ToList()
-                        .AsReadOnly();
+                        .ToArray());
                 }
 
                 return _OverridableMethods;
+            }
+        }
+
+        IEnumerable<IEnumerable<ParameterInfo>> _Indexes;
+        public IEnumerable<IEnumerable<ParameterInfo>> OverridableIndexes
+        {
+            get
+            {
+                if (_Indexes == null)
+                {
+                    _Indexes = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
+                        .Where(p => (p.IsAbstract() || p.IsVirtual()) && !p.IsFinal())
+                        .Select(p => p.GetIndexParameters())
+                        .Where(p => p.Any())
+                        .ToArray());
+                }
+
+                return _Indexes;
             }
         }
 
@@ -226,19 +253,25 @@ namespace Dynamox.Compile
             return output;
         }
 
+        IEnumerable<Type> _InheritanceTree;
         IEnumerable<Type> InheritanceTree
         {
             get
             {
-                var type = Type;
-                var output = new List<Type>();
-                while (type != null)
+                if (_InheritanceTree == null)
                 {
-                    output.Insert(0, type);
-                    type = type.BaseType;
+                    var type = Type;
+                    var output = new List<Type>();
+                    while (type != null)
+                    {
+                        output.Insert(0, type);
+                        type = type.BaseType;
+                    }
+
+                    _InheritanceTree = output.AsReadOnly();
                 }
 
-                return output.AsReadOnly();
+                return _InheritanceTree;
             }
         }
     }

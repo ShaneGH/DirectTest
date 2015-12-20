@@ -179,7 +179,8 @@ namespace Dynamox.Mocks
             }
             else
             {
-                (existingMock as MethodGroup).Add(result);
+                //TODM: if a method is mocked twice, the second mock will take precedence
+                (existingMock as MethodGroup).Insert(0, result);
             }
 
             return result;

@@ -19,6 +19,23 @@ namespace Dynamox.Tests.Features.Mocks
         }
 
         [Test]
+        public void MethodPrecedence()
+        {
+            Dx.Test("")
+                .Arrange(bag =>
+                {
+                    bag.subject.DoResult().Returns(33);
+                    bag.subject.DoResult().Returns(44);
+                })
+                .Act(bag => (int)bag.subject.As<ICurrentTest>().DoResult())
+                .Assert((bag, val) =>
+                {
+                    Assert.AreEqual(val, 44);
+                })
+                .Run();
+        }
+
+        [Test]
         public void M_P_M_P()
         {
             Dx.Test("")

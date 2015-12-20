@@ -142,12 +142,16 @@ namespace Dynamox.Tests.Compile
         {
             int Overridable1 { get; set; }
             void Overridable2();
+
+            object this[int index] { get; set; }
         }
 
         public interface I2 : I1
         {
             int Overridable3 { get; set; }
             void Overridable4();
+
+            object this[int index] { get; set; }
 
         }
 
@@ -157,6 +161,18 @@ namespace Dynamox.Tests.Compile
             void I2.Overridable4() { }
             int I1.Overridable1 { get; set; }
             void I1.Overridable2() { }
+
+            object I1.this[int index]
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
+            }
+
+            object I2.this[int index]
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
+            }
         }
 
         public class InterfaceTests2 : I2
@@ -165,6 +181,12 @@ namespace Dynamox.Tests.Compile
             public void Overridable2() { }
             public int Overridable3 { get; set; }
             public void Overridable4() { }
+
+            public object this[int index]
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
+            }
         }
 
         [Test]
@@ -174,9 +196,21 @@ namespace Dynamox.Tests.Compile
         }
 
         [Test]
-        public void InterfaceTest3()
+        public void InterfaceTest2()
         {
             InterfaceTest(typeof(InterfaceTests2));
+        }
+
+        [Test]
+        public void InterfaceTest3()
+        {
+            InterfaceTest(typeof(I1));
+        }
+
+        [Test]
+        public void InterfaceTest4()
+        {
+            InterfaceTest(typeof(I2));
         }
 
         void InterfaceTest(Type toTest)
@@ -187,28 +221,32 @@ namespace Dynamox.Tests.Compile
             var subject = new TypeOverrideDescriptor(toTest);
 
             // assert
-            var inerfaceAsserts = new Action<InterfaceDescriptor>[] 
-            {
-                i => 
+            var interfaceAsserts = new List<Action<InterfaceDescriptor>>();
+            if (typeof(I2).IsAssignableFrom(toTest))
+                interfaceAsserts.Add(i =>
                 {
+                    Assert.AreEqual(i.OverridableIndexes.Count(), 1);
+                    Assert.AreEqual(i.OverridableIndexes.ElementAt(0).ElementAt(0).ParameterType, typeof(int));
                     Assert.AreEqual(i.OverridableProperties.Count(), 1);
                     Assert.AreEqual(i.OverridableProperties.ElementAt(0), typeof(I2).GetProperty("Overridable3", allMembers));
                     Assert.AreEqual(i.OverridableMethods.Count(), 1);
                     Assert.AreEqual(i.OverridableMethods.ElementAt(0), typeof(I2).GetMethod("Overridable4", allMembers));
-                },
-                i => 
+                });
+            if (typeof(I1).IsAssignableFrom(toTest))
+                interfaceAsserts.Add(i =>
                 {
+                    Assert.AreEqual(i.OverridableIndexes.Count(), 1);
+                    Assert.AreEqual(i.OverridableIndexes.ElementAt(0).ElementAt(0).ParameterType, typeof(int));
                     Assert.AreEqual(i.OverridableProperties.Count(), 1);
                     Assert.AreEqual(i.OverridableProperties.ElementAt(0), typeof(I1).GetProperty("Overridable1", allMembers));
                     Assert.AreEqual(i.OverridableMethods.Count(), 1);
                     Assert.AreEqual(i.OverridableMethods.ElementAt(0), typeof(I1).GetMethod("Overridable2", allMembers));
-                },
-            };
+                });
 
-            Assert.AreEqual(inerfaceAsserts.Count(), subject.OverridableInterfaces.Count());
+            Assert.AreEqual(interfaceAsserts.Count(), subject.OverridableInterfaces.Count());
             for (var i = 0; i < subject.OverridableInterfaces.Count(); i++)
             {
-                inerfaceAsserts[i](subject.OverridableInterfaces.ElementAt(i));
+                interfaceAsserts[i](subject.OverridableInterfaces.ElementAt(i));
             }
         }
 
@@ -221,6 +259,41 @@ namespace Dynamox.Tests.Compile
             Assert.IsFalse(new TypeOverrideDescriptor(typeof(MethodTestType1)).HasAbstractInternal);
             Assert.IsTrue(new TypeOverrideDescriptor(typeof(MethodTestType2)).HasAbstractInternal);
             Assert.IsFalse(new TypeOverrideDescriptor(typeof(MethodTestType3)).HasAbstractInternal);
+        }
+
+        public class TheIndexes
+        {
+            public object this[int index]
+            {
+                get { return null; }
+                set { }
+            }
+
+            public virtual object this[int index1, string index2]
+            {
+                get { return null; }
+                set { }
+            }
+
+            object this[bool index1, string index2]
+            {
+                get { return null; }
+                set { }
+            }
+        }
+
+        [Test]
+        public void Indexes()
+        {
+            // arrange
+            // act
+            var desc = new TypeOverrideDescriptor(typeof(TheIndexes));
+
+            // assert
+            Assert.AreEqual(desc.OverridableIndexes.Count(), 1);
+            Assert.AreEqual(desc.OverridableIndexes.ElementAt(0).Count(), 2);
+            Assert.AreEqual(desc.OverridableIndexes.ElementAt(0).ElementAt(0).ParameterType, typeof(int));
+            Assert.AreEqual(desc.OverridableIndexes.ElementAt(0).ElementAt(1).ParameterType, typeof(string));
         }
     }
 }

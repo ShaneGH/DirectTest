@@ -8,3 +8,5 @@ Set properties
 Mock events
 out parameters in mocked methods
 Dictionaries
+Mock a struct
+Abstract test. A test as part of a module which is not run, only used by other tests

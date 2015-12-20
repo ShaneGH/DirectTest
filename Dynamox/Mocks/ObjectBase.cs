@@ -71,8 +71,8 @@ namespace Dynamox.Mocks
         {
             if (input is MockBuilder)
                 return (TValue)(input as MockBuilder).Mock(typeof(TValue));
-            else if (input is IPropertyAssertAccessor)
-                return (input as IPropertyAssertAccessor).Get<TValue>();
+            else if (input is IPropertyMockAccessor)
+                return (input as IPropertyMockAccessor).Get<TValue>();
             else if (!(input is TValue))
                 throw new InvalidOperationException("Bad type");
             else
@@ -85,9 +85,9 @@ namespace Dynamox.Mocks
         {
             lock (ExtraAddedProperties)
             {
-                if (Members.ContainsKey(propertyName) && Members[propertyName] is IPropertyAssertAccessor)
+                if (Members.ContainsKey(propertyName) && Members[propertyName] is IPropertyMockAccessor)
                 {
-                    (Members[propertyName] as IPropertyAssertAccessor).Set(propertyValue);
+                    (Members[propertyName] as IPropertyMockAccessor).Set(propertyValue);
 
                     if (ExtraAddedProperties.ContainsKey(propertyName))
                         ExtraAddedProperties.Remove(propertyName);

@@ -104,7 +104,7 @@ namespace Dynamox.Mocks
 
             ReturnValue = args[0];
 
-            return false;
+            return true;
         }
 
         bool Ensure(object[] args)
@@ -112,7 +112,7 @@ namespace Dynamox.Mocks
             if (args != null && args.Any())
                 throw new InvalidOperationException("You cannot pass any argments into ensure");
 
-            this.MustBeCalled = true;
+            MustBeCalled = true;
             Actions.Add(new MethodCallback(() => WasCalled = true));
 
             return true;

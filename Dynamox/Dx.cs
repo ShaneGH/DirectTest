@@ -45,19 +45,19 @@ namespace Dynamox
 
         #region Properties
 
-        public static IPropertyAssertBuilder<TProperty> Property<TProperty>()
+        public static IPropertyMockBuilder<TProperty> Property<TProperty>()
         {
-            return new PropertyAssertBuilder<TProperty>();
+            return new PropertyMockBuilder<TProperty>();
         }
 
-        public static IPropertyAssertBuilder<TProperty> Property<TProperty>(TProperty property)
+        public static IPropertyMockBuilder<TProperty> Property<TProperty>(TProperty property)
         {
-            return new PropertyAssertBuilder<TProperty>(property);
+            return new PropertyMockBuilder<TProperty>(property);
         }
 
-        public static IPropertyAssertBuilder<TProperty> Property<TProperty>(Func<TProperty> property, bool canSet = false)
+        public static IPropertyMockBuilder<TProperty> Property<TProperty>(Func<TProperty> property, bool canSet = false)
         {
-            return new PropertyAssertBuilder<TProperty>(property, canSet);
+            return new PropertyMockBuilder<TProperty>(property, canSet);
         }
 
         #endregion

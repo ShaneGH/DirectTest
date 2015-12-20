@@ -33,8 +33,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.3.0.0\lib\net45\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,6 +54,7 @@
     <Compile Include="Features\Mocks\Properties.cs" />
     <Compile Include="Features\Mocks\MethodsAndProperties.cs" />
     <Compile Include="Features\Mocks\Returns.cs" />
+    <Compile Include="Features\Mocks\Settings.cs" />
     <Compile Include="Features\TestSetup.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckersTests.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityCheckerTests.cs" />
@@ -64,15 +66,14 @@
     <Compile Include="SmokeTests\Interfaces.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Dynamox\Dynamox.csproj">
       <Project>{481e2d7e-ad0f-4afa-bc7d-1cc3615698f5}</Project>
       <Name>Dynamox</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

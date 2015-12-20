@@ -16,9 +16,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new Properties();
+            var tests = new MethodsAndProperties();
 
-            tests.DynamicPropertyVal_CannotSet();
+            tests.MethodPrecedence();
         }
     }
 }
