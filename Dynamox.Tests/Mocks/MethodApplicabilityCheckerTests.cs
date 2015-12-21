@@ -21,5 +21,15 @@ namespace Dynamox.Tests.Mocks
             Assert.IsFalse(subject.TestArgs(new object[] { new object() }));
             Assert.IsFalse(subject.TestArgs(new object[] { null }));
         }
+
+        [Test]
+        public void TestArgTypes()
+        {
+            var subject = new MethodApplicabilityChecker<string, int, object>(null);
+
+            Assert.IsTrue(subject.TestArgTypes(new[] { typeof(string), typeof(int), typeof(object) }));
+            Assert.IsTrue(subject.TestArgTypes(new[] { typeof(string), typeof(int), typeof(string) }));
+            Assert.IsFalse(subject.TestArgTypes(new[] { typeof(string), typeof(float), typeof(object) }));
+        }
     }
 }

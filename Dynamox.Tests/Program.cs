@@ -17,9 +17,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new CompileTests2();
+            var tests = new MethodMockBuilderTests();
 
-            tests.ExplicitInterfaceTests();
+            tests.RepresentsMethodTest_Not_OK1();
         }
     }
 }

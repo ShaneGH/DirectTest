@@ -156,7 +156,7 @@ namespace Dynamox.Compile
                 {
                     _SettableProperties = Array.AsReadOnly(Type.GetProperties(AllInstanceMembers)
                         .Where(p => !OverridableProperties.Contains(p))
-                        .Where(p => p.SetMethod != null && !p.SetMethod.IsPrivate && !p.SetMethod.IsAssembly)
+                        .Where(p => p.SetMethod != null && !p.SetMethod.IsPrivate && !p.SetMethod.IsAssembly && p.GetMethod != null)
                         .ToArray());
                 }
 

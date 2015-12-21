@@ -294,5 +294,29 @@ namespace Dynamox.Tests.Compile
             Assert.AreEqual(desc.OverridableProperties.Where(p => p.GetIndexParameters().Any()).ElementAt(0).GetIndexParameters().ElementAt(0).ParameterType, typeof(int));
             Assert.AreEqual(desc.OverridableProperties.Where(p => p.GetIndexParameters().Any()).ElementAt(0).GetIndexParameters().ElementAt(1).ParameterType, typeof(string));
         }
+
+        public class SettableFieldsAndProperties
+        {
+            public int Prop1 { get; set; }
+            public int Prop2 { get { return 4; } }
+            public int Prop3 { get; internal set; }
+
+            public int Field1;
+            public readonly int Field2;
+        }
+
+        [Test]
+        public void SettableFieldsAndPropertiesTests()
+        {
+            // arrange
+            // act
+            var desc = new TypeOverrideDescriptor(typeof(SettableFieldsAndProperties));
+
+            // assert
+            Assert.AreEqual(desc.SettableFields.Count(), 1);
+            Assert.AreEqual(desc.SettableFields.ElementAt(0).Name, "Field1");
+            Assert.AreEqual(desc.SettableProperties.Count(), 1);
+            Assert.AreEqual(desc.SettableProperties.ElementAt(0).Name, "Prop1");
+        }
     }
 }

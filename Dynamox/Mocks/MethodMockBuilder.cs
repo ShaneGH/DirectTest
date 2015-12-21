@@ -168,10 +168,20 @@ namespace Dynamox.Mocks
         public bool RepresentsMethod(MethodInfo method)
         {
             //TODO: generic constraints???
-            if (GenericArguments.Count() != method.GetGenericArguments().Length)
+            var methodGenerics = method.GetGenericArguments();
+            if (GenericArguments.Count() != methodGenerics.Length)
             {
                 // TODO: reason
                 return false;
+            }
+
+            if (!method.ContainsGenericParameters)
+            {
+                for (var i = 0; i < methodGenerics.Length; i++)
+                {
+                    if (methodGenerics[i] != GenericArguments.ElementAt(i))
+                        return false;
+                }
             }
 
             //TODO: out params

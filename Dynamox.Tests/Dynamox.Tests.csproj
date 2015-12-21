@@ -59,6 +59,7 @@
     <Compile Include="Mocks\GenericMethodApplicabilityCheckersTests.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityCheckerTests.cs" />
     <Compile Include="Mocks\MethodApplicabilityCheckerTests.cs" />
+    <Compile Include="Mocks\MethodMockBuilderTests.cs" />
     <Compile Include="Mocks\ObjectBaseTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
