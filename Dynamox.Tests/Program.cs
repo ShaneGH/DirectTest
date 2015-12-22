@@ -19,7 +19,7 @@ namespace Dynamox.Tests
         {
             var tests = new MethodMockBuilderTests();
 
-            tests.RepresentsMethodTest_Not_OK1();
+            tests.RepresentsMethodTest_OK1_ConstructedGeneric();
         }
     }
 }

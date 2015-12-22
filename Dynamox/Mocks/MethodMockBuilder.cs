@@ -175,17 +175,22 @@ namespace Dynamox.Mocks
                 return false;
             }
 
-            if (!method.ContainsGenericParameters)
+            for (var i = 0; i < methodGenerics.Length; i++)
             {
-                for (var i = 0; i < methodGenerics.Length; i++)
+                // is constructed generic method
+                if (!method.ContainsGenericParameters)
                 {
                     if (methodGenerics[i] != GenericArguments.ElementAt(i))
                         return false;
                 }
+                else // is generic method
+                {
+                    var constraints = methodGenerics[i].GetGenericParameterConstraints();
+                }
             }
 
             //TODO: out params
-            return ArgChecker.TestArgTypes(method.GetParameters().Select(p => p.ParameterType));
+            return ArgChecker.CanMockMethod(method);
         }
         
         public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<object> arguments, out object result)

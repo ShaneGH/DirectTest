@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,9 +10,12 @@ namespace Dynamox.Mocks
     public interface IMethodAssert
     {
         bool TestArgs(IEnumerable<object> args);
-
-        //TODO: out params
-        bool TestArgTypes(IEnumerable<Type> types);
+        
+        // TODO: out params
+        bool TestInputArgTypes(IEnumerable<Type> types);
+        
+        // TODO: out params
+        bool CanMockMethod(MethodInfo method);
 
         IEnumerable<Type> InputTypes { get; }
     }
@@ -33,7 +37,7 @@ namespace Dynamox.Mocks
             return TestArgs(Enumerable.Empty<object>());
         }
 
-        public bool TestArgTypes(IEnumerable<Type> types)
+        public bool TestInputArgTypes(IEnumerable<Type> types)
         {
             var methodArgTypes = InputTypes.ToArray();
             var inputArgTypes = types.ToArray();
@@ -45,6 +49,32 @@ namespace Dynamox.Mocks
             {
                 if (methodArgTypes[i] == typeof(AnyValue)) ;
                 else if (!methodArgTypes[i].IsAssignableFrom(inputArgTypes[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool CanMockMethod(MethodInfo method)
+        {
+            var mockArgTypes = InputTypes.ToArray();
+            var methodArgTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
+
+            if (mockArgTypes.Length != methodArgTypes.Length)
+                return false;
+
+            for (var i = 0; i < mockArgTypes.Length; i++)
+            {
+                if (mockArgTypes[i] == typeof(AnyValue)) ;
+                else if (methodArgTypes[i].IsGenericParameter)
+                {
+                    var genericConstraints = methodArgTypes[i].GetGenericParameterConstraints();
+                    if (genericConstraints.Any() && !genericConstraints.Any(t => t.IsAssignableFrom(mockArgTypes[i])))
+                        return false;
+                }
+                else if (!methodArgTypes[i].IsAssignableFrom(mockArgTypes[i]))
                 {
                     return false;
                 }

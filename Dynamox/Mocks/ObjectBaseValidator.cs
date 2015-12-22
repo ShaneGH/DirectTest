@@ -28,47 +28,39 @@
 //        /// <returns>Errors</returns>
 //        public IEnumerable<string> ValidateAgainstType(ObjectBase toValidate)
 //        {
-//            Errors? error;
-//            var errors = new List<Errors?>();
+//            var errors = new List<Error>();
 //            foreach (var item in toValidate.Members.Keys)
 //            {
 //                if (toValidate.Members[item] is MethodGroup)
+//                {
 //                    errors.Add(ValidateMethod(item, toValidate.Members[item] as MethodGroup, ForType.OverridableMethods));
+//                }
 //                else
 //                {
-//                    error = ValidateFieldOrProperty(item, toValidate.Members[item], ForType.OverridableFields, ForType.OverridableProperties);
-//                    if (error == Errors.CannotFindPropertyOrFieldToOverride)
-//                    {
-//                        if ()
-//                    }
-//                    else
-//                    {
-//                        errors.Add(error);
-//                    }
+//                    errors.Add(ValidateFieldOrProperty(item, toValidate.Members[item], ForType.SettableFields,
+//                        ForType.OverridableProperties.Union(ForType.SettableProperties)));
 //                }
 //            }
 
-//            return errors.Where(e => e.HasValue).Select(e => e.Value);
+//            return errors.Where(e => e != null).Select(e => e.ErrorMessage);
 //        }
-            
-//        // TODO: return more complex structure to near misses (partially matched functions)
+
 //        static Error ValidateMethod(string name, MethodGroup value, IEnumerable<MethodInfo> methods)
 //        {
 //            methods = methods.Where(m => m.Name == name).ToArray();
 //            if (!value.All(mock => methods.Any(m => mock.RepresentsMethod(m))))
-//                return Errors.CannotFindMethodToOverride;
+//                return new Error(Errors.CannotFindMethodToOverride, "Cannot find method \"" + name + "\" with the given parameters to mock.");
 
 //            return null;
 //        }
 
-//        // TODO: return more complex structure to give field or property types
 //        static Error ValidateFieldOrProperty(string name, object value, IEnumerable<FieldInfo> fields, IEnumerable<PropertyInfo> properties)
 //        {
 //            properties = properties.Where(p => p.Name == name).ToArray();
 //            if (value == null)
 //            {
-//                if (!properties.Any(p => !p.PropertyType.IsValueType))
-//                    return Errors.PropertyTypeIsIncorrect;
+//                if (properties.Any() && !properties.Any(p => !p.PropertyType.IsValueType))
+//                    return new Error(Errors.PropertyTypeIsIncorrect, "The property \"" + name + "\" has type " + properties.First().PropertyType.Name + " which cannot be set to null.");
 //            }
 //            else
 //            {
@@ -81,8 +73,8 @@
 //            fields = fields.Where(p => p.Name == name).ToArray();
 //            if (value == null)
 //            {
-//                if (!fields.Any(p => !p.FieldType.IsValueType))
-//                    return Errors.FieldTypeIsIncorrect;
+//                if (fields.Any() && !fields.Any(p => !p.FieldType.IsValueType))
+//                    return new Error(Errors.PropertyTypeIsIncorrect, "The field \"" + name + "\" has type " + fields.First().FieldType.Name + " which cannot be set to null.");
 //            }
 //            else
 //            {
@@ -97,8 +89,8 @@
 
 //        class Error
 //        {
-//            readonly Errors ErrorType;
-//            readonly string ErrorMessage;
+//            public readonly Errors ErrorType;
+//            public readonly string ErrorMessage;
 
 //            public Error(Errors errorType, string errorMessage)
 //            {
