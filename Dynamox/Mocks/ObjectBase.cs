@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Dynamic;
 
 namespace Dynamox.Mocks
 {
@@ -17,7 +18,7 @@ namespace Dynamox.Mocks
         public readonly ReadOnlyDictionary<string, object> Members;
         public readonly ReadOnlyDictionary<IEnumerable<object>, object> MockedIndexes;
         readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string, object>();
-        readonly Dictionary<IEnumerable<object>, object> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, object>();
+        readonly Dictionary<IEnumerable<object>, object> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, object>(DynamicBag.ArrayComparer);
 
         IEnumerable<KeyValuePair<IEnumerable<object>, object>> Indexes
         {
@@ -157,14 +158,15 @@ namespace Dynamox.Mocks
             var values = indexValues.Select(v => v.Arg).ToArray();
             lock (ExtraAddedIndexes)
             {
-                var kvp = ExtraAddedIndexes.FirstOrDefault(idx =>
-                    idx.Key.Count() == values.Length &&
-                    idx.Key.Select((k, i) => (k == null && values[i] == null) || (k != null && k.Equals(values[i]))).All(a => a));
-
-                //TODO: if existing property is IPropertyMockAccessor (or whatever the index version of this might be)
-                if (!kvp.Equals(default(KeyValuePair<IEnumerable<object>, object>)))
+                if (MockedIndexes.ContainsKey(values) && MockedIndexes[values] is IPropertyMockAccessor)
                 {
-                    ExtraAddedIndexes[kvp.Key] = value;
+                    (MockedIndexes[values] as IPropertyMockAccessor).Set(value);
+                    return;
+                }
+
+                if (ExtraAddedIndexes.ContainsKey(values))
+                {
+                    ExtraAddedIndexes[values] = value;
                 }
                 else
                 {

@@ -26,8 +26,6 @@ namespace Dynamox.Mocks
         {
         }
 
-        //TODO: indexes
-
         /// <summary>
         /// 
         /// </summary>

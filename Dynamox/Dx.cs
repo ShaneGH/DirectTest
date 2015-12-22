@@ -64,6 +64,25 @@ namespace Dynamox
 
         #endregion
 
+        #region Indexes
+
+        public static IPropertyMockBuilder<TIndexValue> Index<TIndexValue>()
+        {
+            return Property<TIndexValue>();
+        }
+
+        public static IPropertyMockBuilder<TIndexValue> Index<TIndexValue>(TIndexValue property)
+        {
+            return Property<TIndexValue>(property);
+        }
+
+        public static IPropertyMockBuilder<TIndexValue> Index<TIndexValue>(Func<TIndexValue> property, bool canSet = false)
+        {
+            return Property<TIndexValue>(property, canSet);
+        }
+
+        #endregion
+
         #region MethodApplicabilityChecker
 
         public static IMethodAssert Method()

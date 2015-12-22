@@ -85,6 +85,16 @@ namespace Dynamox.Mocks
             return base.TryGetMember(binder, out result);
         }
 
+        public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
+        {
+            if (base.TryGetIndex(binder, indexes, out result))
+                return true;
+
+            SetIndex(indexes, new MockBuilder(MockSettings, TestSettings));
+
+            return base.TryGetIndex(binder, indexes, out result);
+        }
+
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             if (binder.Name == MockSettings.Clear)

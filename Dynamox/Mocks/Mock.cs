@@ -10,7 +10,8 @@ namespace Dynamox.Mocks
     {
         public readonly DxSettings Settings;
         public readonly Type MockType;
-        public readonly ReadOnlyDictionary<string, object> Builder;
+        public readonly ReadOnlyDictionary<string, object> Members;
+        public readonly ReadOnlyDictionary<IEnumerable<object>, object> Indexes;
 
         private static readonly object UnAssigned = new object();
         private Object _Object = UnAssigned;
@@ -39,7 +40,8 @@ namespace Dynamox.Mocks
                 throw new InvalidOperationException("Cannot mock sealed");  //TODE
 
             MockType = mockType;
-            Builder = builder.Values;
+            Members = builder.Values;
+            Indexes = builder.IndexedValues;
         }
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace Dynamox.Mocks
         {
             Compile();
 
-            return Constructors[MockType](new ObjectBase(Settings, Builder));
+            return Constructors[MockType](new ObjectBase(Settings, Members, Indexes));
         }
     }
 }

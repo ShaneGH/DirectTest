@@ -17,9 +17,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new ObjectBaseValidatorTests();
+            var tests = new Indexes();
 
-            tests.AllGoodTests_extended();
+            tests.DynamicPropertyVal_CannotSet();
         }
     }
 }

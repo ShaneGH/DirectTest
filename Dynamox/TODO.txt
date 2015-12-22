@@ -1,4 +1,5 @@
 ﻿
+ObjectBaseValidator: validate Indexes
 
 mess with IL http://www.codeproject.com/Articles/14058/Parsing-the-IL-of-a-Method-Body
 mock or rather set fields (comment not really related to this class)
