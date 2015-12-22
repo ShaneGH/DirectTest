@@ -17,9 +17,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new MethodMockBuilderTests();
+            var tests = new ObjectBaseValidatorTests();
 
-            tests.RepresentsMethodTest_OK1_ConstructedGeneric();
+            tests.AllGoodTests_extended();
         }
     }
 }

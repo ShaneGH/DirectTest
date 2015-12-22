@@ -56,7 +56,7 @@ namespace Dynamox.Tests.Compile
             // arrange
             // act
             var allMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            var subject = new TypeOverrideDescriptor(typeof(MethodTestType3));
+            var subject = TypeOverrideDescriptor.Create(typeof(MethodTestType3));
 
             // assert
             var methodAsserts = new Action<MethodInfo>[] 
@@ -118,7 +118,7 @@ namespace Dynamox.Tests.Compile
             // arrange
             // act
             var allMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            var subject = new TypeOverrideDescriptor(typeof(PropertyTestType3));
+            var subject = TypeOverrideDescriptor.Create(typeof(PropertyTestType3));
 
             // assert
             var propertyAsserts = new Action<PropertyInfo>[] 
@@ -217,7 +217,7 @@ namespace Dynamox.Tests.Compile
             // arrange
             // act
             var allMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            var subject = new TypeOverrideDescriptor(toTest);
+            var subject = TypeOverrideDescriptor.Create(toTest);
 
             // assert
             var interfaceAsserts = new List<Action<InterfaceDescriptor>>();
@@ -255,9 +255,9 @@ namespace Dynamox.Tests.Compile
             // arrange
             // act
             // assert
-            Assert.IsFalse(new TypeOverrideDescriptor(typeof(MethodTestType1)).HasAbstractInternal);
-            Assert.IsTrue(new TypeOverrideDescriptor(typeof(MethodTestType2)).HasAbstractInternal);
-            Assert.IsFalse(new TypeOverrideDescriptor(typeof(MethodTestType3)).HasAbstractInternal);
+            Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(MethodTestType1)).HasAbstractInternal);
+            Assert.IsTrue(TypeOverrideDescriptor.Create(typeof(MethodTestType2)).HasAbstractInternal);
+            Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(MethodTestType3)).HasAbstractInternal);
         }
 
         public class TheIndexes
@@ -286,7 +286,7 @@ namespace Dynamox.Tests.Compile
         {
             // arrange
             // act
-            var desc = new TypeOverrideDescriptor(typeof(TheIndexes));
+            var desc = TypeOverrideDescriptor.Create(typeof(TheIndexes));
 
             // assert
             Assert.AreEqual(desc.OverridableProperties.Where(p => p.GetIndexParameters().Any()).Count(), 1);
@@ -310,7 +310,7 @@ namespace Dynamox.Tests.Compile
         {
             // arrange
             // act
-            var desc = new TypeOverrideDescriptor(typeof(SettableFieldsAndProperties));
+            var desc = TypeOverrideDescriptor.Create(typeof(SettableFieldsAndProperties));
 
             // assert
             Assert.AreEqual(desc.SettableFields.Count(), 1);

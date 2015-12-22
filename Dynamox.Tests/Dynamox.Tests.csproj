@@ -61,6 +61,7 @@
     <Compile Include="Mocks\MethodApplicabilityCheckerTests.cs" />
     <Compile Include="Mocks\MethodMockBuilderTests.cs" />
     <Compile Include="Mocks\ObjectBaseTests.cs" />
+    <Compile Include="Mocks\ObjectBaseValidator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmokeTests\Classes.cs" />

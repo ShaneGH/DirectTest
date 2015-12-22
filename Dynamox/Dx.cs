@@ -10,7 +10,7 @@ namespace Dynamox
 {
     public static class Dx
     {
-        public static readonly DxSettings GlobalSettings = DxSettings.GlobalSettings;
+        public static readonly DxSettings Settings = DxSettings.GlobalSettings;
 
         public static object Any
         {

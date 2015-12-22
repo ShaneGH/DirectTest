@@ -281,13 +281,13 @@ namespace Dynamox.Tests.Compile
         [Test]
         public void InterfaceAndClassTests()
         {
-            dynamic builder = new MockBuilder(Dx.GlobalSettings);
+            dynamic builder = new MockBuilder(Dx.Settings);
             builder.Prop = 77;
             builder.Method().Returns(88);
 
             var subject = (InterfaceAndClass2)Compiler.Compile(typeof(InterfaceAndClass2))
                     .GetConstructors()[0]
-                        .Invoke(new object[] { new ObjectBase(Dx.GlobalSettings, builder.Values) });
+                        .Invoke(new object[] { new ObjectBase(Dx.Settings, builder.Values) });
 
             Assert.AreEqual(subject.Prop, 77);
             Assert.AreEqual(subject.Method(), 88);
@@ -339,13 +339,13 @@ namespace Dynamox.Tests.Compile
         [Test]
         public void ExplicitInterfaceTests()
         {
-            dynamic builder = new MockBuilder(Dx.GlobalSettings);
+            dynamic builder = new MockBuilder(Dx.Settings);
             builder.Prop = 77;
             builder.Method().Returns(88);
 
             var subject = (ExplicitInterface)Compiler.Compile(typeof(ExplicitInterface))
                     .GetConstructors()[0]
-                        .Invoke(new object[] { new ObjectBase(Dx.GlobalSettings, builder.Values) });
+                        .Invoke(new object[] { new ObjectBase(Dx.Settings, builder.Values) });
 
             Assert.AreEqual(subject.Prop, 77);
             Assert.AreEqual(subject.Method(), 88);
@@ -363,7 +363,7 @@ namespace Dynamox.Tests.Compile
         public void IndexesTests()
         {
             var subject = (Indexes)
-                Compiler.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(Dx.GlobalSettings,
+                Compiler.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(Dx.Settings,
                     new ReadOnlyDictionary<IEnumerable<object>, object>(
                         new Dictionary<IEnumerable<object>, object>
                         {

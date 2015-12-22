@@ -83,7 +83,24 @@ namespace Dynamox.Compile
             }
         }
 
-        public TypeOverrideDescriptor(Type type)
+        static readonly Dictionary<Type, TypeOverrideDescriptor> Cache = new Dictionary<Type, TypeOverrideDescriptor>();
+        public static TypeOverrideDescriptor Create(Type forType) 
+        {
+            if (Cache.ContainsKey(forType))
+                return Cache[forType];
+
+            lock (Cache)
+            {
+                if (!Cache.ContainsKey(forType))
+                {
+                    Cache.Add(forType, new TypeOverrideDescriptor(forType));
+                }
+            }
+
+            return Cache[forType];
+        }
+
+        private TypeOverrideDescriptor(Type type)
         {
             _Type = type;
         }
