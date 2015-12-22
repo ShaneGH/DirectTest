@@ -44,21 +44,21 @@ namespace Dynamox.Tests.Mocks
         public void AllGoodTests()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop1 = new C2();
-            input.input.Prop2 = 1;
-            input.input.Field1 = 1;
-            input.input.Field2 = 1;
-            input.input.Method1();
-            input.input.Method2(4);
-            input.input.Method3(new C2());
-            input.input.Method4<C2>(new C2());
+            dynamic input = new MockBuilder();
+            input.Prop1 = new C2();
+            input.Prop2 = 1;
+            input.Field1 = 1;
+            input.Field2 = 1;
+            input.Method1();
+            input.Method2(4);
+            input.Method3(new C2());
+            input.Method4<C2>(new C2());
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)));
+            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)));
         }
 
         [Test]

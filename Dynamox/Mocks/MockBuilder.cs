@@ -33,6 +33,11 @@ namespace Dynamox.Mocks
             }
         }
 
+        public MockBuilder()
+            : this(Dx.Settings)
+        {
+        }
+
         public MockBuilder(DxSettings testSettings)
             : this(new MockSettings(), testSettings)
         {
