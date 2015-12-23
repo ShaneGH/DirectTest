@@ -33,6 +33,11 @@ namespace Dynamox.Mocks
         /// <returns>Errors</returns>
         public IEnumerable<string> ValidateAgainstType(ObjectBase toValidate)
         {
+            var properties = ForType.OverridableProperties.Union(ForType.SettableProperties)
+                .Where(p => !p.GetIndexParameters().Any()).ToArray();
+            var indexes = ForType.OverridableProperties.Union(ForType.SettableProperties)
+                .Where(p => p.GetIndexParameters().Any()).ToArray();
+
             var errors = new List<Error>();
             foreach (var item in toValidate.Members.Keys)
             {
@@ -42,12 +47,65 @@ namespace Dynamox.Mocks
                 }
                 else
                 {
-                    errors.Add(ValidateFieldOrProperty(item, toValidate.Members[item], ForType.SettableFields,
-                        ForType.OverridableProperties.Union(ForType.SettableProperties)));
+                    errors.Add(ValidateFieldOrProperty(item, toValidate.Members[item], ForType.SettableFields, properties));
                 }
             }
 
+            errors.AddRange(toValidate.MockedIndexes.Select(i => ValidateIndex(indexes, i.Key.Select(k => k == null ? null : k.GetType()), i.Value == null ? null : i.Value.GetType())));
             return errors.Where(e => e != null).Select(e => e.ErrorMessage);
+        }
+
+        static Error ValidateIndex(IEnumerable<PropertyInfo> indexedProperties, IEnumerable<Type> keyTypes, Type value)
+        {
+            Func<Type, Type, bool> validateType = (a, b) =>
+            {
+                if (b == null)
+                {
+                    if (a.IsValueType)
+                        return false;
+                }
+                else if (a == null)
+                {
+                    if (b.IsValueType)
+                        return false;
+                }
+                else if (!b.IsAssignableFrom(a))
+                {
+                    return false;
+                }
+
+                return true;
+            };
+
+            foreach (var i in indexedProperties.Select(ip => new 
+                { value = ip.PropertyType, key = ip.GetIndexParameters().Select(p => p.ParameterType).ToArray() }))
+            {
+                if (!validateType(value, i.value))
+                    continue;
+
+                if (keyTypes.Count() != i.key.Length)
+                    continue;
+
+                int current = 0;
+                foreach (var key in keyTypes)
+                {
+                    if (!validateType(key, i.key[current]))
+                    {
+                        current = -1;
+                        break;
+                    }
+
+                    current++;
+                }
+
+                if (current != -1)
+                    return null;
+            }
+
+            return new Error(Errors.PropertyTypeIsIncorrect,
+                "Cannot find an indexed property with indexes: " +
+                string.Join(", ", keyTypes.Select(k => k == null ? "null" : k.ToString()).ToArray()) +
+                " and value " + value == null ? "null" : value.ToString());
         }
 
         static Error ValidateMethod(string name, MethodGroup value, IEnumerable<MethodInfo> methods)

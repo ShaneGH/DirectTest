@@ -106,7 +106,7 @@ namespace Dynamox.Dynamic
 
             public int GetHashCode(IEnumerable<object> obj)
             {
-                return string.Join("-", (obj ?? Enumerable.Empty<object>()).Select(a => a.GetHashCode().ToString())).GetHashCode();
+                return string.Join("-", (obj ?? Enumerable.Empty<object>()).Select(a => a == null ? "0" : a.GetHashCode().ToString())).GetHashCode();
             }
         }
     }

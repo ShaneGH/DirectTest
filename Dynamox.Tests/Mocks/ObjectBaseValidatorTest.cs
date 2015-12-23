@@ -38,6 +38,9 @@ namespace Dynamox.Tests.Mocks
             public virtual void Method4<U>(U val)
                 where U : C1
             { }
+
+            public virtual C1 this[int key1, C1 key2] { get { return null; } set { } }
+            public C1 this[C1 key2, int key1] { get { return null; } set { } }
         }
 
         [Test]
@@ -53,208 +56,254 @@ namespace Dynamox.Tests.Mocks
             input.Method2(4);
             input.Method3(new C2());
             input.Method4<C2>(new C2());
+            input[1, new C2()] = new C2();
+            input[new C2(), 1] = new C2();
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)));
+            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)));
         }
 
         [Test]
         public void AllGoodTests_extended()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop1 = null;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Prop1 = null;
+            input[1, null] = new C2();
+            input[new C2(), 1] = null;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)));
+            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)));
+        }
+
+        [Test]
+        public void InvalidIndex_InvalidKeyType1()
+        {
+            // arrange
+            dynamic input = new MockBuilder(Dx.Settings);
+            input[new C0(), 1] = new C2();
+
+            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+
+            // act
+            // assert
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)).Count(), 1);
+        }
+
+        [Test]
+        public void InvalidIndex_InvalidKeyType2()
+        {
+            // arrange
+            dynamic input = new MockBuilder(Dx.Settings);
+            input[new C2(), null] = new C2();
+
+            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+
+            // act
+            // assert
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)).Count(), 1);
+        }
+
+        [Test]
+        public void InvalidIndex_InvalidValueType()
+        {
+            // arrange
+            dynamic input = new MockBuilder(Dx.Settings);
+            input[new C2(), 1] = new C0();
+
+            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+
+            // act
+            // assert
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)).Count(), 1);
         }
 
         [Test]
         public void InvalidType1()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop2 = null;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Prop2 = null;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void InvalidType2()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop1 = new C0();
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Prop1 = new C0();
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void InternalProp()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop3 = 1;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Prop3 = 1;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void NoGetter()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop4 = 1;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Prop4 = 1;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void NoSetter()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop5 = 1;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Prop5 = 1;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void Private()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Prop6 = 1;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Prop6 = 1;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void InternalField()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Field3 = 1;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Field3 = 1;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void InvalidFieldOrProp()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Invalid = 1;
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Invalid = 1;
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void TooManyArgs()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Method1(1);
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Method1(1);
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void NotEnoughArgs()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Method2();
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Method2();
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void InvalidArgTypes()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Method2("");
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Method2("");
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void InvalidMethod()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.InvalidMethod();
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.InvalidMethod();
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
 
         [Test]
         public void InvalidMethodGeneric()
         {
             // arrange
-            dynamic input = new TestArranger(Dx.Settings);
-            input.input.Method4<int>(3);
+            dynamic input = new MockBuilder(Dx.Settings);
+            input.Method4<int>(3);
 
             var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
         }
     }
 }

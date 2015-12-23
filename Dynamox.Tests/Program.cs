@@ -19,7 +19,7 @@ namespace Dynamox.Tests
         {
             var tests = new ObjectBaseValidatorTests();
 
-            tests.AllGoodTests();
+            tests.InvalidIndex_InvalidKeyType2();
         }
     }
 }
