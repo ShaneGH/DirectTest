@@ -96,7 +96,7 @@ namespace Dynamox.Compile
             foreach (var constructor in typeDescriptor.Type.GetConstructors(AllMembers)
                 .Where(c => !c.IsAssembly || c.IsFamilyOrAssembly))
             {
-                AddConstructor(type, objBase, constructor);
+                AddConstructor(type, objBase, constructor, typeDescriptor);
             }
 
             foreach (var property in typeDescriptor.OverridableProperties)
@@ -188,13 +188,15 @@ namespace Dynamox.Compile
             }
         }
 
-        public static void AddConstructor(TypeBuilder toType, FieldInfo objBase, ConstructorInfo constructor)
+        static void AddConstructor(TypeBuilder toType, FieldInfo objBase, ConstructorInfo constructor, TypeOverrideDescriptor descriptor)
         {
             var args = new[] { typeof(ObjectBase) }
                 .Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
             var con = toType.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, args);
 
             var body = con.GetILGenerator();
+
+            var ret = body.DefineLabel();
 
             // Set objectBase
             // arg 0 is "this"
@@ -210,7 +212,57 @@ namespace Dynamox.Compile
                 body.Emit(OpCodes.Ldarg_S, (short)(i + 1));
             body.Emit(OpCodes.Call, constructor);
 
+            // if (ObjectBase.Settings.SetNonVirtualPropertiesOrFields != true) return;
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldfld, typeof(ObjectBase).GetField("Settings"));
+            body.Emit(OpCodes.Call, typeof(DxSettings).GetProperty("SetNonVirtualPropertiesOrFields").GetMethod);
+            body.Emit(OpCodes.Ldc_I4_1);
+            body.Emit(OpCodes.Ceq);
+            body.Emit(OpCodes.Brfalse, ret);
+
+            BuildSetters(body, descriptor);
+            body.Emit(OpCodes.Br, ret);
+
+            body.MarkLabel(ret);
             body.Emit(OpCodes.Ret);
+        }
+
+        static void BuildSetters(ILGenerator body, TypeOverrideDescriptor forType)
+        {
+            var hasFieldOrProperty = typeof(ObjectBase).GetMethod("HasFieldOrProperty");
+            var getProperty = typeof(ObjectBase).GetMethod("GetProperty");
+            Action<string, Type, Action> ifNotHasFieldOrProperty = (n, t, set) =>
+            {
+                var endFieldSetting = body.DefineLabel();
+
+                // if (!ObjectBase.HasFieldOrProperty<T>("Name")) GO TO: next property
+                body.Emit(OpCodes.Ldarg_1);
+                body.Emit(OpCodes.Ldstr, n);
+                body.Emit(OpCodes.Call, hasFieldOrProperty.MakeGenericMethod(new[] { t }));
+                body.Emit(OpCodes.Ldc_I4_0);
+                body.Emit(OpCodes.Ceq);
+                body.Emit(OpCodes.Brtrue, endFieldSetting);
+
+                // this.Prop = ObjectBase.GetProperty<TProp>("Prop")
+                body.Emit(OpCodes.Ldarg_0);
+                body.Emit(OpCodes.Ldarg_1);
+                body.Emit(OpCodes.Ldstr, n);
+                body.Emit(OpCodes.Call, getProperty.MakeGenericMethod(new[] { t }));
+
+                set();
+
+                body.MarkLabel(endFieldSetting);
+            };
+
+            foreach (var field in forType.SettableFields)
+            {
+                ifNotHasFieldOrProperty(field.Name, field.FieldType, () => body.Emit(OpCodes.Stfld, field));
+            }
+
+            foreach (var property in forType.SettableProperties)
+            {
+                ifNotHasFieldOrProperty(property.Name, property.PropertyType, () => body.Emit(OpCodes.Call, property.SetMethod));
+            }
         }
 
         static readonly Regex _global = new Regex(@"^\s*global::\s*");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,18 +15,54 @@ namespace Dynamox.Mocks
     /// </summary>
     internal class ObjectBaseValidator
     {
-        public readonly TypeOverrideDescriptor ForType;
+        public readonly IReadOnlyCollection<PropertyInfo> Properties;
+        public readonly IReadOnlyCollection<PropertyInfo> Indexes;
+        public readonly IReadOnlyCollection<FieldInfo> Fields;
+        public readonly IReadOnlyCollection<MethodInfo> Methods;
 
-        public ObjectBaseValidator(TypeOverrideDescriptor forType)
+        static readonly ConcurrentDictionary<Type, ObjectBaseValidator> Cache;
+        static ObjectBaseValidator()
         {
-            ForType = forType;
+            Cache = new ConcurrentDictionary<Type, ObjectBaseValidator>();
+            DxSettings.GlobalSettings.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == "CacheTypeCheckers" && !DxSettings.GlobalSettings.CacheTypeCheckers)
+                    Cache.Clear();
+            };
         }
 
-        public ObjectBaseValidator(Type forType)
-            : this(TypeOverrideDescriptor.Create(forType))
+        public static ObjectBaseValidator Create(Type forType)
         {
+            if (!DxSettings.GlobalSettings.CacheTypeCheckers)
+                return new ObjectBaseValidator(TypeOverrideDescriptor.Create(forType));
+
+            ObjectBaseValidator value;
+            if (!Cache.TryGetValue(forType, out value))
+                Cache.AddOrUpdate(forType,
+                    value = new ObjectBaseValidator(TypeOverrideDescriptor.Create(forType)),
+                    (a, b) => value);
+
+            return value;
         }
 
+        private ObjectBaseValidator(TypeOverrideDescriptor forType)
+        {
+            Properties = Array.AsReadOnly(forType.OverridableProperties
+                .Union(forType.SettableProperties)
+                .Union(forType.OverridableInterfaces.SelectMany(i => i.OverridableProperties))
+                .Where(p => !p.GetIndexParameters().Any()).ToArray());
+
+            Indexes = Array.AsReadOnly(forType.OverridableProperties
+                .Union(forType.SettableProperties)
+                .Union(forType.OverridableInterfaces.SelectMany(i => i.OverridableProperties))
+                .Where(p => p.GetIndexParameters().Any()).ToArray());
+
+            Fields = Array.AsReadOnly(forType.SettableFields.ToArray());
+
+            Methods = Array.AsReadOnly(forType.OverridableMethods
+                .Union(forType.OverridableInterfaces.SelectMany(i => i.OverridableMethods)).ToArray());
+        }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -33,25 +70,21 @@ namespace Dynamox.Mocks
         /// <returns>Errors</returns>
         public IEnumerable<string> ValidateAgainstType(ObjectBase toValidate)
         {
-            var properties = ForType.OverridableProperties.Union(ForType.SettableProperties)
-                .Where(p => !p.GetIndexParameters().Any()).ToArray();
-            var indexes = ForType.OverridableProperties.Union(ForType.SettableProperties)
-                .Where(p => p.GetIndexParameters().Any()).ToArray();
 
             var errors = new List<Error>();
             foreach (var item in toValidate.Members.Keys)
             {
                 if (toValidate.Members[item] is MethodGroup)
                 {
-                    errors.Add(ValidateMethod(item, toValidate.Members[item] as MethodGroup, ForType.OverridableMethods));
+                    errors.Add(ValidateMethod(item, toValidate.Members[item] as MethodGroup, Methods));
                 }
                 else
                 {
-                    errors.Add(ValidateFieldOrProperty(item, toValidate.Members[item], ForType.SettableFields, properties));
+                    errors.Add(ValidateFieldOrProperty(item, toValidate.Members[item], Fields, Properties));
                 }
             }
 
-            errors.AddRange(toValidate.MockedIndexes.Select(i => ValidateIndex(indexes, i.Key.Select(k => k == null ? null : k.GetType()), i.Value == null ? null : i.Value.GetType())));
+            errors.AddRange(toValidate.MockedIndexes.Select(i => ValidateIndex(Indexes, i.Key.Select(k => k == null ? null : k.GetType()), i.Value == null ? null : i.Value.GetType())));
             return errors.Where(e => e != null).Select(e => e.ErrorMessage);
         }
 
@@ -59,6 +92,9 @@ namespace Dynamox.Mocks
         {
             Func<Type, Type, bool> validateType = (a, b) =>
             {
+                if (typeof(IPropertyMockAccessor).IsAssignableFrom(a) || typeof(IPropertyMockAccessor).IsAssignableFrom(b))
+                    return true;
+
                 if (b == null)
                 {
                     if (a.IsValueType)
@@ -119,6 +155,9 @@ namespace Dynamox.Mocks
 
         static Error ValidateFieldOrProperty(string name, object value, IEnumerable<FieldInfo> fields, IEnumerable<PropertyInfo> properties)
         {
+            if (value is IPropertyMockAccessor)
+                return null;
+
             properties = properties.Where(p => p.Name == name).ToArray();
             if (properties.Any())
             {
@@ -131,7 +170,7 @@ namespace Dynamox.Mocks
                 }
                 else if (properties.Any())
                 {
-                    if (properties.Any(p => p.PropertyType.IsAssignableFrom(value.GetType())))
+                    if (value is MockBuilder || properties.Any(p => p.PropertyType.IsAssignableFrom(value.GetType())))
                         return null;
                 }
             }

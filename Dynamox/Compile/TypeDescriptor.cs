@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,6 +16,9 @@ namespace Dynamox.Compile
         bool HasAbstractInternal { get; }
     }
 
+    /// <summary>
+    /// Reflect over an interface to get the parts needed to build a virtual proxy
+    /// </summary>
     internal class InterfaceDescriptor : ITypeOverrideDescriptor
     {
         public readonly Type Interface;
@@ -70,6 +74,9 @@ namespace Dynamox.Compile
         }
     }
 
+    /// <summary>
+    /// Reflect over a class to get the parts needed to build a virtual proxy
+    /// </summary>
     internal class TypeOverrideDescriptor : ITypeOverrideDescriptor
     {
         public static readonly BindingFlags AllInstanceMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -83,21 +90,29 @@ namespace Dynamox.Compile
             }
         }
 
-        static readonly Dictionary<Type, TypeOverrideDescriptor> Cache = new Dictionary<Type, TypeOverrideDescriptor>();
-        public static TypeOverrideDescriptor Create(Type forType) 
+        static readonly ConcurrentDictionary<Type, TypeOverrideDescriptor> Cache;
+        static TypeOverrideDescriptor()
         {
-            if (Cache.ContainsKey(forType))
-                return Cache[forType];
-
-            lock (Cache)
+            Cache = new ConcurrentDictionary<Type, TypeOverrideDescriptor>();
+            DxSettings.GlobalSettings.PropertyChanged += (sender, e) =>
             {
-                if (!Cache.ContainsKey(forType))
-                {
-                    Cache.Add(forType, new TypeOverrideDescriptor(forType));
-                }
-            }
+                if (e.PropertyName == "CacheTypeCheckers" && !DxSettings.GlobalSettings.CacheTypeCheckers)
+                    Cache.Clear();
+            };
+        }
 
-            return Cache[forType];
+        public static TypeOverrideDescriptor Create(Type forType)
+        {
+            if (!DxSettings.GlobalSettings.CacheTypeCheckers)
+                return new TypeOverrideDescriptor(forType);
+
+            TypeOverrideDescriptor value;
+            if (!Cache.TryGetValue(forType, out value))
+                Cache.AddOrUpdate(forType,
+                    value = new TypeOverrideDescriptor(forType),
+                    (a, b) => value);
+
+            return value;
         }
 
         private TypeOverrideDescriptor(Type type)

@@ -59,7 +59,7 @@ namespace Dynamox.Tests.Mocks
             input[1, new C2()] = new C2();
             input[new C2(), 1] = new C2();
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -75,7 +75,7 @@ namespace Dynamox.Tests.Mocks
             input[1, null] = new C2();
             input[new C2(), 1] = null;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -89,7 +89,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input[new C0(), 1] = new C2();
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -103,7 +103,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input[new C2(), null] = new C2();
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -117,7 +117,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input[new C2(), 1] = new C0();
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -131,7 +131,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Prop2 = null;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -145,7 +145,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Prop1 = new C0();
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -159,7 +159,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Prop3 = 1;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -173,7 +173,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Prop4 = 1;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -187,7 +187,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Prop5 = 1;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -201,7 +201,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Prop6 = 1;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -215,7 +215,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Field3 = 1;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -229,7 +229,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Invalid = 1;
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -243,7 +243,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Method1(1);
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -257,7 +257,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Method2();
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -271,7 +271,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Method2("");
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -285,7 +285,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.InvalidMethod();
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert
@@ -299,7 +299,7 @@ namespace Dynamox.Tests.Mocks
             dynamic input = new MockBuilder(Dx.Settings);
             input.Method4<int>(3);
 
-            var subject = new ObjectBaseValidator(TypeOverrideDescriptor.Create(typeof(AllGood<>)));
+            var subject = ObjectBaseValidator.Create(typeof(AllGood<>));
 
             // act
             // assert

@@ -15,6 +15,35 @@ namespace Dynamox.Tests.Mocks
     {
         #region GetSet
 
+        public class C1 { }
+        public class C2 : C1 { }
+
+        [Test]
+        public void HasFieldOrProperty()
+        {
+            // arrange
+            dynamic mock = new MockBuilder();
+            mock.Prop1 = new C1();
+            mock.Prop2 = Dx.Property(new C1());
+            mock.Prop3.Prop = 7;
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, mock.Values);
+
+            // act
+            //assert
+            Assert.True(subject.HasFieldOrProperty<C1>("Prop1"));
+            Assert.True(subject.HasFieldOrProperty<object>("Prop1"));
+            Assert.False(subject.HasFieldOrProperty<C2>("Prop1"));
+
+            Assert.True(subject.HasFieldOrProperty<C1>("Prop2"));
+            Assert.True(subject.HasFieldOrProperty<object>("Prop2"));
+            Assert.False(subject.HasFieldOrProperty<C2>("Prop2"));
+
+            Assert.True(subject.HasFieldOrProperty<C1>("Prop3"));
+            Assert.False(subject.HasFieldOrProperty<int>("Prop3"));  // int is value type
+            Assert.False(subject.HasFieldOrProperty<string>("Prop3")); // string is sealed
+        }
+
         [Test]
         public void GetSetProperties()
         {

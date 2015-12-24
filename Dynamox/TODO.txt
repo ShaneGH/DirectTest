@@ -1,6 +1,9 @@
 ﻿
-ObjectBaseValidator: validate Indexes
+ValidateMethod, check return type if possible
 
+create objects without default constructor in chained mock
+validate: if property is mocked with something complex (e.g. Dx.Property<>(...)) and property cannot be mocked, only set, return error
+Overhaul of ObjectBaseValidator class
 mess with IL http://www.codeproject.com/Articles/14058/Parsing-the-IL-of-a-Method-Body
 mock or rather set fields (comment not really related to this class)
 virtual set methods. Do you attempt to use base class at all?

@@ -12,7 +12,7 @@ namespace Dynamox.Mocks
         void Set(object value);
     }
 
-    public interface IPropertyMockBuilder<TProperty>
+    public interface IPropertyMockBuilder<out TProperty>
     {
         IPropertyMockBuilder<TProperty> OnGet(Action<TProperty> get);
         IPropertyMockBuilder<TProperty> OnGet(Action get);

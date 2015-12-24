@@ -10,6 +10,7 @@ using Dynamox.Mocks;
 using Dynamox.Tests.Compile;
 using Dynamox.Tests.Features.Mocks;
 using Dynamox.Tests.Mocks;
+using Dynamox.Tests.SmokeTests;
 
 namespace Dynamox.Tests
 {
@@ -17,9 +18,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new ObjectBaseValidatorTests();
+            var tests = new CompileTests2();
 
-            tests.InvalidIndex_InvalidKeyType2();
+            tests.SetFieldsAndPropertiesTests();
         }
     }
 }

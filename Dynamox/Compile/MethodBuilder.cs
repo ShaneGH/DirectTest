@@ -11,7 +11,7 @@ namespace Dynamox.Compile
 {
     /// <summary>
     /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb cass which is not not thread safe
+    /// Dumb class which is not not thread safe
     /// </summary>
     public abstract class MethodBuilder
     {

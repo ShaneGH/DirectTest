@@ -70,6 +70,14 @@ namespace Dynamox.Mocks
             Members = members;
         }
 
+        public bool HasFieldOrProperty<TProperty>(string name)
+        {
+            return Members.ContainsKey(name) && 
+                (Members[name] is TProperty ||
+                (Members[name] is IPropertyMockBuilder<TProperty>) ||
+                ((Members[name] is MockBuilder) && !typeof(TProperty).IsSealed));
+        }
+
         static TValue ConvertAndReturn<TValue>(object input)
         {
             if (input is MockBuilder)

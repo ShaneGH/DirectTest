@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using Dynamox.Compile;
 
@@ -73,7 +74,15 @@ namespace Dynamox.Mocks
         {
             Compile();
 
-            return Constructors[MockType](new ObjectBase(Settings, Members, Indexes));
+            var obj = new ObjectBase(Settings, Members, Indexes);
+            if (Settings.TestForInvalidMocks)
+            {
+                var errors = ObjectBaseValidator.Create(MockType).ValidateAgainstType(obj);
+                if (errors.Any())
+                    throw new InvalidOperationException(errors.Count().ToString());  //TODE
+            }
+
+            return Constructors[MockType](obj);
         }
     }
 }
