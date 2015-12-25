@@ -21,7 +21,12 @@ namespace Dynamox.Mocks
         }
     }
 
-    public class MethodArg<T> : MethodArg
+    public interface IMethodArg<out T> 
+    {
+        T Arg { get; }
+    }
+
+    public class MethodArg<T> : MethodArg, IMethodArg<T>
     {
         public MethodArg(T arg)
             : base(arg, typeof(T))
@@ -31,6 +36,11 @@ namespace Dynamox.Mocks
         public MethodArg()
             : this(default(T))
         {
+        }
+
+        T IMethodArg<T>.Arg
+        {
+            get { return (T)Arg; }
         }
     }
 }

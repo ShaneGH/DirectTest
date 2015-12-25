@@ -277,7 +277,7 @@ namespace Dynamox.Tests.Compile
         public class InterfaceAndClass2 : InterfaceAndClass1, IInterfaceAndClass
         {
         }
-        
+
         [Test]
         public void InterfaceAndClassTests()
         {
@@ -377,7 +377,10 @@ namespace Dynamox.Tests.Compile
             Assert.AreEqual(subject[true], 44);
         }
 
-        public class SetFieldsAndProperties
+        public class C1 { public int val; public override string ToString() { return val.ToString(); } }
+        public class C2 : C1 { public int val; }
+
+        public class SetFields
         {
             protected string F1;
             protected int F2;
@@ -385,7 +388,27 @@ namespace Dynamox.Tests.Compile
 
             public string GetF1() { return F1; }
             public int GetF2() { return F2; }
+        }
 
+        [Test]
+        public void SetFieldsTests()
+        {
+            dynamic mocks = new MockBuilder();
+            mocks.F1 = "Hi";
+            mocks.F2 = "Hi";
+            mocks.F3 = "Hi";
+
+            var subject = (SetFields)
+                Compiler.Compile(typeof(SetFields)).GetConstructors()[0]
+                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks.Values) });
+
+            Assert.AreEqual(subject.GetF1(), "Hi");
+            Assert.AreEqual(subject.GetF2(), 0);
+            Assert.AreEqual(subject.F3, null);
+        }
+
+        public class SetProperties
+        {
             protected string P1 { get; set; }
             protected int P2 { get; set; }
             internal string P3 { get; set; }
@@ -399,12 +422,9 @@ namespace Dynamox.Tests.Compile
         }
 
         [Test]
-        public void SetFieldsAndPropertiesTests()
+        public void SetPropertiesTests()
         {
             dynamic mocks = new MockBuilder();
-            mocks.F1 = "Hi";
-            mocks.F2 = "Hi";
-            mocks.F3 = "Hi";
 
             mocks.P1 = "Hi";
             mocks.P2 = "Hi";
@@ -413,19 +433,66 @@ namespace Dynamox.Tests.Compile
             mocks.P5 = "Hi";
             mocks.P6 = "Hi";
 
-            var subject = (SetFieldsAndProperties)
-                Compiler.Compile(typeof(SetFieldsAndProperties)).GetConstructors()[0]
-                    .Invoke(new object[] { new ObjectBase(new DxSettings{ TestForInvalidMocks = false}, mocks.Values)});
-
-            Assert.AreEqual(subject.GetF1(), "Hi");
-            Assert.AreEqual(subject.GetF2(), 0);
-            Assert.AreEqual(subject.F3, null);
+            var subject = (SetProperties)
+                Compiler.Compile(typeof(SetProperties)).GetConstructors()[0]
+                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks.Values) });
 
             Assert.AreEqual(subject.GetP1(), "Hi");
             Assert.AreEqual(subject.GetP2(), 0);
             Assert.AreEqual(subject.P3, null);
             Assert.AreEqual(subject.GetP4(), "Hi");
             Assert.AreEqual(subject.P6, null);
+        }
+
+        public class SetIndexes
+        {
+            readonly Dictionary<Tuple<C1, int>, C1> Vals1 = new Dictionary<Tuple<C1, int>, C1>();
+            protected C1 this[C1 k1, int k2]
+            {
+                get { return Vals1[new Tuple<C1, int>(k1, k2)]; }
+                set { Vals1.Add(new Tuple<C1, int>(k1, k2), value); }
+            }
+
+            readonly Dictionary<string, int> Vals2 = new Dictionary<string, int>();
+            public int this[string k]
+            {
+                get { return Vals2[k]; }
+                set { Vals2.Add(k, value); }
+            }
+
+            public C1 Get1(C1 key1, int key2) 
+            {
+                return this[key1, key2];
+            }
+            //protected int F2;
+            //internal string F3;
+        }
+
+        [Test]
+        public void SetIndexesTests()
+        {
+            dynamic mocks = new MockBuilder();
+
+            C1 key1 = new C1(), val1 = new C1();
+            C2 key2 = new C2(), val2 = new C2();
+            C1 key3 = null, val3 = null;
+            mocks[key1, 33] = val1;
+            mocks[key2, 55] = val2;
+            mocks[key3, 66] = val3;
+
+            mocks["hello"] = new { };
+            mocks["goodbye"] = 989898;
+
+            var copiled = Compiler.Compile(typeof(SetIndexes));
+            var subject = (SetIndexes)
+                Compiler.Compile(typeof(SetIndexes)).GetConstructors()[0]
+                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks.IndexedValues) });
+
+            Assert.AreEqual(subject.Get1(key1, 33), val1);
+            Assert.AreEqual(subject.Get1(key2, 55), val2);
+            Assert.AreEqual(subject.Get1(key3, 66), val3);
+
+            Assert.AreEqual(subject["goodbye"], 989898);
         }
     }
 }

@@ -76,10 +76,10 @@ namespace Dynamox.Mocks
                 return (TValue)(input as MockBuilder).Mock(typeof(TValue));
             else if (input is IPropertyMockAccessor)
                 return (input as IPropertyMockAccessor).Get<TValue>();
-            else if (!(input is TValue))
-                throw new InvalidOperationException("Bad type");
-            else
+            else if ((input == null && !typeof(TValue).IsValueType) || input is TValue)
                 return (TValue)input;
+            else
+                throw new InvalidOperationException("Bad type");
         }
 
         /// <summary>
@@ -167,16 +167,16 @@ namespace Dynamox.Mocks
         {
             var ks = keys.ToArray();
             return MockedIndexes.Where(m => m.Key.Count() == keys.Count() && Is<TProperty>(m.Value))
-                .Select(m => new 
+                .Select(m => new
                 {
-                    result = m.Key.Select((k, i) => 
+                    result = m.Key.Select((k, i) =>
                         (k == null && !ks[i].IsValueType) ||
                         (k != null && ks[i].IsAssignableFrom(k.GetType()))
                     ).All(x => x),
                     keys = m.Key
                 })
                 .Where(m => m.result)
-                .Select(m => m.keys.Select((k, i) => new MethodArg(k, ks[i])))
+                .Select(m => m.keys.Select((k, i) => new MethodArg(k, ks[i])).ToArray())
                 .ToArray();
         }
 

@@ -11,7 +11,7 @@ using Dynamox.Mocks;
 namespace Dynamox.Compile
 {
     public class Compiler
-    {
+    { 
         private readonly ConcurrentDictionary<Type, Type> Built = new ConcurrentDictionary<Type, Type>();
         const string _ObjectBase = "_ObjectBase";
         private const string RootNamespace = "Dynamox.Proxies";
@@ -254,17 +254,21 @@ namespace Dynamox.Compile
             body.MarkLabel(endFieldSetting);
         }
 
+        protected static readonly FieldInfo Arg = typeof(MethodArg).GetField("Arg");
+        protected static readonly MethodInfo ElementAt = typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(new[] { typeof(MethodArg) });
         protected static readonly MethodInfo Current = typeof(IEnumerator<IEnumerable<MethodArg>>).GetProperty("Current").GetMethod;
         protected static readonly MethodInfo GetEnumerator = typeof(IEnumerable<IEnumerable<MethodArg>>).GetMethod("GetEnumerator");
         protected static readonly MethodInfo GetIndex = typeof(ObjectBase).GetMethod("GetIndex");
         protected static readonly MethodInfo MoveNext = typeof(IEnumerator).GetMethod("MoveNext");
         protected static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
         protected static readonly MethodInfo GetMockedIndexKeys = typeof(ObjectBase).GetMethod("GetMockedIndexKeys");
-        static void AddIndex(ILGenerator body, IEnumerable<Type> indexTypes, Type propertyType, Action doSet)
+        static void AddIndexSetter(ILGenerator body, MethodInfo setMethod)
         {
-            //IEnumerable<IEnumerable<MethodArg>> GetMockedIndexKeys<TProperty>(IEnumerable<Type> keys)
+            var allParamaters = setMethod.GetParameters().Select(p => p.ParameterType);
+            var indexTypes = allParamaters.Take(allParamaters.Count() - 1).ToArray();
+            var propertyType = allParamaters.Last();
+
             var types = new[] { propertyType };
-            var endFieldSetting = body.DefineLabel();
 
             // var indexes = new Type[i];
             var indexes = body.DeclareLocal(typeof(Type[]));
@@ -272,13 +276,12 @@ namespace Dynamox.Compile
             body.Emit(OpCodes.Newarr, typeof(Type));
             body.Emit(OpCodes.Stloc, indexes);
 
-            var it = indexTypes.ToArray();
-            for (var i = 0; i < it.Length; i++)
+            for (var i = 0; i < indexTypes.Length; i++)
             {
                 // indexes[i] = typeof(TKey);
                 body.Emit(OpCodes.Ldloc, indexes);
                 body.Emit(OpCodes.Ldc_I4, i);
-                body.Emit(OpCodes.Ldtoken, it[i]);
+                body.Emit(OpCodes.Ldtoken, indexTypes[i]);
                 body.Emit(OpCodes.Call, GetTypeFromHandle);
                 body.Emit(OpCodes.Stelem_Ref);
             }
@@ -320,34 +323,37 @@ namespace Dynamox.Compile
             body.Emit(OpCodes.Ldloc, keys);
             body.Emit(OpCodes.Call, GetIndex.MakeGenericMethod(new[] { propertyType }));
             body.Emit(OpCodes.Stloc, value);
+            
+            var vars = indexTypes.Select(it => body.DeclareLocal(it)).ToArray();
 
+            for (var i = 0; i < vars.Length; i++)
+            {
+                //var0 = (T)keys.ElementAt(0).Arg;
+                body.Emit(OpCodes.Ldloc, keys);
+                body.Emit(OpCodes.Ldc_I4, i);
+                body.Emit(OpCodes.Call, ElementAt);
+                body.Emit(OpCodes.Ldfld, Arg);
+                if (indexTypes[i].IsValueType)
+                    body.Emit(OpCodes.Unbox_Any, indexTypes[i]);
+                else
+                    body.Emit(OpCodes.Castclass, indexTypes[i]);
 
+                body.Emit(OpCodes.Stloc, vars[i]);
+            }
 
+            body.Emit(OpCodes.Ldarg_0);
+            for (var i = 0; i < vars.Length; i++)
+            {
+                body.Emit(OpCodes.Ldloc, vars[i]);
+            }
 
-
-
+            body.Emit(OpCodes.Ldloc, value);
+            body.Emit(OpCodes.Call, setMethod);
+            
             // GO TO START
             body.Emit(OpCodes.Br, startLoop);
 
             body.MarkLabel(endLoop);
-
-
-
-
-
-            body.Emit(OpCodes.Ldc_I4_0);
-            body.Emit(OpCodes.Ceq);
-            body.Emit(OpCodes.Brtrue, endFieldSetting);
-
-            // this.Prop = ObjectBase.GetProperty<TProp>("Prop")
-            body.Emit(OpCodes.Ldarg_0);
-            body.Emit(OpCodes.Ldarg_1);
-            body.Emit(OpCodes.Ldstr, name);
-            body.Emit(OpCodes.Call, GetProperty.MakeGenericMethod(types));
-
-            doSet();
-
-            body.MarkLabel(endFieldSetting);
         }
 
         static void BuildSetters(ILGenerator body, TypeOverrideDescriptor forType)
@@ -362,10 +368,10 @@ namespace Dynamox.Compile
                 AddSetter(body, property.Name, property.PropertyType, () => body.Emit(OpCodes.Call, property.SetMethod));
             }
 
-            //foreach (var property in forType.SettableProperties.Where(p => p.GetIndexParameters().Any()))
-            //{
-            //    AddIndex(body, property.Name, property.PropertyType, () => body.Emit(OpCodes.Call, property.SetMethod));
-            //}
+            foreach (var property in forType.SettableProperties.Where(p => p.GetIndexParameters().Any()))
+            {
+                AddIndexSetter(body, property.SetMethod);
+            }
         }
 
         static readonly Regex _global = new Regex(@"^\s*global::\s*");
