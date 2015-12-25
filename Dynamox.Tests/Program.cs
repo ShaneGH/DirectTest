@@ -18,9 +18,9 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tests = new CompileTests2();
+            var tests = new ObjectBaseTests();
 
-            tests.SetFieldsAndPropertiesTests();
+            tests.GetMockedIndexKeys_Inheritance();
         }
     }
 }

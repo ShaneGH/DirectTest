@@ -9,31 +9,27 @@ namespace Dynamox.Mocks
     /// <summary>
     /// Input to ObjctBase get methods
     /// </summary>
-    public abstract class MethodArg
+    public class MethodArg
     {
-        public abstract Type ArgType { get; }
+        public readonly Type ArgType;
         public readonly object Arg;
 
-        public MethodArg(object arg)
+        public MethodArg(object arg, Type argType)
         {
             Arg = arg;
+            ArgType = argType;
         }
     }
 
     public class MethodArg<T> : MethodArg
     {
-        public override Type ArgType
-        {
-            get { return typeof(T); }
-        }
-
         public MethodArg(T arg)
-            : base(arg)
+            : base(arg, typeof(T))
         {
         }
 
         public MethodArg()
-            : base(null)
+            : this(default(T))
         {
         }
     }

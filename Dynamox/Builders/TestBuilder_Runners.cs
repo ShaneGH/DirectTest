@@ -25,32 +25,39 @@ namespace Dynamox.Builders
             Run(selectedTest, module);
         }
 
-        static IEnumerable<T> Filter<T>(IList<TestBuilder> orderedSet, Func<TestBuilder, bool> stopAt, Func<TestBuilder, IEnumerable<T>> selectMany)
+        /// <summary>
+        /// Beginning at the end, of the set, return all elements until the element after the element which satifies the condition [stopAt]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="orderedSet"></param>
+        /// <param name="stopAt"></param>
+        /// <returns></returns>
+        static IEnumerable<TestBuilder> Filter(List<TestBuilder> orderedSet, Func<TestBuilder, bool> stopAt)
         {
-            int tmp;
-            return orderedSet
-                .Take((tmp = orderedSet.IndexOf(orderedSet.FirstOrDefault(stopAt))) == -1 ? int.MaxValue : (tmp + 1))
-                .Reverse().SelectMany(selectMany);
+            var first = orderedSet.LastOrDefault(stopAt);
+            return first == null ? 
+                orderedSet : 
+                orderedSet.Skip(orderedSet.LastIndexOf(first));
         }
 
         static void Run(TestBuilder test, ITestModule module)
         {
             string last;
-            var arrange = new List<TestBuilder>(new[] { test });
-            while ((last = arrange.Last()._BasedOn) != null)
+            var testTree = new List<TestBuilder>(new[] { test });
+            while ((last = testTree.First()._BasedOn) != null)
             {
                 var current = module.FirstOrDefault(t => t.TestName == last);
                 if (current == null)
                     throw new InvalidOperationException("There is no test named \"" + last + "\" in this group.");
 
-                if (arrange.Contains(current))
+                if (testTree.Contains(current))
                     throw new InvalidOperationException();
 
-                arrange.Add(current);
+                testTree.Insert(0, current);
             }
 
             var arranger = new TestArranger(DxSettings.GlobalSettings);
-            foreach (var arr in (arrange as IEnumerable<TestBuilder>).Reverse().SelectMany(a => a._Arrange))
+            foreach (var arr in Filter(testTree, a => !a._UseParentArrange).SelectMany(a => a._Arrange))
             {
                 arr(arranger);
                 arranger.SetAllSettingsToDefault();
@@ -60,11 +67,11 @@ namespace Dynamox.Builders
             Exception exception = null;
             Action work = () =>
             {
-                foreach (var act in Filter(arrange, a => !a._UseBaseAct, a => a._Act))
+                foreach (var act in Filter(testTree, a => !a._UseBaseAct).SelectMany(a => a._Act))
                     result = act(arranger);
             };
-            
-            var throws = Filter(arrange, a => !a._UseBaseThrows, a => a._Throws);
+
+            var throws = Filter(testTree, a => !a._UseBaseThrows).SelectMany(a => a._Throws);
 
             if (throws.Any())
             {
@@ -84,9 +91,9 @@ namespace Dynamox.Builders
 
             if (arranger.ShouldHaveBeenCalled.Any())
                 throw new InvalidOperationException("methods not called\n" + string.Join("\n", arranger.ShouldHaveBeenCalled));  //TODE
-            
 
-            foreach (var ass in Filter(arrange, a => !a._UseBaseAssert, a => a._Assert))
+
+            foreach (var ass in Filter(testTree, a => !a._UseBaseAssert).SelectMany(a => a._Assert))
                 ass(arranger, result);
 
             foreach (var thr in throws)

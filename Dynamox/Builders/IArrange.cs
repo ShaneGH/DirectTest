@@ -11,6 +11,8 @@ namespace Dynamox.Builders
 {
     public interface IArrange : ITest
     {
+        IArrange UseParentArrange(bool useParentArrange = true);
+
         IAct Arrange(Action<dynamic> arrange);
 
         IFor Subject(ConstructorInfo constructor);

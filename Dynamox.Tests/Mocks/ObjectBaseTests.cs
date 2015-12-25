@@ -31,17 +31,156 @@ namespace Dynamox.Tests.Mocks
 
             // act
             //assert
-            Assert.True(subject.HasFieldOrProperty<C1>("Prop1"));
-            Assert.True(subject.HasFieldOrProperty<object>("Prop1"));
-            Assert.False(subject.HasFieldOrProperty<C2>("Prop1"));
+            Assert.True(subject.HasMockedFieldOrProperty<C1>("Prop1"));
+            Assert.True(subject.HasMockedFieldOrProperty<object>("Prop1"));
+            Assert.False(subject.HasMockedFieldOrProperty<C2>("Prop1"));
 
-            Assert.True(subject.HasFieldOrProperty<C1>("Prop2"));
-            Assert.True(subject.HasFieldOrProperty<object>("Prop2"));
-            Assert.False(subject.HasFieldOrProperty<C2>("Prop2"));
+            Assert.True(subject.HasMockedFieldOrProperty<C1>("Prop2"));
+            Assert.True(subject.HasMockedFieldOrProperty<object>("Prop2"));
+            Assert.False(subject.HasMockedFieldOrProperty<C2>("Prop2"));
 
-            Assert.True(subject.HasFieldOrProperty<C1>("Prop3"));
-            Assert.False(subject.HasFieldOrProperty<int>("Prop3"));  // int is value type
-            Assert.False(subject.HasFieldOrProperty<string>("Prop3")); // string is sealed
+            Assert.True(subject.HasMockedFieldOrProperty<C1>("Prop3"));
+            Assert.False(subject.HasMockedFieldOrProperty<int>("Prop3"));  // int is value type
+            Assert.False(subject.HasMockedFieldOrProperty<string>("Prop3")); // string is sealed
+        }
+
+        [Test]
+        public void GetMockedIndexKeys_Inheritance()
+        {
+            var mod = Dx.Module();
+
+            mod.Add("Happy Path")
+                .Arrange(bag =>
+                {
+                    bag.key = new C1();
+                    dynamic mock = new MockBuilder();
+                    mock[4, bag.key] = new C1();
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .Act(bag =>
+                    (IEnumerable<IEnumerable<MethodArg>>)bag.subject.GetMockedIndexKeys<C1>(new[] { typeof(int), typeof(C1) }))
+                .Assert((bag, result) =>
+                {
+                    Assert.AreEqual(result.Count(), 1);
+                    Assert.AreEqual(result.ElementAt(0).Count(), 2);
+                    Assert.AreEqual(result.ElementAt(0).ElementAt(0).Arg, 4);
+                    Assert.AreEqual(result.ElementAt(0).ElementAt(0).ArgType, typeof(int));
+                    Assert.AreEqual(result.ElementAt(0).ElementAt(1).Arg, bag.key);
+                    Assert.AreEqual(result.ElementAt(0).ElementAt(1).ArgType, typeof(C1));
+                });
+
+            mod.Add("inheritance, parent key type")
+                .BasedOn("Happy Path")
+                .UseParentArrange(false)
+                .Arrange(bag =>
+                {
+                    bag.key = new C2();
+                    dynamic mock = new MockBuilder();
+                    mock[4, bag.key] = new C1();
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .UseParentAct(true)
+                .SkipParentAssert(false);
+
+            mod.Add("inheritance, parent value type")
+                .BasedOn("Happy Path")
+                .UseParentArrange(false)
+                .Arrange(bag =>
+                {
+                    bag.key = new C1();
+                    dynamic mock = new MockBuilder();
+                    mock[4, bag.key] = new C2();
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .UseParentAct(true)
+                .SkipParentAssert(false);
+
+            mod.Add("inheritance, child key type")
+                .BasedOn("Happy Path")
+                .UseParentArrange(false)
+                .Arrange(bag =>
+                {
+                    bag.key = new object();
+                    dynamic mock = new MockBuilder();
+                    mock[4, bag.key] = new C1();
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .UseParentAct<IEnumerable<IEnumerable<MethodArg>>>(true)
+                .Assert((bag, result) => Assert.IsEmpty(result));
+
+            mod.Add("inheritance, child value type")
+                .BasedOn("Happy Path")
+                .UseParentArrange(false)
+                .Arrange(bag =>
+                {
+                    bag.key = new C1();
+                    dynamic mock = new MockBuilder();
+                    mock[4, bag.key] = new object();
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .UseParentAct<IEnumerable<IEnumerable<MethodArg>>>(true)
+                .Assert((bag, result) => Assert.IsEmpty(result));
+
+            mod.Add("null key")
+                .BasedOn("Happy Path")
+                .UseParentArrange(false)
+                .Arrange(bag =>
+                {
+                    bag.key = null;
+                    dynamic mock = new MockBuilder();
+                    mock[4, bag.key] = new C1();
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .UseParentAct(true)
+                .SkipParentAssert(false);
+
+            mod.Add("null val")
+                .BasedOn("Happy Path")
+                .UseParentArrange(false)
+                .Arrange(bag =>
+                {
+                    bag.key = new C1();
+                    dynamic mock = new MockBuilder();
+                    mock[4, bag.key] = null;
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .UseParentAct(true)
+                .SkipParentAssert(false);
+
+            mod.Add("null key is value type")
+                .BasedOn("Happy Path")
+                .UseParentArrange(false)
+                .Arrange(bag =>
+                {
+                    bag.key = new C1();
+                    dynamic mock = new MockBuilder();
+                    mock[null, bag.key] = new C1();
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .UseParentAct<IEnumerable<IEnumerable<MethodArg>>>(true)
+                .Assert((bag, result) => Assert.IsEmpty(result));
+
+            mod.Add("null value is value type")
+                .Arrange(bag =>
+                {
+                    dynamic mock = new MockBuilder();
+                    mock[4, new C1()] = null;
+
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                })
+                .Act(bag =>
+                    (IEnumerable<IEnumerable<MethodArg>>)bag.subject.GetMockedIndexKeys<int>(new[] { typeof(int), typeof(C1) }))
+                .Assert((bag, result) => Assert.IsEmpty(result));
+
+            Dx.Run(mod);
         }
 
         [Test]
@@ -536,8 +675,6 @@ namespace Dynamox.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_NoValidMock_Strict()
         {
-            
-
             // arrange
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 

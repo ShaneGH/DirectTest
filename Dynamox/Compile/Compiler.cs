@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -227,42 +228,144 @@ namespace Dynamox.Compile
             body.Emit(OpCodes.Ret);
         }
 
+        static readonly MethodInfo HasMockedFieldOrProperty = typeof(ObjectBase).GetMethod("HasMockedFieldOrProperty");
+        static readonly MethodInfo GetProperty = typeof(ObjectBase).GetMethod("GetProperty");
+        static void AddSetter(ILGenerator body, string propertyName, Type propertyType, Action doSet)
+        {
+            var types = new[] { propertyType };
+            var endFieldSetting = body.DefineLabel();
+
+            // if (!ObjectBase.HasFieldOrProperty<T>("Name")) GO TO: next property
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldstr, propertyName);
+            body.Emit(OpCodes.Call, HasMockedFieldOrProperty.MakeGenericMethod(types));
+            body.Emit(OpCodes.Ldc_I4_0);
+            body.Emit(OpCodes.Ceq);
+            body.Emit(OpCodes.Brtrue, endFieldSetting);
+
+            // this.Prop = ObjectBase.GetProperty<TProp>("Prop")
+            body.Emit(OpCodes.Ldarg_0);
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldstr, propertyName);
+            body.Emit(OpCodes.Call, GetProperty.MakeGenericMethod(types));
+
+            doSet();
+
+            body.MarkLabel(endFieldSetting);
+        }
+
+        protected static readonly MethodInfo Current = typeof(IEnumerator<IEnumerable<MethodArg>>).GetProperty("Current").GetMethod;
+        protected static readonly MethodInfo GetEnumerator = typeof(IEnumerable<IEnumerable<MethodArg>>).GetMethod("GetEnumerator");
+        protected static readonly MethodInfo GetIndex = typeof(ObjectBase).GetMethod("GetIndex");
+        protected static readonly MethodInfo MoveNext = typeof(IEnumerator).GetMethod("MoveNext");
+        protected static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
+        protected static readonly MethodInfo GetMockedIndexKeys = typeof(ObjectBase).GetMethod("GetMockedIndexKeys");
+        static void AddIndex(ILGenerator body, IEnumerable<Type> indexTypes, Type propertyType, Action doSet)
+        {
+            //IEnumerable<IEnumerable<MethodArg>> GetMockedIndexKeys<TProperty>(IEnumerable<Type> keys)
+            var types = new[] { propertyType };
+            var endFieldSetting = body.DefineLabel();
+
+            // var indexes = new Type[i];
+            var indexes = body.DeclareLocal(typeof(Type[]));
+            body.Emit(OpCodes.Ldc_I4, indexTypes.Count());
+            body.Emit(OpCodes.Newarr, typeof(Type));
+            body.Emit(OpCodes.Stloc, indexes);
+
+            var it = indexTypes.ToArray();
+            for (var i = 0; i < it.Length; i++)
+            {
+                // indexes[i] = typeof(TKey);
+                body.Emit(OpCodes.Ldloc, indexes);
+                body.Emit(OpCodes.Ldc_I4, i);
+                body.Emit(OpCodes.Ldtoken, it[i]);
+                body.Emit(OpCodes.Call, GetTypeFromHandle);
+                body.Emit(OpCodes.Stelem_Ref);
+            }
+
+            // var result = ObjectBase.GetMockedIndexKeys<TProperty>(indexes)
+            var result = body.DeclareLocal(typeof(IEnumerable<IEnumerable<MethodArg>>));
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldloc, indexes);
+            body.Emit(OpCodes.Call, GetMockedIndexKeys.MakeGenericMethod(types));
+            body.Emit(OpCodes.Stloc, result);
+
+            // var enumerable = result.GetEnumerator();
+            var enumerable = body.DeclareLocal(typeof(IEnumerator<IEnumerable<MethodArg>>));
+            body.Emit(OpCodes.Ldloc, result);
+            body.Emit(OpCodes.Callvirt, GetEnumerator);
+            body.Emit(OpCodes.Stloc, enumerable);
+
+            var value = body.DeclareLocal(propertyType);
+            var keys = body.DeclareLocal(typeof(IEnumerable<MethodArg>));
+            var startLoop = body.DefineLabel();
+            var endLoop = body.DefineLabel();
+
+            body.MarkLabel(startLoop);
+
+            // if (!enumerable.MoveNext())  GO TO END
+            body.Emit(OpCodes.Ldloc, enumerable);
+            body.Emit(OpCodes.Callvirt, MoveNext);
+            body.Emit(OpCodes.Ldc_I4_0);
+            body.Emit(OpCodes.Ceq);
+            body.Emit(OpCodes.Brtrue, endLoop);
+
+            // keys = enumerable.Current
+            body.Emit(OpCodes.Ldloc, enumerable);
+            body.Emit(OpCodes.Callvirt, Current);
+            body.Emit(OpCodes.Stloc, keys);
+
+            // value = ObjectBase.GetIndex<TIndexed>(IEnumerable<MethodArg> indexValues)
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldloc, keys);
+            body.Emit(OpCodes.Call, GetIndex.MakeGenericMethod(new[] { propertyType }));
+            body.Emit(OpCodes.Stloc, value);
+
+
+
+
+
+
+            // GO TO START
+            body.Emit(OpCodes.Br, startLoop);
+
+            body.MarkLabel(endLoop);
+
+
+
+
+
+            body.Emit(OpCodes.Ldc_I4_0);
+            body.Emit(OpCodes.Ceq);
+            body.Emit(OpCodes.Brtrue, endFieldSetting);
+
+            // this.Prop = ObjectBase.GetProperty<TProp>("Prop")
+            body.Emit(OpCodes.Ldarg_0);
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldstr, name);
+            body.Emit(OpCodes.Call, GetProperty.MakeGenericMethod(types));
+
+            doSet();
+
+            body.MarkLabel(endFieldSetting);
+        }
+
         static void BuildSetters(ILGenerator body, TypeOverrideDescriptor forType)
         {
-            var hasFieldOrProperty = typeof(ObjectBase).GetMethod("HasFieldOrProperty");
-            var getProperty = typeof(ObjectBase).GetMethod("GetProperty");
-            Action<string, Type, Action> ifNotHasFieldOrProperty = (n, t, set) =>
-            {
-                var endFieldSetting = body.DefineLabel();
-
-                // if (!ObjectBase.HasFieldOrProperty<T>("Name")) GO TO: next property
-                body.Emit(OpCodes.Ldarg_1);
-                body.Emit(OpCodes.Ldstr, n);
-                body.Emit(OpCodes.Call, hasFieldOrProperty.MakeGenericMethod(new[] { t }));
-                body.Emit(OpCodes.Ldc_I4_0);
-                body.Emit(OpCodes.Ceq);
-                body.Emit(OpCodes.Brtrue, endFieldSetting);
-
-                // this.Prop = ObjectBase.GetProperty<TProp>("Prop")
-                body.Emit(OpCodes.Ldarg_0);
-                body.Emit(OpCodes.Ldarg_1);
-                body.Emit(OpCodes.Ldstr, n);
-                body.Emit(OpCodes.Call, getProperty.MakeGenericMethod(new[] { t }));
-
-                set();
-
-                body.MarkLabel(endFieldSetting);
-            };
-
             foreach (var field in forType.SettableFields)
             {
-                ifNotHasFieldOrProperty(field.Name, field.FieldType, () => body.Emit(OpCodes.Stfld, field));
+                AddSetter(body, field.Name, field.FieldType, () => body.Emit(OpCodes.Stfld, field));
             }
 
-            foreach (var property in forType.SettableProperties)
+            foreach (var property in forType.SettableProperties.Where(p => !p.GetIndexParameters().Any()))
             {
-                ifNotHasFieldOrProperty(property.Name, property.PropertyType, () => body.Emit(OpCodes.Call, property.SetMethod));
+                AddSetter(body, property.Name, property.PropertyType, () => body.Emit(OpCodes.Call, property.SetMethod));
             }
+
+            //foreach (var property in forType.SettableProperties.Where(p => p.GetIndexParameters().Any()))
+            //{
+            //    AddIndex(body, property.Name, property.PropertyType, () => body.Emit(OpCodes.Call, property.SetMethod));
+            //}
         }
 
         static readonly Regex _global = new Regex(@"^\s*global::\s*");

@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Builders
 {
-    public partial class TestBuilder : ITest, IBasedOn, IArrange, IAct, IAssert
+    public partial class TestBuilder : ITest, IBasedOn, IArrange, IAct, IAssert, IActAssert
     {
         string _BasedOn { get; set; }
 
+        bool _UseParentArrange = true;
         bool _UseBaseAct = true;
         bool _UseBaseAssert = false;
         bool _UseBaseThrows = false;
@@ -36,6 +37,12 @@ namespace Dynamox.Builders
             return this;
         }
 
+        public IArrange UseParentArrange(bool useParentArrange = true)
+        {
+            _UseParentArrange = useParentArrange;
+            return this;
+        }
+
         public IAct Arrange(Action<dynamic> arrange)
         {
             _Arrange.Add(arrange);
@@ -52,10 +59,15 @@ namespace Dynamox.Builders
             return new SimpleTestBuilder(this).Subject(constructor);
         }
 
-        public IAct UseParentAct(bool useParentAct = true)
+        public IActAssert UseParentAct(bool useParentAct = true)
         {
             _UseBaseAct = useParentAct;
             return this;
+        }
+
+        public IAssert<TActResult> UseParentAct<TActResult>(bool useParentAct = true)
+        {
+            return new Asserter<TActResult>(this);
         }
 
         public IAssert Act(Action<dynamic> action)

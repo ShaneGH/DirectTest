@@ -70,14 +70,6 @@ namespace Dynamox.Mocks
             Members = members;
         }
 
-        public bool HasFieldOrProperty<TProperty>(string name)
-        {
-            return Members.ContainsKey(name) && 
-                (Members[name] is TProperty ||
-                (Members[name] is IPropertyMockBuilder<TProperty>) ||
-                ((Members[name] is MockBuilder) && !typeof(TProperty).IsSealed));
-        }
-
         static TValue ConvertAndReturn<TValue>(object input)
         {
             if (input is MockBuilder)
@@ -90,7 +82,26 @@ namespace Dynamox.Mocks
                 return (TValue)input;
         }
 
+        /// <summary>
+        /// Determine if an object is the desired type or can be converted (not cast) to the desired type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="toTest"></param>
+        /// <returns></returns>
+        private static bool Is<T>(object toTest)
+        {
+            return toTest == null && !typeof(T).IsValueType ||
+                toTest is T ||
+                (toTest is IPropertyMockBuilder<T>) ||
+                ((toTest is MockBuilder) && !typeof(T).IsSealed);
+        }
+
         #region Properties
+
+        public bool HasMockedFieldOrProperty<TProperty>(string name)
+        {
+            return Members.ContainsKey(name) && Is<TProperty>(Members[name]);
+        }
 
         public void SetProperty(string propertyName, object propertyValue)
         {
@@ -150,7 +161,24 @@ namespace Dynamox.Mocks
 
         #endregion
 
-        #region Index
+        #region Indexed Properties
+
+        public IEnumerable<IEnumerable<MethodArg>> GetMockedIndexKeys<TProperty>(IEnumerable<Type> keys)
+        {
+            var ks = keys.ToArray();
+            return MockedIndexes.Where(m => m.Key.Count() == keys.Count() && Is<TProperty>(m.Value))
+                .Select(m => new 
+                {
+                    result = m.Key.Select((k, i) => 
+                        (k == null && !ks[i].IsValueType) ||
+                        (k != null && ks[i].IsAssignableFrom(k.GetType()))
+                    ).All(x => x),
+                    keys = m.Key
+                })
+                .Where(m => m.result)
+                .Select(m => m.keys.Select((k, i) => new MethodArg(k, ks[i])))
+                .ToArray();
+        }
 
         public TIndexed GetIndex<TIndexed>(IEnumerable<MethodArg> indexValues)
         {
