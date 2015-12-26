@@ -26,6 +26,7 @@ namespace Dynamox.Builders
         }
 
         public TestModule(ITest test)
+            : this(settings: test.Settings)
         {
             Tests.Add(test.Builder);
             ModuleName = Tests[0].TestName;

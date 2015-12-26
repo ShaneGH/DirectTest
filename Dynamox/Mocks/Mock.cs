@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Dynamox.Compile;
 
 namespace Dynamox.Mocks
@@ -37,7 +38,7 @@ namespace Dynamox.Mocks
         public Mock(Type mockType, MockBuilder builder, DxSettings settings)
             : this(settings)
         {
-            if (mockType.IsSealed)
+            if (mockType.IsSealed && (!settings.CreateSealedClassesWithEmptyConstructors || !ObjectBase.HasEmptyConstructor(mockType)))
                 throw new InvalidOperationException("Cannot mock sealed");  //TODE
 
             MockType = mockType;
@@ -61,13 +62,49 @@ namespace Dynamox.Mocks
             {
                 if (!Constructors.ContainsKey(MockType))
                 {
-                    var compiled = Compiler.Compile(MockType);
-                    var param = Expression.Parameter(typeof(ObjectBase));
-                    Constructors.Add(MockType, 
-                        Expression.Lambda<Func<ObjectBase, object>>(
-                            Expression.Convert(Expression.New(compiled.GetConstructor(new[] { typeof(ObjectBase) }), param), MockType), param).Compile());
+                    if (MockType.IsSealed && (!Settings.CreateSealedClassesWithEmptyConstructors || !ObjectBase.HasEmptyConstructor(MockType)))
+                        throw new InvalidOperationException();  //TODE
+
+                    if (!MockType.IsSealed)
+                    {
+                        Constructors.Add(MockType, BuildConstructorForMock(MockType));
+                    }
+                    else
+                    {
+                        Constructors.Add(MockType, BuildConstructorForNonMock(MockType));
+                    }
                 }
             }
+        }
+
+        static Func<ObjectBase, object> BuildConstructorForMock(Type mockType)
+        {
+            var compiled = Compiler.Compile(mockType);
+            var param = Expression.Parameter(typeof(ObjectBase));
+            return Expression.Lambda<Func<ObjectBase, object>>(
+                    Expression.Convert(Expression.New(compiled.GetConstructor(new[] { typeof(ObjectBase) }), param), mockType), param).Compile();
+        }
+
+        static readonly MethodInfo HasMockedFieldOrProperty = typeof(ObjectBase).GetMethod("HasMockedFieldOrProperty");
+        static readonly MethodInfo GetProperty = typeof(ObjectBase).GetMethod("GetProperty");
+        static Func<ObjectBase, object> BuildConstructorForNonMock(Type mockType)
+        {
+            var type = TypeOverrideDescriptor.Create(mockType);
+            var mock = Expression.Variable(mockType, "asdsadasd");
+            var values = Expression.Parameter(typeof(ObjectBase));
+
+            var constructed = (Expression)Expression.Assign(mock, Expression.New(mockType));
+
+            var setters = type.SettableProperties.Where(p => p.SetMethod.IsPublic).Select(p => new { p.Name, type = p.PropertyType })
+                .Concat(type.SettableFields.Where(f => f.IsPublic).Select(f => new { f.Name, type = f.FieldType }))
+                .Select(p => Expression.IfThen(
+                    // if (values.HasMockedFieldOrProperty<T>(name))
+                    Expression.Call(values, HasMockedFieldOrProperty.MakeGenericMethod(new []{p.type}), Expression.Constant(p.Name)),
+                    // mock.name = values.GetProperty<T>(name);
+                    Expression.Assign(Expression.PropertyOrField(mock, p.Name), Expression.Call(values, GetProperty.MakeGenericMethod(new []{p.type}), Expression.Constant(p.Name)))));
+
+            return Expression.Lambda<Func<ObjectBase, object>>(
+                Expression.Block(new[] { mock }, new [] { constructed }.Concat(setters).Concat(new[] { mock })), values).Compile();
         }
 
         object BuildObject()

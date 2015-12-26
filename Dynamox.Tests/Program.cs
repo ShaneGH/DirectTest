@@ -20,8 +20,8 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tmp = new Any();
-            //tmp.Typed_decendant();
+            var tmp = new CreateSealedClassesWithEmptyConstructors();
+            tmp.DoNotCreate();
         }
     }
 }

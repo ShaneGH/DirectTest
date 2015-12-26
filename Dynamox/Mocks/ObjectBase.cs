@@ -82,18 +82,29 @@ namespace Dynamox.Mocks
                 throw new InvalidOperationException("Bad type");
         }
 
+        public static bool HasEmptyConstructor(Type t)
+        {
+            return GetEmptyConstructor(t) != null;
+        }
+
+        public static ConstructorInfo GetEmptyConstructor(Type t)
+        {
+            var constructors = t.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+            return constructors.FirstOrDefault(c => !c.GetParameters().Any());
+        }
+
         /// <summary>
         /// Determine if an object is the desired type or can be converted (not cast) to the desired type
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="toTest"></param>
         /// <returns></returns>
-        private static bool Is<T>(object toTest)
+        private bool Is<T>(object toTest)
         {
             return toTest == null && !typeof(T).IsValueType ||
                 toTest is T ||
                 (toTest is IPropertyMockBuilder<T>) ||
-                ((toTest is MockBuilder) && !typeof(T).IsSealed);
+                ((toTest is MockBuilder) && (!typeof(T).IsSealed || (Settings.CreateSealedClassesWithEmptyConstructors && HasEmptyConstructor(toTest.GetType()))));
         }
 
         #region Properties

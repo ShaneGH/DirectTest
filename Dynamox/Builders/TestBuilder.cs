@@ -126,5 +126,10 @@ namespace Dynamox.Builders
         {
             get { return this; }
         }
+
+        DxSettings ITest.Settings
+        {
+            get { return Settings; }
+        }
     }
 }

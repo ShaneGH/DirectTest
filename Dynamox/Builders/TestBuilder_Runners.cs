@@ -56,7 +56,7 @@ namespace Dynamox.Builders
                 testTree.Insert(0, current);
             }
 
-            var arranger = new TestArranger(DxSettings.GlobalSettings);
+            var arranger = new TestArranger(test.Settings);
             foreach (var arr in Filter(testTree, a => !a._UseParentArrange).SelectMany(a => a._Arrange))
             {
                 arr(arranger);

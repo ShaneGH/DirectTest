@@ -10,7 +10,5 @@ Mock events
 out parameters in mocked methods
 Mock a struct
 Abstract test. A test as part of a module which is not run, only used by other tests
-sealed nested properties with empty constructors should be created if they cannot be mocked
 Mock settings: var mock = Dx.Mock(); mock(new {Returns = "banana"}).DoSomething(...); // what about next mock. Is "banana" still in efect
-Dx.Any<T>()
 Create a mock of a private nested class and see the errors

@@ -40,8 +40,8 @@ namespace Dynamox.Tests.Mocks
             Assert.False(subject.HasMockedFieldOrProperty<C2>("Prop2"));
 
             Assert.True(subject.HasMockedFieldOrProperty<C1>("Prop3"));
-            Assert.False(subject.HasMockedFieldOrProperty<int>("Prop3"));  // int is value type
-            Assert.False(subject.HasMockedFieldOrProperty<string>("Prop3")); // string is sealed
+            Assert.True(subject.HasMockedFieldOrProperty<int>("Prop3"));
+            Assert.True(subject.HasMockedFieldOrProperty<string>("Prop3")); 
         }
 
         [Test]

@@ -8,6 +8,8 @@ namespace Dynamox.Builders
 {
     public interface ITest
     {
+        DxSettings Settings { get; }
+
         TestBuilder Builder { get; }
 
         void Run();

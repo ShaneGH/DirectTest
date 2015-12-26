@@ -84,6 +84,11 @@ namespace Dynamox.Builders
             {
                 get { return BasedOn; }
             }
+
+            public DxSettings Settings
+            {
+                get { return BasedOn.Settings; }
+            }
         }
     }
 }

@@ -45,6 +45,11 @@ namespace Dynamox.Builders
             return new TypedSimpleTestBuilder<TSubject>(this);
         }
 
+        public DxSettings Settings
+        {
+            get { return Underlying.Settings; }
+        }
+
         private class TypedSimpleTestBuilder<TSubject> : IFor<TSubject>
         {
             readonly SimpleTestBuilder BasedOn;
@@ -89,6 +94,11 @@ namespace Dynamox.Builders
             public void Run()
             {
                 Dx.Run(this);
+            }
+
+            public DxSettings Settings
+            {
+                get { return BasedOn.Settings; }
             }
         }
 
@@ -179,6 +189,11 @@ namespace Dynamox.Builders
             public void Run()
             {
                 Dx.Run(this);
+            }
+
+            public DxSettings Settings
+            {
+                get { return Underlying.Settings; }
             }
         }
 
