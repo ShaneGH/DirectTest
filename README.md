@@ -17,6 +17,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Mocking fields and properties](#mocking-fields-and-properties)
   * [Method Callbacks](#method-callbacks)
   * [Property Callbacks](#property-callbacks)
+  * [Dictionaries and Indexes](#dictionaries-and-indexes)
   * [Reserved Terms](#reserved-terms)
 
 ## Introduction to mocking
@@ -176,16 +177,16 @@ mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Method<int>((id) =>
 }));
 ```
 ### Property Callbacks
-You can attatch functionalty to a property also
+You can attatch functionalty to a property also. You may only attatch functionality to properties which are `virtual`, `abstract` or part of an `interface`.
 ```C#
 var mock = Dx.Mock();
 var user = new User();
 
 // get user value dynamically
-mock.CurrentUser = Dx.Property<User>(() => user);
+mock.CurrentUser = Dx.Property(() => user);
 
 // user get and set callbacks
-mock.CurrentUser = Dx.Property<User>(user)
+mock.CurrentUser = Dx.Property(user)
     .OnGet(u =>
     {
         Console.WriteLine("Getting user");
@@ -194,6 +195,15 @@ mock.CurrentUser = Dx.Property<User>(user)
     {
         Console.WriteLine("Setting user");
     });
+```
+
+### Dictionaries and Indexes
+Dictionaries and indexes behave in much the same way as properties
+```C#
+var mock = Dx.Mock();
+
+mock["Val1"] = 123;
+mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
 ```
 
 ### Reserved Terms
