@@ -12,6 +12,8 @@ Dynamox reduces the amount of code you need to write in order to generate simple
 * [How Dynamox is different](#how-dynamox-is-different)
 * [Examples](#examples)
   * [Matching arguments](#matching-arguments)
+  * [Returning Values](#returning-values)
+  * [Mocking fields and properties](#mocking-fields-and-properties)
 
 ## Introduction to mocking
 
@@ -51,7 +53,7 @@ var user = new User();
 // calling a method on a dynamic mock will start to build
 // it's dynamic functionality. Calling the Returns(...) method
 // specifies what to return if the method is called
-userRepositoryMock.GetEntityById(123).Returns(user);
+userRepositoryMock.GetUserById(123).Returns(user);
 
 // the actual mocking is done with the As<T>() method.
 // this creates a proxy type which includes the mocked functionalty
@@ -70,15 +72,63 @@ Mocking like this will allow us to write far more complex mocks far faster than 
 var mock = Dx.Mock();
 
 // specify arguments explicitly
-mock.SetEntityName(123, "John");
+mock.SetUserName(123, "John");
 
 // use all arguments
-mock.SetEntityName(Dx.Any, Dx.Any);
+mock.SetUserName(Dx.Any, Dx.Any);
 
 // check arguments programatically
-mock.SetEntityName(Dx.Method<int, string>((id, name) =>
+mock.SetUserName(Dx.Method<int, string>((id, name) =>
 {
     return id == 123 && name == "John";
 }));
 ```
 
+##Returning Values
+```C#
+var mock = Dx.Mock();
+var user = new User();
+
+// To return values, simply call the Returns(...) method 
+// and pass in the return value
+mock.GetUser(123).Returns(user);
+```
+
+##Chaining mocks
+Often with legacy projects and projects wich rely heavily on the factory pattern, you may have a mock within a mock. This is very easy to do with dynamox
+
+```C#
+var factoryMock = Dx.Mock();
+
+// To chain mocks, simply call the methods expected in the chain
+factoryMock.GetUserService().SetUserName(123, "John");
+
+// this code will create 2 mocks, one for the factory and one for the user service.
+// it will then set the GetUserService() method of the factory mock to return the user service mock.
+```
+Alternatively you can write the above code like so
+```C#
+var factoryMock = Dx.Mock();
+var userServiceMock = Dx.Mock();
+
+factoryMock.GetUserService().Returns(userServiceMock);
+userServiceMock.SetUserName(123, "John");
+```
+
+## Mocking fields and properties
+
+Fields and properties can be mocked by setting them on the mock.
+```C#
+var mock = Dx.Mock();
+var user = new user();
+mock.CurrentUser = user;
+```
+Nested fields and properties are also allowed
+```C#
+var mock = Dx.Mock();
+var userId = 123;
+mock.CurrentUser.UserId = userId;
+```
+If a property is `abstract`, `virtual` or belongs to an interface, it will be mocked. Other properties or fields will have their values set in the constructor of the Mock.
+
+`internal` and `private` values cannot be mocked.
