@@ -11,6 +11,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
 * [Introduction to mocking](#introduction-to-mocking)
 * [How Dynamox is different](#how-dynamox-is-different)
 * [Examples](#examples)
+  * [Creating Mocks](#creating-mocks)
   * [Matching arguments](#matching-arguments)
   * [Returning Values](#returning-values)
   * [Mocking fields and properties](#mocking-fields-and-properties)
@@ -31,11 +32,11 @@ var user = new User();
 // when the id is 123
 userRepositoryMock.GetEntityById(123).Returns(user);
 
-var testSubject = new UserService(userRepositoryMock.As<IUserRepository>());
+var testSubject = new UserService((IUserRepository)userRepositoryMock);
 
 // Act
 testSubject.SetUserName(123, "John");
-            
+
 // Assert
 Assert.AreEqual("John", user.Name);
 ```
@@ -58,9 +59,9 @@ var user = new User();
 // specifies what to return if the method is called
 userRepositoryMock.GetUserById(123).Returns(user);
 
-// the actual mocking is done with the As<T>() method.
+// the actual mocking is done by casting the mock to whatever type is necessary.
 // this creates a proxy type which includes the mocked functionalty
-var testSubject = new UserService(userRepositoryMock.As<IUserRepository>());
+var testSubject = new UserService((IUserRepository)userRepositoryMock);
 
 ...
 ```
@@ -69,7 +70,26 @@ Mocking like this will allow us to write far more complex mocks far faster than 
 
 ## Examples
 
-## Matching arguments
+### Creating mocks
+Creating mocks is a two step process
+```C#
+// first you create a mock builder. This
+// mock builder has no type and acts as a
+// container for all of your mocked logic and properties
+var mock = Dx.Mock();
+
+// second, you create a mock from the builder.
+// this is as easy as casting the mock to whatever
+// type you want
+IUserService userService = (IUserService)mock;
+
+// you can use a mockbuilder for as may mock types
+// as you need, although 1 mock builder per mock is
+// generally advisable
+IDataService dataService = (IDataService)mock;
+```
+
+### Matching arguments
 
 ```C#
 var mock = Dx.Mock();
@@ -77,7 +97,7 @@ var mock = Dx.Mock();
 // specify arguments explicitly
 mock.SetUserName(123, "John");
 
-// use all arguments
+// use any arguments
 mock.SetUserName(Dx.Any, Dx.Any);
 
 // check arguments programatically
@@ -87,7 +107,7 @@ mock.SetUserName(Dx.Method<int, string>((id, name) =>
 }));
 ```
 
-##Returning Values
+### Returning Values
 ```C#
 var mock = Dx.Mock();
 var user = new User();
@@ -97,7 +117,7 @@ var user = new User();
 mock.GetUser(123).Returns(user);
 ```
 
-##Chaining mocks
+### Chaining mocks
 Often with legacy projects and projects wich rely heavily on the factory pattern, you may have a mock within a mock. This is very easy to do with dynamox
 
 ```C#
@@ -118,7 +138,7 @@ factoryMock.GetUserService().Returns(userServiceMock);
 userServiceMock.SetUserName(123, "John");
 ```
 
-## Mocking fields and properties
+### Mocking fields and properties
 
 Fields and properties can be mocked by setting them on the mock.
 ```C#
@@ -136,7 +156,7 @@ If a property is `abstract`, `virtual` or belongs to an interface, it will be mo
 
 `internal` and `private` values cannot be mocked.
 
-## Method Callbacks
+### Method Callbacks
 In order to run some code when a method is called, use the Do(...) method
 ```C#
 var mock = Dx.Mock();
@@ -155,7 +175,7 @@ mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Method<int>((id) =>
     Console.WriteLine("Edit username for user " + id);
 }));
 ```
-## Property Callbacks
+### Property Callbacks
 You can attatch functionalty to a property also
 ```C#
 var mock = Dx.Mock();
@@ -176,7 +196,7 @@ mock.CurrentUser = Dx.Property<User>(user)
     });
 ```
 
-## Reserved Terms
+### Reserved Terms
 There are several terms used by Dynamox for mocking functionality Examples of these are:
 * Returns(...)
 * Ensure(...)
