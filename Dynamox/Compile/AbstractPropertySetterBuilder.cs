@@ -13,11 +13,11 @@ namespace Dynamox.Compile
     /// Build a method for a dynamic type based on a method in the parent class
     /// Dumb cass which is not not thread safe
     /// </summary>
-    public class PropertySetterBuilder : PropertyBuilder
+    public class AbstractPropertySetterBuilder : PropertyBuilder
     {
         readonly string PropertyName;
 
-        public PropertySetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
+        public AbstractPropertySetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
             : base(toType, objBase, parentProperty.SetMethod)
         {
             if (parentProperty.SetMethod == null)
@@ -33,7 +33,6 @@ namespace Dynamox.Compile
             // this.ObjectBase.SetProperty("PropertyName", args[0].Arg)
             Body.Emit(OpCodes.Ldarg_0);
             Body.Emit(OpCodes.Ldfld, ObjBase);
-
             Body.Emit(OpCodes.Ldstr, PropertyName);
 
             Body.Emit(OpCodes.Ldloc, args);

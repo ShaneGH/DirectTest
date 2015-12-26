@@ -211,8 +211,12 @@ namespace Dynamox.Compile
                 !parentProperty.SetMethod.IsPrivate && !parentProperty.SetMethod.IsAssembly)
             {
                 var builder = parameterTypes.Any() ?
-                    new IndexSetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
-                    new PropertySetterBuilder(toType, objBase, parentProperty);
+                    (parentProperty.SetMethod.IsAbstract ?
+                        new AbstractIndexSetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
+                        new VirtualIndexSetterBuilder(toType, objBase, parentProperty)) :
+                    (parentProperty.SetMethod.IsAbstract ?
+                        new AbstractPropertySetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
+                        new VirtualPropertySetterBuilder(toType, objBase, parentProperty));
 
                 builder.Build();
                 property.SetSetMethod(builder.Method);

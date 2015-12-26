@@ -130,7 +130,7 @@ mock.GetUser(123).Returns(user);
 ```
 
 ### Chaining mocks
-Often with legacy projects and projects wich rely heavily on the factory pattern, you may have a mock within a mock. This is very easy to do with dynamox
+Often with legacy projects and projects which rely heavily on the factory pattern, you may have a mock within a mock. This is very easy to do with dynamox
 
 ```C#
 var factoryMock = Dx.Mock();
@@ -143,11 +143,11 @@ factoryMock.GetUserService().SetUserName(123, "John");
 ```
 Alternatively you can write the above code like so
 ```C#
-var factoryMock = Dx.Mock();
 var userServiceMock = Dx.Mock();
-
-factoryMock.GetUserService().Returns(userServiceMock);
 userServiceMock.SetUserName(123, "John");
+
+var factoryMock = Dx.Mock();
+factoryMock.GetUserService().Returns(userServiceMock);
 ```
 
 ### Mocking fields and properties

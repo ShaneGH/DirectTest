@@ -116,6 +116,19 @@ namespace Dynamox.Mocks
 
         public void SetProperty(string propertyName, object propertyValue)
         {
+            _SetProperty(propertyName, propertyValue, true);
+        }
+
+        public bool TrySetProperty(string propertyName, object propertyValue)
+        {
+            return _SetProperty(propertyName, propertyValue, false);
+        }
+
+        bool _SetProperty(string propertyName, object propertyValue, bool forceSet)
+        {
+            if (!forceSet && (!Members.ContainsKey(propertyName) || Members[propertyName] is MethodGroup))
+                return false;
+
             lock (ExtraAddedProperties)
             {
                 if (Members.ContainsKey(propertyName) && Members[propertyName] is IPropertyMockAccessor)
@@ -134,6 +147,8 @@ namespace Dynamox.Mocks
                     ExtraAddedProperties.Add(propertyName, propertyValue);
                 }
             }
+
+            return true;
         }
 
         public TProperty GetProperty<TProperty>(string propertyName)
@@ -202,13 +217,27 @@ namespace Dynamox.Mocks
 
         public void SetIndex(IEnumerable<MethodArg> indexValues, object value)
         {
+            _SetIndex(indexValues, value, true);
+        }
+
+        public bool TrySetIndex(IEnumerable<MethodArg> indexValues, object value)
+        {
+            return _SetIndex(indexValues, value, true);
+        }
+
+        bool _SetIndex(IEnumerable<MethodArg> indexValues, object value, bool forceSet)
+        {
             var values = indexValues.Select(v => v.Arg).ToArray();
+
+            if (!forceSet && !MockedIndexes.ContainsKey(values))
+                return false;
+
             lock (ExtraAddedIndexes)
             {
                 if (MockedIndexes.ContainsKey(values) && MockedIndexes[values] is IPropertyMockAccessor)
                 {
                     (MockedIndexes[values] as IPropertyMockAccessor).Set(value);
-                    return;
+                    return true;
                 }
 
                 if (ExtraAddedIndexes.ContainsKey(values))
@@ -219,6 +248,8 @@ namespace Dynamox.Mocks
                 {
                     ExtraAddedIndexes.Add(values, value);
                 }
+
+                return true;
             }
         }
 
@@ -382,12 +413,14 @@ namespace Dynamox.Mocks
             public readonly MethodInfo TryInvokeGenericReturnValue;
 
             public readonly MethodInfo TryGetProperty;
-            public readonly MethodInfo SetProperty;
             public readonly MethodInfo GetProperty;
+            public readonly MethodInfo TrySetProperty;
+            public readonly MethodInfo SetProperty;
 
             public readonly MethodInfo GetIndex;
             public readonly MethodInfo SetIndex;
             public readonly MethodInfo TryGetIndex;
+            public readonly MethodInfo TrySetIndex;
             
             public Meta() 
             {
@@ -437,12 +470,14 @@ namespace Dynamox.Mocks
                     m.genericArgs.Length == 1 && m.returns == bl).raw;
 
                 TryGetProperty = methods.Single(m => m.name == "TryGetProperty").raw;
-                SetProperty = methods.Single(m => m.name == "SetProperty").raw;
                 GetProperty = methods.Single(m => m.name == "GetProperty").raw;
+                TrySetProperty = methods.Single(m => m.name == "TrySetProperty").raw;
+                SetProperty = methods.Single(m => m.name == "SetProperty").raw;
 
-                GetIndex = methods.Single(m => m.name == "GetIndex").raw;
-                SetIndex = methods.Single(m => m.name == "SetIndex").raw;
                 TryGetIndex = methods.Single(m => m.name == "TryGetIndex").raw;
+                GetIndex = methods.Single(m => m.name == "GetIndex").raw;
+                TrySetIndex = methods.Single(m => m.name == "TrySetIndex").raw;
+                SetIndex = methods.Single(m => m.name == "SetIndex").raw;
             }
         }
 

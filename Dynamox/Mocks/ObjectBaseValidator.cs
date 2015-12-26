@@ -64,13 +64,12 @@ namespace Dynamox.Mocks
         }
         
         /// <summary>
-        /// 
+        /// Validate an ObjectBase against the type is is going to mock
         /// </summary>
         /// <param name="toValidate"></param>
         /// <returns>Errors</returns>
         public IEnumerable<string> ValidateAgainstType(ObjectBase toValidate)
         {
-
             var errors = new List<Error>();
             foreach (var item in toValidate.Members.Keys)
             {
