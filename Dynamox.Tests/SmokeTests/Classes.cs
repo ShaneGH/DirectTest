@@ -70,7 +70,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.entityNumber = 2;
                     bag.id = 55;
                     bag.repo
-                        .GetEntity(Dx.Method<int>(a => a == bag.id))
+                        .GetEntity(Dx.Args<int>(a => a == bag.id))
                         .Returns(new Add.Entity { Id = bag.id, Number = bag.entityNumber });
                 })
 
@@ -102,7 +102,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.commandId = 55;
                     bag.factory
                         .GetRepo(true)
-                        .GetEntity(Dx.Method<int>(a => a == bag.commandId))
+                        .GetEntity(Dx.Args<int>(a => a == bag.commandId))
                         .Returns(new Add.Entity { Number = bag.entityNumber });
                 })
 
@@ -135,7 +135,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
@@ -162,7 +162,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
@@ -186,7 +186,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
@@ -213,7 +213,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.add = 2;
                     bag.Args.id = 55;
                     bag.CArgs.repo1
-                        .GetEntity(Dx.Method<int>(a => a == bag.Args.id))
+                        .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
                         .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 

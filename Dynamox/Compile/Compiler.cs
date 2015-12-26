@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Dynamox.Mocks;
 
 namespace Dynamox.Compile
@@ -15,7 +16,7 @@ namespace Dynamox.Compile
         private readonly ConcurrentDictionary<Type, Type> Built = new ConcurrentDictionary<Type, Type>();
         const string _ObjectBase = "_ObjectBase";
         private const string RootNamespace = "Dynamox.Proxies";
-        private const string UnderlyingObject = "__DynamoxTests_BaseObject";    //TODO: ensure unique
+        private const string UnderlyingObject = "__DynamoxTests_BaseObject";
         private static readonly BindingFlags AllMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         static readonly Compiler Instance = new Compiler();
@@ -43,15 +44,44 @@ namespace Dynamox.Compile
             return Built[baseType];
         }
 
+        readonly Dictionary<Type, Thread> Compiling = new Dictionary<Type, Thread>();
         void CompileAndCache(Type baseType)
         {
-            lock (baseType) //TODO: not the best object to lock
+            Exception compileException = null;
+            Thread compiling = null;
+            lock (Compiling)
             {
-                if (!Built.ContainsKey(baseType))
+                if (Built.ContainsKey(baseType)) return;
+
+                if (Compiling.ContainsKey(baseType))
                 {
-                    Built.TryAdd(baseType, BuildType(baseType));
+                    compiling = Compiling[baseType];
+                }
+                else
+                {
+                    Compiling.Add(baseType, compiling = new Thread(() => 
+                    {
+                        try
+                        {
+                            var built = BuildType(baseType);
+                            lock (Compiling)
+                            {
+                                Built.TryAdd(baseType, built);
+                                Compiling.Remove(baseType);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            compileException = e;
+                        }
+                    }));
+                    compiling.Start();
                 }
             }
+
+            compiling.Join();
+            if (compileException != null)
+                throw new InvalidOperationException("", compileException);  //TODE
         }
 
         bool AreEqual<T>(IEnumerable<T> array1, IEnumerable<T> array2)

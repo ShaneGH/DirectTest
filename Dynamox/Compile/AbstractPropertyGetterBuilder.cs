@@ -21,7 +21,7 @@ namespace Dynamox.Compile
             : base(toType, objBase, parentProperty.GetMethod)
         {
             if (parentProperty.GetMethod == null)
-                throw new InvalidOperationException("Cannot overrided getter"); //TODO
+                throw new InvalidOperationException("Cannot overrided getter"); //TODE
 
             PropertyName = parentProperty.Name;
         }

@@ -113,7 +113,7 @@ mock.SetUserName(Dx.Any, Dx.Any);
 mock.SetUserName(Dx.AnyT<int>(), Dx.AnyT<string>());
 
 // check arguments programatically
-mock.SetUserName(Dx.Method<int, string>((id, name) =>
+mock.SetUserName(Dx.Args<int, string>((id, name) =>
 {
     return id == 123 && name == "John";
 }));
@@ -164,7 +164,7 @@ var mock = Dx.Mock();
 var userId = 123;
 mock.CurrentUser.UserId = userId;
 ```
-If a property is `abstract`, `virtual` or belongs to an interface, it will be mocked. Other properties or fields will have their values set in the constructor of the Mock.
+If a property is `abstract`, `virtual` or belongs to an `interface`, it will be mocked. Other properties or fields will have their values set in the constructor of the Mock.
 
 `internal` and `private` values cannot be mocked.
 

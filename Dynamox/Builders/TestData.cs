@@ -7,7 +7,6 @@ using Dynamox.Dynamic;
 
 namespace Dynamox.Builders
 {
-    //TODO: not a great name
     public interface ITestData
     {
         dynamic TestBag { get; }

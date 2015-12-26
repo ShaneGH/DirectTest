@@ -20,8 +20,8 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tmp = new CreateSealedClassesWithEmptyConstructors();
-            tmp.DoNotCreate();
+            var tmp = new CompileTests2();
+            tmp.InternalAbstractMethod();
         }
     }
 }

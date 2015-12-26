@@ -114,57 +114,57 @@ namespace Dynamox
 
         #region MethodApplicabilityChecker
 
-        public static IMethodAssert Method()
+        public static IMethodAssert Args()
         {
             return new MethodApplicabilityChecker();
         }
 
-        public static IMethodAssert Method<T>(Func<T, bool> assert)
+        public static IMethodAssert Args<T>(Func<T, bool> assert)
         {
             return new MethodApplicabilityChecker<T>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2>(Func<T1, T2, bool> assert)
+        public static IMethodAssert Args<T1, T2>(Func<T1, T2, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3>(Func<T1, T2, T3, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3>(Func<T1, T2, T3, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3, T4>(Func<T1, T2, T3, T4, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3, T4>(Func<T1, T2, T3, T4, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4, T5>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9>(assert);
         }
 
-        public static IMethodAssert Method<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, bool> assert)
+        public static IMethodAssert Args<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, bool> assert)
         {
             return new MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(assert);
         }

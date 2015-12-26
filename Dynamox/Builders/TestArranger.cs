@@ -19,7 +19,7 @@ namespace Dynamox.Builders
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             if (!base.TryGetMember(binder, out result))
-                SetMember(binder.Name, result = new MockBuilder(Settings));   //TODO
+                SetMember(binder.Name, result = new MockBuilder(Settings));
 
             return true;
         }

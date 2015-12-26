@@ -309,7 +309,7 @@ namespace Dynamox.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -372,7 +372,7 @@ namespace Dynamox.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     Assert.AreEqual(a, arg);
@@ -400,7 +400,7 @@ namespace Dynamox.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     Assert.AreEqual(a, arg);
                     return false;
@@ -433,7 +433,7 @@ namespace Dynamox.Tests.Mocks
             var returnVal = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -464,7 +464,7 @@ namespace Dynamox.Tests.Mocks
             object returnVal = null;
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -495,7 +495,7 @@ namespace Dynamox.Tests.Mocks
             var returnVal = 555;
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -526,7 +526,7 @@ namespace Dynamox.Tests.Mocks
             var returnVal = 555;
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     return a == arg;
@@ -556,7 +556,7 @@ namespace Dynamox.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     return true;
@@ -585,7 +585,7 @@ namespace Dynamox.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     return true;
@@ -652,7 +652,7 @@ namespace Dynamox.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     ok = true;
                     Assert.AreEqual(a, arg);
@@ -679,7 +679,7 @@ namespace Dynamox.Tests.Mocks
             var arg = new object();
             var method = new MethodMockBuilder(null, new[] 
             { 
-                Dx.Method<object>(a =>
+                Dx.Args<object>(a =>
                 {
                     Assert.AreEqual(a, arg);
                     return false;
