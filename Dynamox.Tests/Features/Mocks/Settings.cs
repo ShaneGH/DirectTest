@@ -114,9 +114,9 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag =>
                 {
                     bag.v3 = false;
-                    bag.subject(new MockSettings { Do = "baboon" }).DoSomething(22).baboon(Dx.Method(() => bag.v1 = true)).Returns(33);
-                    bag.subject(new { Do = "baboon" }).DoSomething(44).baboon(Dx.Method(() => bag.v2 = true)).Returns(55);
-                    bag.subject(new { Do = "baboon" }).DoSomething(66).baboon(Dx.Method(() => bag.v3 = true)).Returns(77);
+                    bag.subject(new MockSettings { Do = "baboon" }).DoSomething(22).baboon(Dx.Callback(() => bag.v1 = true)).Returns(33);
+                    bag.subject(new { Do = "baboon" }).DoSomething(44).baboon(Dx.Callback(() => bag.v2 = true)).Returns(55);
+                    bag.subject(new { Do = "baboon" }).DoSomething(66).baboon(Dx.Callback(() => bag.v3 = true)).Returns(77);
                 })
                 .Act(bag =>
                 {

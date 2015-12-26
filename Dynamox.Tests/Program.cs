@@ -14,13 +14,14 @@ using Dynamox.Tests.SmokeTests;
 
 namespace Dynamox.Tests
 {
+
+
     public class Program
     {
         public static void Main(string[] args)
         {
-            var tests = new CompileTests2();
-
-            tests.SetIndexesTests();
+            var tmp = new Any();
+            //tmp.Typed_decendant();
         }
     }
 }

@@ -19,6 +19,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Property Callbacks](#property-callbacks)
   * [Dictionaries and Indexes](#dictionaries-and-indexes)
   * [Reserved Terms](#reserved-terms)
+* [Contribute](#contribute)
 
 ## Introduction to mocking
 
@@ -33,7 +34,7 @@ var user = new User();
 // when the id is 123
 userRepositoryMock.GetEntityById(123).Returns(user);
 
-var testSubject = new UserService((IUserRepository)userRepositoryMock);
+var testSubject = new UserService(userRepositoryMock.As<IUserRepository>());
 
 // Act
 testSubject.SetUserName(123, "John");
@@ -60,9 +61,9 @@ var user = new User();
 // specifies what to return if the method is called
 userRepositoryMock.GetUserById(123).Returns(user);
 
-// the actual mocking is done by casting the mock to whatever type is necessary.
+// the actual mocking is done using the As<T>() method.
 // this creates a proxy type which includes the mocked functionalty
-var testSubject = new UserService((IUserRepository)userRepositoryMock);
+var testSubject = new UserService(userRepositoryMock.As<IUserRepository>());
 
 ...
 ```
@@ -80,14 +81,21 @@ Creating mocks is a two step process
 var mock = Dx.Mock();
 
 // second, you create a mock from the builder.
-// this is as easy as casting the mock to whatever
-// type you want
-IUserService userService = (IUserService)mock;
+// with the As<T>() method
+IUserService userService = mock.As<IUserService>();
 
 // you can use a mockbuilder for as may mock types
 // as you need, although 1 mock builder per mock is
 // generally advisable
-IDataService dataService = (IDataService)mock;
+IDataService dataService = mock.As<IDataService>();
+
+// Created mocks are cached. This means that if you attempt
+// to create a second mock of a given type, from a single builder,
+// those objects will have the same object reference
+IDataService userService2 = mock.As<IUserService>();
+
+Assert.AreEqual(userService, userService2);	// true
+Assert.AreNotEqual(userService, dataService);	// true
 ```
 
 ### Matching arguments
@@ -100,6 +108,9 @@ mock.SetUserName(123, "John");
 
 // use any arguments
 mock.SetUserName(Dx.Any, Dx.Any);
+
+// use any arguments with a given type
+mock.SetUserName(Dx.AnyT<int>(), Dx.AnyT<string>());
 
 // check arguments programatically
 mock.SetUserName(Dx.Method<int, string>((id, name) =>
@@ -162,16 +173,16 @@ In order to run some code when a method is called, use the Do(...) method
 ```C#
 var mock = Dx.Mock();
 var user = new User();
-mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Method<int, string>((id, userName) =>
+mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Callback<int, string>((id, userName) =>
 {
     user.UserName = userName;
 }));
 ```
-Alterniatvely, you do not need to include all of the arguments of the function in a Do(...) statement. You only need to include the arguments you will use.
+Alternatively, you do not need to include all of the arguments of the function in a Do(...) statement. You only need to include the arguments you will use.
 ```C#
 var mock = Dx.Mock();
 var user = new User();
-mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Method<int>((id) =>
+mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Callback<int>((id) =>
 {
     Console.WriteLine("Edit username for user " + id);
 }));
@@ -204,10 +215,12 @@ var mock = Dx.Mock();
 
 mock["Val1"] = 123;
 mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
+
+IDictionary<string, int> dictionary = mock.As<IDictionary<string, int>>();
 ```
 
 ### Reserved Terms
-There are several terms used by Dynamox for mocking functionality Examples of these are:
+There are several terms used by Dynamox for mocking functionality. These are:
 * Returns(...)
 * Ensure(...)
 * Clear(...)
@@ -220,7 +233,7 @@ These function names may clash with the function names of the class you are mock
 var mock = Dx.Mock();
 var user = new User();
 
-// Example 1: do not change mock name
+// Example 1: do not change mock function name
 mock.GetUser(123).Retuns(user);
 
 // Example 2: alter the name of the returns method
@@ -229,3 +242,12 @@ mock(new { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
 // Example 3: alter the name of the returns method (strongly typed)
 mock(new MockSettings { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
 ```
+
+## Contribute
+
+Contribute in (almost) any way you would like
+1. Fork it.
+2. Ask questions by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "help wanted" tag.
+3. Request features by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "enhancement" tag.
+4. Log bugs by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "bug" tag.
+5. Coming soon: code contributions and pull requests. Once we get an alpha release out we can begin to accept pull requests

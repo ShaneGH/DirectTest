@@ -12,7 +12,8 @@ namespace Dynamox.Mocks
         {
             get
             {
-                return Args.Select(a => a == null ? typeof(AnyValue) : a.GetType());
+                return Args.Select(a => a == null ? typeof(AnyValue) : 
+                    (a is AnyValue ? (a as AnyValue).OfType : a.GetType()));
             }
         }
 

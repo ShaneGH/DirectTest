@@ -74,5 +74,19 @@ namespace Dynamox.Tests.Features.Mocks
                 .Assert((bag, result) => Assert.AreEqual(8, result))
                 .Run();
         }
+
+        [Test]
+        public void M_M_Again()
+        {
+            Dx.Test("")
+                .Arrange(bag => 
+                {
+                    bag.temp.DoResult().Returns(8);
+                    bag.subject.DoSomething().Returns(bag.temp); 
+                })
+                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething().DoResult())
+                .Assert((bag, result) => Assert.AreEqual(8, result))
+                .Run();
+        }
     }
 }

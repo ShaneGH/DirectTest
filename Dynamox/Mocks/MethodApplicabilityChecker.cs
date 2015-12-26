@@ -22,7 +22,12 @@ namespace Dynamox.Mocks
 
     internal class MethodApplicabilityChecker : IMethodAssert
     {
-        public static readonly object Any = AnyValue.Instance;
+        public static readonly object Any = new AnyValue(typeof(AnyValue));
+
+        public static object AnyT<T>()
+        {
+            return new AnyValue(typeof(T));
+        }
 
         public virtual IEnumerable<Type> InputTypes
         {
@@ -115,9 +120,12 @@ namespace Dynamox.Mocks
 
         protected sealed class AnyValue 
         {
-            public static readonly AnyValue Instance = new AnyValue();
+            public readonly Type OfType;
 
-            private AnyValue() { }
+            public AnyValue(Type ofType) 
+            {
+                OfType = ofType;
+            }
         }
     }
 }

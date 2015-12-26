@@ -20,6 +20,11 @@ namespace Dynamox
             }
         }
 
+        public static object AnyT<T>()
+        {
+            return MethodApplicabilityChecker.AnyT<T>();
+        }
+
         public static IArrange Test(string testName, DxSettings settings = null)
         {
             return new TestBuilder(testName, settings ?? new DxSettings());
@@ -29,6 +34,30 @@ namespace Dynamox
         {
             return new TestModule(moduleName, settings ?? new DxSettings());
         }
+
+        #region mock
+
+        public static dynamic Mock()
+        {
+            return new MockBuilder();
+        }
+
+        public static dynamic Mock(DxSettings settings)
+        {
+            return new MockBuilder(settings);
+        }
+
+        public static dynamic Mock(DxSettings settings, MockSettings mockSettings)
+        {
+            return new MockBuilder(mockSettings, settings);
+        }
+
+        public static dynamic Mock(DxSettings settings, object mockSettings)
+        {
+            return new MockBuilder(mockSettings, settings);
+        }
+
+        #endregion
 
         public static void Run(ITest test)
         {
@@ -144,57 +173,57 @@ namespace Dynamox
 
         #region MethodCallback
 
-        public static IMethodCallback Method(Action callback)
+        public static IMethodCallback Callback(Action callback)
         {
             return new MethodCallback(callback);
         }
 
-        public static IMethodCallback Method<T>(Action<T> callback)
+        public static IMethodCallback Callback<T>(Action<T> callback)
         {
             return new MethodCallback<T>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2>(Action<T1, T2> callback)
+        public static IMethodCallback Callback<T1, T2>(Action<T1, T2> callback)
         {
             return new MethodCallback<T1, T2>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3>(Action<T1, T2, T3> callback)
+        public static IMethodCallback Callback<T1, T2, T3>(Action<T1, T2, T3> callback)
         {
             return new MethodCallback<T1, T2, T3>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3, T4>(Action<T1, T2, T3, T4> callback)
+        public static IMethodCallback Callback<T1, T2, T3, T4>(Action<T1, T2, T3, T4> callback)
         {
             return new MethodCallback<T1, T2, T3, T4>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> callback)
+        public static IMethodCallback Callback<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> callback)
         {
             return new MethodCallback<T1, T2, T3, T4, T5>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> callback)
+        public static IMethodCallback Callback<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> callback)
         {
             return new MethodCallback<T1, T2, T3, T4, T5, T6>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> callback)
+        public static IMethodCallback Callback<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> callback)
         {
             return new MethodCallback<T1, T2, T3, T4, T5, T6, T7>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7, T8>(Action<T1, T2, T3, T4, T5, T6, T7, T8> callback)
+        public static IMethodCallback Callback<T1, T2, T3, T4, T5, T6, T7, T8>(Action<T1, T2, T3, T4, T5, T6, T7, T8> callback)
         {
             return new MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> callback)
+        public static IMethodCallback Callback<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> callback)
         {
             return new MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8, T9>(callback);
         }
 
-        public static IMethodCallback Method<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> callback)
+        public static IMethodCallback Callback<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> callback)
         {
             return new MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(callback);
         }
