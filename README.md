@@ -14,6 +14,9 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Matching arguments](#matching-arguments)
   * [Returning Values](#returning-values)
   * [Mocking fields and properties](#mocking-fields-and-properties)
+  * [Method Callbacks](#method-callbacks)
+  * [Property Callbacks](#property-callbacks)
+  * [Reserved Terms](#reserved-terms)
 
 ## Introduction to mocking
 
@@ -132,3 +135,67 @@ mock.CurrentUser.UserId = userId;
 If a property is `abstract`, `virtual` or belongs to an interface, it will be mocked. Other properties or fields will have their values set in the constructor of the Mock.
 
 `internal` and `private` values cannot be mocked.
+
+## Method Callbacks
+In order to run some code when a method is called, use the Do(...) method
+```C#
+var mock = Dx.Mock();
+var user = new User();
+mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Method<int, string>((id, userName) =>
+{
+    user.UserName = userName;
+}));
+```
+Alterniatvely, you do not need to include all of the arguments of the function in a Do(...) statement. You only need to include the arguments you will use.
+```C#
+var mock = Dx.Mock();
+var user = new User();
+mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Method<int>((id) =>
+{
+    Console.WriteLine("Edit username for user " + id);
+}));
+```
+## Property Callbacks
+You can attatch functionalty to a property also
+```C#
+var mock = Dx.Mock();
+var user = new User();
+
+// get user value dynamically
+mock.CurrentUser = Dx.Property<User>(() => user);
+
+// user get and set callbacks
+mock.CurrentUser = Dx.Property<User>(user)
+    .OnGet(u =>
+    {
+        Console.WriteLine("Getting user");
+    })
+    .OnSet((oldValue, newValue) =>
+    {
+        Console.WriteLine("Setting user");
+    });
+```
+
+## Reserved Terms
+There are several terms used by Dynamox for mocking functionality Examples of these are:
+* Returns(...)
+* Ensure(...)
+* Clear(...)
+* Do(...)
+* As(...)
+
+These function names may clash with the function names of the class you are mocking. If this occurs you can temporarily change the name of the mocked function.
+
+```C#
+var mock = Dx.Mock();
+var user = new User();
+
+// Example 1: do not change mock name
+mock.GetUser(123).Retuns(user);
+
+// Example 2: alter the name of the returns method
+mock(new { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
+
+// Example 3: alter the name of the returns method (strongly typed)
+mock(new MockSettings { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
+```
