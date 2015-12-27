@@ -22,6 +22,33 @@ namespace Dynamox.Tests.Features.Mocks
             {
                 Arg = arg;
             }
+
+            public virtual C2 Chained { get { return null; } }
+            public virtual C2 GetChained() { return null; }
+        }
+
+        [Test]
+        public void Chained_Prop()
+        {
+            // Arrange
+            var mock = Dx.Mock(new[] { "nothing" });
+            mock.Chained.Constructor(new[] { "tada" }).ToString();
+
+            // Act
+            // Assert
+            Assert.AreEqual(mock.As<C2>().Chained.Arg, "tada");
+        }
+
+        [Test]
+        public void Chained_Function()
+        {
+            // Arrange
+            var mock = Dx.Mock(new[] { "nothing" });
+            mock.GetChained().Constructor(new[] { "tada" }).ToString();
+
+            // Act
+            // Assert
+            Assert.AreEqual(mock.As<C2>().GetChained().Arg, "tada");
         }
 
         [Test]

@@ -14,12 +14,14 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Creating Mocks](#creating-mocks)
   * [Matching arguments](#matching-arguments)
   * [Returning Values](#returning-values)
+  * [Chaining mocks](#chaining-mocks)
   * [Mocking fields and properties](#mocking-fields-and-properties)
   * [Method Callbacks](#method-callbacks)
   * [Property Callbacks](#property-callbacks)
   * [Dictionaries and Indexes](#dictionaries-and-indexes)
   * [Partial Mocks](#partial-mocks)
   * [Constructor args](#constructor-args)
+  * [Constructor args in chained mocks](#constructor-args-in-chained-mocks)
   * [Structs (value types) and sealed classes](#structs-value-types-and-sealed-classes)
   * [Reserved Terms](#reserved-terms)
 * [Contribute](#contribute)
@@ -233,6 +235,19 @@ var mock = Dx.Mock(new object[] { "arg1", 2 });
 var objectWithConstructorArgs = mock.As<ObjectWithConstructorArgs>();
 ```
 
+###Constructor args in chained mocks
+```C#
+
+var mock = Dx.Mock();
+
+// specify constructor args with the Constructor(..) function
+
+// for properties
+mock.ObjectWithConstructorArgs.Constructor(new object[] { "arg1", 2 }).ToString().Returns("Hello!");
+// and functions
+mock.GetObjectWithConstructorArgs().Constructor(new object[] { "arg1", 2 }).ToString().Returns("Hello!");
+```
+
 ###Structs (value types) and sealed classes
 Structs and sealed classes can be mocked in the same way as interfaces and non sealed classes, however, the implementation will be slightly different. Rather then create a proxy for the class, a mock of a sealed class or struct will be an instance of that class or struct with the mocked properties set, if possible.
 
@@ -243,6 +258,7 @@ There are several terms used by Dynamox for mocking functionality. These are:
 * Clear(...)
 * Do(...)
 * As(...)
+* Constructor(...)
 
 These function names may clash with the function names of the class you are mocking. If this occurs you can temporarily change the name of the mocked function.
 

@@ -109,7 +109,7 @@ namespace Dynamox.Mocks
             {
                 var errors = ObjectBaseValidator.Create(MockType).ValidateAgainstType(obj);
                 if (errors.Any())
-                    throw new InvalidOperationException(errors.Count().ToString());  //TODE
+                    throw new InvalidOperationException(string.Join("\n", errors));  //TODE
             }
 
             return Constructors[MockType].Construct(obj, constructorArgs);

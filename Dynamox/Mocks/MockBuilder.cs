@@ -16,7 +16,7 @@ namespace Dynamox.Mocks
     /// </summary>
     internal class MockBuilder : DynamicBag
     {
-        readonly IEnumerable<object> ConstructorArgs;
+        IEnumerable<object> ConstructorArgs;
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();
 
         public readonly DxSettings TestSettings;
@@ -111,23 +111,13 @@ namespace Dynamox.Mocks
                 return true;
             }
 
-            if (binder.Name == MockSettings.As)
+            if (binder.Name == MockSettings.Constructor)
             {
-                Type convert = null;
-                if (args.Length == 1 && args[0] is Type)
-                {
-                    convert = args[0] as Type;
-                }
-                else
-                {
-                    var typeArgs = GenericArguments(binder);
-                    if (typeArgs == null || typeArgs.Count != 1)
-                        throw new InvalidOperationException("A call to " + MockSettings.As + " must have 1 generic type argument or 1 argument for return type.");
-
-                    convert = typeArgs[0];
-                }
-
-                result = Mock(convert);
+                result = _Constructor(args);
+            }
+            else if (binder.Name == MockSettings.As)
+            {
+                result = _As(binder, args);
             }
             else
             {
@@ -135,6 +125,34 @@ namespace Dynamox.Mocks
             }
 
             return true;
+        }
+
+        object _Constructor(object[] args)
+        {
+            if (args.Length != 1 && !(args[0] is IEnumerable<object>))
+                throw new InvalidOperationException("not constructor args");    //TODO
+
+            ConstructorArgs = args[0] as IEnumerable<object>;
+            return this;
+        }
+
+        object _As(InvokeMemberBinder binder, object[] args)
+        {
+            Type convert = null;
+            if (args.Length == 1 && args[0] is Type)
+            {
+                convert = args[0] as Type;
+            }
+            else
+            {
+                var typeArgs = GenericArguments(binder);
+                if (typeArgs == null || typeArgs.Count != 1)
+                    throw new InvalidOperationException("A call to " + MockSettings.As + " must have 1 generic type argument or 1 argument for return type.");
+
+                convert = typeArgs[0];
+            }
+
+            return Mock(convert);
         }
 
         static IList<Type> GenericArguments(InvokeMemberBinder binder)

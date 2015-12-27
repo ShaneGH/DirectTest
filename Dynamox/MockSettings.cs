@@ -14,6 +14,7 @@ namespace Dynamox
         public string Clear { get; set; }
         public string Do { get; set; }
         public string As { get; set; }
+        public string Constructor { get; set; }
 
         public MockSettings()
         {
@@ -22,6 +23,7 @@ namespace Dynamox
             Clear = "Clear";
             Do = "Do";
             As = "As";
+            Constructor = "Constructor";
         }
 
         public MockSettings(object settings)
@@ -46,6 +48,7 @@ namespace Dynamox
             set("Clear", a => Clear = a);
             set("Do", a => Do = a);
             set("As", a => As = a);
+            set("Constructor", a => Constructor = a);
         }
     }
 }
