@@ -12,12 +12,14 @@ namespace Dynamox.Mocks
     public class MethodArg
     {
         public readonly Type ArgType;
-        public readonly object Arg;
+        public readonly string ArgName;
+        public object Arg;
 
-        public MethodArg(object arg, Type argType)
+        public MethodArg(object arg, Type argType, string argName)
         {
             Arg = arg;
             ArgType = argType;
+            ArgName = argName;
         }
     }
 
@@ -28,13 +30,13 @@ namespace Dynamox.Mocks
 
     public class MethodArg<T> : MethodArg, IMethodArg<T>
     {
-        public MethodArg(T arg)
-            : base(arg, typeof(T))
+        public MethodArg(T arg, string argName)
+            : base(arg, typeof(T), argName)
         {
         }
 
-        public MethodArg()
-            : this(default(T))
+        public MethodArg(string argName)
+            : this(default(T), argName)
         {
         }
 

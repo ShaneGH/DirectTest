@@ -20,6 +20,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Method Callbacks](#method-callbacks)
   * [Property Callbacks](#property-callbacks)
   * [Dictionaries and Indexes](#dictionaries-and-indexes)
+  * [Out and Ref values](#out-and-ref-values)
   * [Partial Mocks](#partial-mocks)
   * [Constructor args](#constructor-args)
   * [Constructor args in chained mocks](#constructor-args-in-chained-mocks)
@@ -237,6 +238,16 @@ mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
 IDictionary<string, int> dictionary = mock.As<IDictionary<string, int>>();
 ```
 
+###Out and Ref values
+specify out and ref values with the `Out(...)` method
+```C#
+var mock = Dx.Mock();
+
+// the first parameter is the index of the out parameter, the second is the value
+mock.MethodWithOut(Dx.Any).Out(0, "Hello");
+```
+
+
 ###Partial Mocks
 Partial mocks are mocked exactly the same as interfaces.
 
@@ -272,6 +283,7 @@ There are several terms used by Dynamox for mocking functionality. These are:
 * Do(...)
 * As(...)
 * Constructor(...)
+* Out(...)
 
 These function names may clash with the function names of the class you are mocking. If this occurs you can temporarily change the name of the mocked function.
 

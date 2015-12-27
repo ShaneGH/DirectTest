@@ -202,7 +202,7 @@ namespace Dynamox.Mocks
                     keys = m.Key
                 })
                 .Where(m => m.result)
-                .Select(m => m.keys.Select((k, i) => new MethodArg(k, ks[i])).ToArray())
+                .Select(m => m.keys.Select((k, i) => new MethodArg(k, ks[i], i.ToString())).ToArray())
                 .ToArray();
         }
 
@@ -357,7 +357,7 @@ namespace Dynamox.Mocks
             object tmp = null;
             var method = Methods
                 .Where(m => m.Key == methodName)
-                .FirstOrDefault(m => m.Value.TryInvoke(genericArguments, arguments.Select(a => a.Arg), out tmp));
+                .FirstOrDefault(m => m.Value.TryInvoke(genericArguments, arguments, out tmp));
 
             if (method.Equals(default(KeyValuePair<string, MethodGroup>)))
             {

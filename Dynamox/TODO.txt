@@ -1,6 +1,7 @@
 ﻿
 ValidateMethod, check return type if possible
 
+out vals by name rather than by index
 validate: if property is mocked with something complex (e.g. Dx.Property<>(...)) and property cannot be mocked, only set, return error
 Overhaul of ObjectBaseValidator class
 mess with IL http://www.codeproject.com/Articles/14058/Parsing-the-IL-of-a-Method-Body
@@ -8,3 +9,5 @@ Mock events
 out parameters in mocked methods
 Abstract test. A test as part of a module which is not run, only used by other tests
 Mock settings: var mock = Dx.Mock(); mock(new {Returns = "banana"}).DoSomething(...); // what about next mock. Is "banana" still in efect
+mock this method: T DoSomething<T>(out T val);
+go to Dynamox.Mocks.MethodArg, change Arg field to Property, run tests and look at errors. Should attempt to catch KeyNotFound exceptions a bit better

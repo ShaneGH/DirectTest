@@ -22,7 +22,7 @@ namespace Dynamox.Mocks
             Add(first);
         }
 
-        public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<object> arguments, out object result) 
+        public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<MethodArg> arguments, out object result) 
         {
             foreach (var item in this)
                 if (item.TryInvoke(genericArguments, arguments, out result))
@@ -51,6 +51,7 @@ namespace Dynamox.Mocks
     {
         public readonly IMethodAssert ArgChecker;
         public object ReturnValue { get; private set; }
+        public readonly List<Tuple<int, object>> OutParamValues = new List<Tuple<int,object>>();
         public bool MustBeCalled { get; private set; }
         public bool WasCalled { get; private set; }
 
@@ -84,6 +85,8 @@ namespace Dynamox.Mocks
             else
                 ArgChecker = new EqualityMethodApplicabilityChecker(args);
 
+            ArgChecker.OutParamValues = OutParamValues;
+
             GenericArguments = Array.AsReadOnly((genericArgs ?? Enumerable.Empty<Type>()).ToArray());
             ReturnValue = nextPiece;
             NextPiece = nextPiece;
@@ -92,16 +95,31 @@ namespace Dynamox.Mocks
 
             SpecialActions = new ReadOnlyDictionary<string, Func<object[], bool>>(new Dictionary<string, Func<object[], bool>> 
             {
+                { settings.Out, Out },
                 { settings.Returns, Returns },
                 { settings.Ensure, Ensure },
                 { settings.Do, Do }
             });
         }
 
+        bool Out(object[] args)
+        {
+            if (args.Length != 2 || !(args[0] is int))
+                throw new InvalidOperationException("The arguments for Out are [int, object].");   //TODE
+
+            int index = (int)args[0];
+            if (OutParamValues.Any(o => o.Item1 == index))
+                throw new InvalidOperationException("There is already an out value defined for this index [" + index + "].");   //TODE
+
+            OutParamValues.Add(new Tuple<int, object>(index, args[1]));
+
+            return true;
+        }
+
         bool Returns(object[] args)
         {
             if (args.Length != 1)
-                throw new InvalidOperationException("You must specify a single argument to return.");
+                throw new InvalidOperationException("You must specify a single argument to return.");   //TODE
 
             ReturnValue = args[0];
 
@@ -111,7 +129,7 @@ namespace Dynamox.Mocks
         bool Ensure(object[] args)
         {
             if (args != null && args.Any())
-                throw new InvalidOperationException("You cannot pass any argments into ensure");
+                throw new InvalidOperationException("You cannot pass any argments into ensure");   //TODE
 
             MustBeCalled = true;
             Actions.Add(new MethodCallback(() => WasCalled = true));
@@ -160,7 +178,7 @@ namespace Dynamox.Mocks
             return true;
         }
 
-        public bool TryInvoke(IEnumerable<object> arguments, out object result)
+        public bool TryInvoke(IEnumerable<MethodArg> arguments, out object result)
         {
             return TryInvoke(Enumerable.Empty<Type>(), arguments, out result);
         }
@@ -193,7 +211,7 @@ namespace Dynamox.Mocks
             return ArgChecker.CanMockMethod(method);
         }
         
-        public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<object> arguments, out object result)
+        public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<MethodArg> arguments, out object result)
         {
             var gen1 = GenericArguments.ToArray();
             var gen2 = genericArguments.ToArray();
@@ -215,8 +233,12 @@ namespace Dynamox.Mocks
             if (ArgChecker.TestArgs(arguments))
             {
                 result = ReturnValue;
+                foreach (var _out in OutParamValues.Where(p => p.Item1 < arguments.Count()))
+                    arguments.ElementAt(_out.Item1).Arg = _out.Item2;
+                    
+
                 foreach (var after in Actions)
-                    if (!after.Do(arguments))
+                    if (!after.Do(arguments.Select(a => a.Arg)))
                         throw new InvalidOperationException("Bad type args");
 
                 return true;

@@ -17,9 +17,9 @@ namespace Dynamox.Tests.Mocks
             var subject = new MethodApplicabilityChecker();
 
             Assert.IsTrue(subject.TestArgs());
-            Assert.IsTrue(subject.TestArgs(Enumerable.Empty<object>()));
-            Assert.IsFalse(subject.TestArgs(new object[] { new object() }));
-            Assert.IsFalse(subject.TestArgs(new object[] { null }));
+            Assert.IsTrue(subject.TestArgs(Enumerable.Empty<MethodArg>()));
+            Assert.IsFalse(subject.TestArgs(new [] { new MethodArg(new object(), typeof(object), "") }));
+            Assert.IsFalse(subject.TestArgs(new[] { new MethodArg(null, typeof(object), "") }));
         }
 
         [Test]

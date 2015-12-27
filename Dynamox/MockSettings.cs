@@ -15,6 +15,7 @@ namespace Dynamox
         public string Do { get; set; }
         public string As { get; set; }
         public string Constructor { get; set; }
+        public string Out { get; set; }
 
         public MockSettings()
         {
@@ -24,6 +25,7 @@ namespace Dynamox
             Do = "Do";
             As = "As";
             Constructor = "Constructor";
+            Out = "Out";
         }
 
         public MockSettings(object settings)
@@ -49,6 +51,7 @@ namespace Dynamox
             set("Do", a => Do = a);
             set("As", a => As = a);
             set("Constructor", a => Constructor = a);
+            set("Out", a => Out = a);
         }
     }
 }

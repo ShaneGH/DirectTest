@@ -54,6 +54,7 @@
     <Compile Include="Features\Mocks\Do.cs" />
     <Compile Include="Features\Mocks\Ensure.cs" />
     <Compile Include="Features\Mocks\Indexes.cs" />
+    <Compile Include="Features\Mocks\OutParameters.cs" />
     <Compile Include="Features\Mocks\Properties.cs" />
     <Compile Include="Features\Mocks\MethodsAndProperties.cs" />
     <Compile Include="Features\Mocks\Returns.cs" />

@@ -79,31 +79,51 @@ namespace Dynamox.Compile
             return array;
         }
 
+        MethodInfo _ConvertFromRefType = typeof(MethodBuilder).GetMethod("ConvertFromRefType", BindingFlags.Public | BindingFlags.Static);
         void AddParameterToInputArray(int index, LocalBuilder array)
         {
-            var mockType = typeof(MethodArg<>).MakeGenericType(ParameterTypes[index]);
+            var paramType = ParameterTypes[index].IsByRef ?
+                    ParameterTypes[index].GetElementType() :
+                    ParameterTypes[index];
+
+            var mockType = typeof(MethodArg<>).MakeGenericType(paramType);
 
             Body.Emit(OpCodes.Ldloc, array);
             Body.Emit(OpCodes.Ldc_I4, index);
 
             if (Parameters[index].IsOut)
             {
-                Body.Emit(OpCodes.Newobj, mockType.GetConstructor(Type.EmptyTypes));
+                Body.Emit(OpCodes.Ldstr, ParentMethod.GetParameters()[index].Name);
+                Body.Emit(OpCodes.Newobj, mockType.GetConstructor(new[] { typeof(string) }));
             }
             else
             {
                 Body.Emit(OpCodes.Ldarg, index + 1);
-                Body.Emit(OpCodes.Newobj, mockType.GetConstructor(new[] { ParameterTypes[index] }));
+                if (ParameterTypes[index].IsByRef)
+                {
+                    // TODO: do conversion in IL
+                    Body.Emit(OpCodes.Call, _ConvertFromRefType.MakeGenericMethod(new[] { paramType }));
+                }
+
+                Body.Emit(OpCodes.Ldstr, ParentMethod.GetParameters()[index].Name);
+                Body.Emit(OpCodes.Newobj, mockType.GetConstructor(new[] { paramType, typeof(string) }));
             }
 
             // = new MethodArg<T>(value);
             Body.Emit(OpCodes.Stelem_Ref);
         }
 
+        public static T ConvertFromRefType<T>(ref T val)
+        {
+            return val;
+        }
+
         protected abstract LocalBuilder CallMockedMethod(LocalBuilder generics, LocalBuilder args, LocalBuilder methodOut);
 
         void AssignOutParameter(int argumentIndex, LocalBuilder args)
         {
+            var paramType = ParameterTypes[argumentIndex].GetElementType();
+
             // arg_i
             Body.Emit(OpCodes.Ldarg, argumentIndex + 1);
 
@@ -114,15 +134,15 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Ldfld, MethodArg_Arg);
 
             // arg_i = args[i].Arg;
-            if (ParameterTypes[argumentIndex].IsValueType)
+            if (paramType.IsValueType)
             {
-                Body.Emit(OpCodes.Unbox_Any, ParameterTypes[argumentIndex]);
-                Body.Emit(OpCodes.Stobj, ParameterTypes[argumentIndex]);
+                Body.Emit(OpCodes.Unbox_Any, paramType);
+                Body.Emit(OpCodes.Stobj, paramType);
             }
             else
             {
                 if (ParameterTypes[argumentIndex] != typeof(object))
-                    Body.Emit(OpCodes.Castclass, ParameterTypes[argumentIndex]);
+                    Body.Emit(OpCodes.Castclass, paramType);
                 Body.Emit(OpCodes.Stind_Ref);   //TODO: if it is a ref parameter, does setting the value in the method change the output (value and ref types)
             }
         }
@@ -132,7 +152,7 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Nop);
             for (var i = 0; i < Parameters.Length; i++)
             {
-                if (!Parameters[i].IsOut && !Parameters[i].ParameterType.IsByRef) //TODO: test
+                if (!ParameterTypes[i].IsByRef) //TODO: test
                     continue;
 
                 AssignOutParameter(i, args);

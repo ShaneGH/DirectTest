@@ -18,8 +18,8 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tmp = new ConstructorArgs();
-            tmp.Args();
+            var tmp = new OutParamaters();
+            tmp.OutParams_InvalidOut_Int();
         }
     }
 }

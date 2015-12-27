@@ -108,10 +108,8 @@ namespace Dynamox.Mocks
             {
                 Clear();
                 result = this;
-                return true;
             }
-
-            if (binder.Name == MockSettings.Constructor)
+            else if (binder.Name == MockSettings.Constructor)
             {
                 result = _Constructor(args);
             }
