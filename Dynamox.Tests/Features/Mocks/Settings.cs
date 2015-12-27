@@ -149,5 +149,12 @@ namespace Dynamox.Tests.Features.Mocks
                 })
                 .Run();
         }
+
+        [Test]
+        public void Constructor()
+        {
+            // See ConstructorArgs class
+            Assert.Pass();
+        }
     }
 }

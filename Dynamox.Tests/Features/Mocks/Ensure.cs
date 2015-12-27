@@ -74,5 +74,23 @@ namespace Dynamox.Tests.Features.Mocks
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
+
+        [Test]
+        public void DxDotEnsure()
+        {
+            var mock1 = Dx.Mock();
+            var mock2 = Dx.Mock();
+            mock1.DoSomething("hello1").Ensure();
+            mock2.DoSomething("hello2").Ensure();
+            Assert.Throws<InvalidOperationException>(() => Dx.Ensure(mock1, mock2));
+
+            mock1.As<ICurrentTest>().DoSomething("hello");
+            mock2.As<ICurrentTest>().DoSomething("hello");
+            Assert.Throws<InvalidOperationException>(() => Dx.Ensure(mock1, mock2));
+
+            mock1.As<ICurrentTest>().DoSomething("hello1");
+            mock2.As<ICurrentTest>().DoSomething("hello2");
+            Dx.Ensure(mock1, mock2);
+        }
     }
 }

@@ -74,6 +74,25 @@ namespace Dynamox
             TestBuilder.Run(tests, singleTestName);
         }
 
+        /// <summary>
+        /// Ensure that all methods mocked by a mock builder and marked with Ensure(...) were called
+        /// </summary>
+        /// <param name="mockBuilders">The mock builders</param>
+        public static void Ensure(params dynamic[] mockBuilders)
+        {
+            if (!mockBuilders.Select(b => !(b is MockBuilder)).Any())
+                throw new InvalidOperationException();  //TODE
+
+            var errors = mockBuilders
+                .Select(b => b as MockBuilder)
+                .SelectMany(b => b.ShouldHaveBeenCalled);
+
+            if (!errors.Any())
+                return;
+
+            throw new InvalidOperationException(string.Join("\n", errors));  //TODE
+        }
+
         #region Properties
 
         public static IPropertyMockBuilder<TProperty> Property<TProperty>()

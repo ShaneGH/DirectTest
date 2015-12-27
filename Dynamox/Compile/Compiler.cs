@@ -99,13 +99,21 @@ namespace Dynamox.Compile
             return true;
         }
 
+        // need to add an increment for nested classes
         static int TypeIncrement = new Random().Next(99999);
         Type BuildType(Type baseType)
         {
+            if (baseType.IsNestedPrivate)
+                throw new InvalidOperationException("You cannot mock a nested private class or interface"); //TODE
+
+            if (baseType.IsNestedAssembly)
+                throw new InvalidOperationException("You cannot mock a nested internal class or interface"); //TODE
+                        
             var typeDescriptor = TypeOverrideDescriptor.Create(baseType);
             if (typeDescriptor.HasAbstractInternal)
-                throw new InvalidOperationException("You cannot mock a class with an internal abstract member");
-
+                throw new InvalidOperationException("You cannot mock a class with an internal abstract member"); //TODE
+            
+            // define type
             var type = Module.DefineType(
                 "Dynamox.Proxy." + baseType.Namespace + "." + baseType.Name + "_" + (++TypeIncrement), 
                 TypeAttributes.Public | TypeAttributes.Class,
@@ -115,26 +123,24 @@ namespace Dynamox.Compile
             var allMembers = baseType.GetMembers(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Select(m => m.Name).ToArray();
 
-            var fieldName = UnderlyingObject;
-            for (var i = 1; allMembers.Contains(fieldName); i++)
-            {
-                fieldName = UnderlyingObject + i;
-            }
-
-            var objBase = type.DefineField(GetFreeMemberName(baseType, fieldName),
+            // define ObjectBase field
+            var objBase = type.DefineField(GetFreeMemberName(baseType, UnderlyingObject),
                 typeof(ObjectBase), FieldAttributes.NotSerialized | FieldAttributes.Private | FieldAttributes.InitOnly);
 
+            // add constructors
             foreach (var constructor in typeDescriptor.Type.GetConstructors(AllMembers)
                 .Where(c => !c.IsAssembly || c.IsFamilyOrAssembly))
             {
                 AddConstructor(type, objBase, constructor, typeDescriptor);
             }
 
+            // add properties
             foreach (var property in typeDescriptor.OverridableProperties)
             {
                 AddProperty(type, objBase, property);
             }
 
+            // add methods
             foreach (var method in typeDescriptor.OverridableMethods)
             {
                 var builder = method.IsAbstract ?
@@ -148,6 +154,7 @@ namespace Dynamox.Compile
                 builder.Build();
             }
 
+            // add interface properties
             foreach (var property in typeDescriptor.OverridableInterfaces.SelectMany(i => i.OverridableProperties))
             {
                 //TODO: if property signature is available
@@ -155,6 +162,7 @@ namespace Dynamox.Compile
                 AddProperty(type, objBase, property);
             }
 
+            // add interface methods
             foreach (var method in typeDescriptor.OverridableInterfaces.SelectMany(i => i.OverridableMethods))
             {
                 //TODO: if method signature is available

@@ -19,7 +19,7 @@ namespace Dynamox.Tests
         public static void Main(string[] args)
         {
             var tmp = new ConstructorArgs();
-            tmp.Chained_Function();
+            tmp.Args();
         }
     }
 }

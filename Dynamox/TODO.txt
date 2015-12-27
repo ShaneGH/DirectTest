@@ -8,4 +8,3 @@ Mock events
 out parameters in mocked methods
 Abstract test. A test as part of a module which is not run, only used by other tests
 Mock settings: var mock = Dx.Mock(); mock(new {Returns = "banana"}).DoSomething(...); // what about next mock. Is "banana" still in efect
-Create a mock of a private nested class and see the errors

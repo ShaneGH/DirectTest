@@ -16,6 +16,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Returning Values](#returning-values)
   * [Chaining mocks](#chaining-mocks)
   * [Mocking fields and properties](#mocking-fields-and-properties)
+  * [Ensure methods are called](#ensure-methods-are-called)
   * [Method Callbacks](#method-callbacks)
   * [Property Callbacks](#property-callbacks)
   * [Dictionaries and Indexes](#dictionaries-and-indexes)
@@ -172,6 +173,18 @@ mock.CurrentUser.UserId = userId;
 If a property is `abstract`, `virtual` or belongs to an `interface`, it will be mocked. Other properties or fields will have their values set in the constructor of the Mock.
 
 `internal` and `private` values cannot be mocked.
+
+### Ensure methods are called
+If you want to ensure that a specific method was called during a test, use the Ensure(...) method
+```C#
+var databaseMock = Dx.Mock();
+
+// mock the PersistAll method and ensure that it is called
+databaseMock.PersistAll().Ensure();
+
+// Test that the PersistAll method was called
+Dx.Ensure(databaseMock);
+```
 
 ### Method Callbacks
 In order to run some code when a method is called, use the Do(...) method
