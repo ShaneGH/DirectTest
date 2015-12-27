@@ -25,7 +25,7 @@ namespace Dynamox.Mocks
             _Constructors = Array.AsReadOnly(forType.GetConstructors()
                 // put the empty constructor first, it is most likely to be used
                 .OrderBy(c => c.GetParameters().Length)
-                .Select(c => forType.IsSealed ? //TODO: forType.IsDxCompiledType
+                .Select(c => !Compiler.IsDxCompiledType(forType) ? //TODO: forType.IsDxCompiledType
                     new NonMockedConstructor(c) :
                     new Constructor(c)).ToArray());
         }

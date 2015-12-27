@@ -169,6 +169,11 @@ namespace Dynamox.Compile
             return type.CreateType();
         }
 
+        public static bool IsDxCompiledType(Type type)
+        {
+            return Instance.Built.Any(b => b.Value == type);
+        }
+
         static string GetFreeMemberName(Type forType, string nameBase)
         {
             var allNames = new HashSet<string>(forType.AllClassesAndInterfaces()
