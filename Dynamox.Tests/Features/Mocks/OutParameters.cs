@@ -59,6 +59,38 @@ namespace Dynamox.Tests.Features.Mocks
         }
 
         [Test]
+        [Ignore("TODO: not implemented")]
+        public void OutParams_TestOuts_String()
+        {
+            // Arrange
+            var out1 = new object();
+            var out2 = new object();
+            var mock = Dx.Mock();
+            mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
+                .Returns("44")
+                .Out("val2", 77)
+                .Out("ref2", out1)
+                .Out("val3", 88)
+                .Out("ref3", out2);
+
+            int x;
+            object y;
+            int a = 9;
+            object b = new object();
+
+            // Act
+            I1 obj = mock.As<I1>();
+            var result = obj.DoSomething(3, new object(), ref a, ref b, out x, out y);
+
+            // Assert
+            Assert.AreEqual(result, "44");
+            Assert.AreEqual(77, a);
+            Assert.AreEqual(out1, b);
+            Assert.AreEqual(88, x);
+            Assert.AreEqual(out2, y);
+        }
+
+        [Test]
         public void OutParams_TestOuts_Int()
         {
             // Arrange

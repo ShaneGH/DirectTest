@@ -239,12 +239,17 @@ IDictionary<string, int> dictionary = mock.As<IDictionary<string, int>>();
 ```
 
 ###Out and Ref values
-specify out and ref values with the `Out(...)` method
+Specify out and ref values with the `Out(...)` method.
 ```C#
 var mock = Dx.Mock();
 
-// the first parameter is the index of the out parameter, the second is the value
-mock.MethodWithOut(Dx.Any).Out(0, "Hello");
+// the first parameter is the index of the out parameter, the second parameter is the value
+mock.GetUserName(123, Dx.Any).Out(1, "John");
+
+string name;
+mock.As<IUserService>().GetUserName(123, out name);
+
+Assert.AreEqual("John", name);
 ```
 
 
