@@ -9,9 +9,14 @@ using Dynamox.Compile;
 
 namespace Dynamox.Mocks
 {
-    public class Constructors : IEnumerable<Constructor>
+    public interface IConstructor 
     {
-        readonly IEnumerable<Constructor> _Constructors;
+        object TryConstruct(ObjectBase objectBase, IEnumerable<object> otherArgs);
+    }
+
+    public class Constructors : IEnumerable<IConstructor>
+    {
+        readonly IEnumerable<IConstructor> _Constructors;
 
         public Constructors(Type forType) 
         {
@@ -20,7 +25,7 @@ namespace Dynamox.Mocks
             _Constructors = Array.AsReadOnly(forType.GetConstructors()
                 // put the empty constructor first, it is most likely to be used
                 .OrderBy(c => c.GetParameters().Length)
-                .Select(c => forType.IsSealed ?
+                .Select(c => forType.IsSealed ? //TODO: forType.IsDxCompiledType
                     new NonMockedConstructor(c) :
                     new Constructor(c)).ToArray());
         }
@@ -45,7 +50,7 @@ namespace Dynamox.Mocks
             return result;
         }
 
-        public IEnumerator<Constructor> GetEnumerator()
+        public IEnumerator<IConstructor> GetEnumerator()
         {
             return _Constructors.GetEnumerator();
         }
@@ -56,7 +61,7 @@ namespace Dynamox.Mocks
         }
     }
 
-    public class Constructor
+    class Constructor : IConstructor
     {
         readonly IReadOnlyCollection<Type> Parameters;
         readonly Func<object[], object> _Constructor;
@@ -96,7 +101,7 @@ namespace Dynamox.Mocks
         }
     }
 
-    public class NonMockedConstructor : Constructor
+    class NonMockedConstructor : Constructor
     {
         static readonly MethodInfo HasMockedFieldOrProperty = typeof(ObjectBase).GetMethod("HasMockedFieldOrProperty");
         static readonly MethodInfo GetProperty = typeof(ObjectBase).GetMethod("GetProperty");

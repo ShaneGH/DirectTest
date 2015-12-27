@@ -59,6 +59,7 @@
     <Compile Include="Features\Mocks\Returns.cs" />
     <Compile Include="Features\Mocks\Settings.cs" />
     <Compile Include="Features\TestSetup.cs" />
+    <Compile Include="Mocks\Constructors.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckersTests.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityCheckerTests.cs" />
     <Compile Include="Mocks\MethodApplicabilityCheckerTests.cs" />
