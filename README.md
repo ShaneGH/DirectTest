@@ -18,6 +18,9 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Method Callbacks](#method-callbacks)
   * [Property Callbacks](#property-callbacks)
   * [Dictionaries and Indexes](#dictionaries-and-indexes)
+  * [Partial Mocks](#partial-mocks)
+  * [Constructor args](#constructor-args)
+  * [Structs (value types) and sealed classes](#structs-value-types-and-sealed-classes)
   * [Reserved Terms](#reserved-terms)
 * [Contribute](#contribute)
 
@@ -218,6 +221,20 @@ mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
 
 IDictionary<string, int> dictionary = mock.As<IDictionary<string, int>>();
 ```
+
+###Partial Mocks
+Partial mocks are mocked exactly the same as interfaces.
+
+###Constructor args
+```C#
+// specify constructor args when defining the mock builder
+var mock = Dx.Mock(new object[] { "arg1", 2 });
+
+var objectWithConstructorArgs = mock.As<ObjectWithConstructorArgs>();
+```
+
+###Structs (value types) and sealed classes
+Structs and sealed classes can be mocked in the same way as interfaces and non sealed classes, however, the implementation will be slightly different. Rather then create a proxy for the class, a mock of a sealed class or struct will be an instance of that class or struct with the mocked properties set, if possible.
 
 ### Reserved Terms
 There are several terms used by Dynamox for mocking functionality. These are:
