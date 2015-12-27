@@ -37,24 +37,24 @@ namespace Dynamox
 
         #region mock
 
-        public static dynamic Mock()
+        public static dynamic Mock(IEnumerable<object> constructorArgs = null)
         {
-            return new MockBuilder();
+            return new MockBuilder(constructorArgs);
         }
 
-        public static dynamic Mock(DxSettings settings)
+        public static dynamic Mock(DxSettings settings, IEnumerable<object> constructorArgs = null)
         {
-            return new MockBuilder(settings);
+            return new MockBuilder(settings, constructorArgs);
         }
 
-        public static dynamic Mock(DxSettings settings, MockSettings mockSettings)
+        public static dynamic Mock(DxSettings settings, MockSettings mockSettings, IEnumerable<object> constructorArgs = null)
         {
-            return new MockBuilder(mockSettings, settings);
+            return new MockBuilder(mockSettings, settings, constructorArgs);
         }
 
-        public static dynamic Mock(DxSettings settings, object mockSettings)
+        public static dynamic Mock(DxSettings settings, object mockSettings, IEnumerable<object> constructorArgs = null)
         {
-            return new MockBuilder(mockSettings, settings);
+            return new MockBuilder(mockSettings, settings, constructorArgs);
         }
 
         #endregion

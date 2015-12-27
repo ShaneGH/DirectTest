@@ -73,6 +73,7 @@
     <Compile Include="Compile\TypeDescriptor.cs" />
     <Compile Include="Dx.cs" />
     <Compile Include="DxSettings.cs" />
+    <Compile Include="Mocks\Constructors.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
     <Compile Include="Mocks\MethodArg.cs" />
     <Compile Include="Mocks\MethodCallback.cs" />

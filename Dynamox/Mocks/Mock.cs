@@ -12,6 +12,7 @@ namespace Dynamox.Mocks
     {
         public readonly DxSettings Settings;
         public readonly Type MockType;
+        public readonly IEnumerable<object> ConstructorArgs;
         public readonly ReadOnlyDictionary<string, object> Members;
         public readonly ReadOnlyDictionary<IEnumerable<object>, object> Indexes;
 
@@ -21,7 +22,7 @@ namespace Dynamox.Mocks
         {
             get
             {
-                return _Object != UnAssigned ? _Object : (_Object = BuildObject());
+                return _Object != UnAssigned ? _Object : (_Object = BuildObject(ConstructorArgs));
             }
             set
             {
@@ -29,16 +30,16 @@ namespace Dynamox.Mocks
             }
         }
 
-        public Mock(object value, DxSettings settings)
-            : this(settings)
+        public Mock(object value, DxSettings settings, IEnumerable<object> constructorArgs)   //TODO: last arg should be optional
+            : this(settings, constructorArgs ?? Enumerable.Empty<object>())
         {
             _Object = value;
         }
 
-        public Mock(Type mockType, MockBuilder builder, DxSettings settings)
-            : this(settings)
+        public Mock(Type mockType, MockBuilder builder, DxSettings settings, IEnumerable<object> constructorArgs)   //TODO: last arg should be optional
+            : this(settings, constructorArgs ?? Enumerable.Empty<object>())
         {
-            if (mockType.IsSealed && (!settings.CreateSealedClassesWithEmptyConstructors || !ObjectBase.HasEmptyConstructor(mockType)))
+            if (mockType.IsSealed && !settings.CreateSealedClasses)
                 throw new InvalidOperationException("Cannot mock sealed");  //TODE
 
             MockType = mockType;
@@ -50,29 +51,21 @@ namespace Dynamox.Mocks
         /// Must be used in conjunction with another constructor
         /// </summary>
         /// <param name="settings"></param>
-        private Mock(DxSettings settings)
+        private Mock(DxSettings settings, IEnumerable<object> constructorArgs)
         {
+            ConstructorArgs = constructorArgs;
             Settings = settings;
         }
 
-        private static readonly Dictionary<Type, Func<ObjectBase, object>> Constructors = new Dictionary<Type, Func<ObjectBase, object>>();
+        private static readonly Dictionary<Type, Constructors> Constructors = new Dictionary<Type, Constructors>();
         void Compile()
         {
             lock (Constructors)
             {
                 if (!Constructors.ContainsKey(MockType))
                 {
-                    if (MockType.IsSealed && (!Settings.CreateSealedClassesWithEmptyConstructors || !ObjectBase.HasEmptyConstructor(MockType)))
-                        throw new InvalidOperationException();  //TODE
-
-                    if (!MockType.IsSealed)
-                    {
-                        Constructors.Add(MockType, BuildConstructorForMock(MockType));
-                    }
-                    else
-                    {
-                        Constructors.Add(MockType, BuildConstructorForNonMock(MockType));
-                    }
+                    var compiled = MockType.IsSealed ? MockType : Compiler.Compile(MockType);
+                    Constructors.Add(MockType, new Constructors(compiled));
                 }
             }
         }
@@ -107,7 +100,7 @@ namespace Dynamox.Mocks
                 Expression.Block(new[] { mock }, new [] { constructed }.Concat(setters).Concat(new[] { mock })), values).Compile();
         }
 
-        object BuildObject()
+        object BuildObject(IEnumerable<object> constructorArgs)
         {
             Compile();
 
@@ -119,7 +112,7 @@ namespace Dynamox.Mocks
                     throw new InvalidOperationException(errors.Count().ToString());  //TODE
             }
 
-            return Constructors[MockType](obj);
+            return Constructors[MockType].Construct(obj, constructorArgs);
         }
     }
 }

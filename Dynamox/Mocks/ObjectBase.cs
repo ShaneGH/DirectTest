@@ -101,10 +101,10 @@ namespace Dynamox.Mocks
         /// <returns></returns>
         private bool Is<T>(object toTest)
         {
-            return toTest == null && !typeof(T).IsValueType ||
+            return (toTest == null && !typeof(T).IsValueType) ||
                 toTest is T ||
-                (toTest is IPropertyMockBuilder<T>) ||
-                ((toTest is MockBuilder) && (!typeof(T).IsSealed || (Settings.CreateSealedClassesWithEmptyConstructors && HasEmptyConstructor(toTest.GetType()))));
+                toTest is IPropertyMockBuilder<T> ||
+                toTest is MockBuilder;
         }
 
         #region Properties

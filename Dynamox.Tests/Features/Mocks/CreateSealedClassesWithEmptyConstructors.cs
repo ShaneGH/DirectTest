@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Dynamox.Tests.Features.Mocks
 {
     [TestFixture]
-    public class CreateSealedClassesWithEmptyConstructors
+    public class CreateSealedClasses
     {
         public sealed class C1 { public string Prop { get; set; } }
         public class C2 { public C1 Prop { get; set; } }
@@ -27,7 +27,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void DoNotCreate()
         {
-            Dx.Test("", new DxSettings { CreateSealedClassesWithEmptyConstructors = false })
+            Dx.Test("", new DxSettings { CreateSealedClasses = false })
                 .Arrange(bag => bag.subject.Prop.Prop = "Hello")
                 .Act(bag => (string)bag.subject.As<C2>().Prop.Prop)
                 .Throws<Exception>()

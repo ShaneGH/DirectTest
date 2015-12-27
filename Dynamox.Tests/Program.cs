@@ -14,14 +14,12 @@ using Dynamox.Tests.SmokeTests;
 
 namespace Dynamox.Tests
 {
-
-
     public class Program
     {
         public static void Main(string[] args)
         {
-            var tmp = new CompileTests2();
-            tmp.LotsOfProperties();
+            var tmp = new ConstructorArgs();
+            tmp.NoArgs();
         }
     }
 }

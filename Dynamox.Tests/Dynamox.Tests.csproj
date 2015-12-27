@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Compile\CompileTests2.cs" />
     <Compile Include="Compile\TypeDescriptorTests.cs" />
+    <Compile Include="Features\Mocks\ConstructorArgs.cs" />
     <Compile Include="Features\Mocks\CreateSealedClassesWithEmptyConstructors.cs" />
     <Compile Include="Features\Mocks\Any.cs" />
     <Compile Include="Features\Mocks\Do.cs" />

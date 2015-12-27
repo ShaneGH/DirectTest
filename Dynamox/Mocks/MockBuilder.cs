@@ -16,6 +16,7 @@ namespace Dynamox.Mocks
     /// </summary>
     internal class MockBuilder : DynamicBag
     {
+        readonly IEnumerable<object> ConstructorArgs;
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();
 
         public readonly DxSettings TestSettings;
@@ -33,24 +34,25 @@ namespace Dynamox.Mocks
             }
         }
 
-        public MockBuilder()
-            : this(Dx.Settings)
+        public MockBuilder(IEnumerable<object> constructorArgs = null)
+            : this(Dx.Settings, constructorArgs)
         {
         }
 
-        public MockBuilder(DxSettings testSettings)
-            : this(new MockSettings(), testSettings)
+        public MockBuilder(DxSettings testSettings, IEnumerable<object> constructorArgs = null)
+            : this(new MockSettings(), testSettings, constructorArgs)
         {
         }
 
-        public MockBuilder(MockSettings mockSettings, DxSettings testSettings)
+        public MockBuilder(MockSettings mockSettings, DxSettings testSettings, IEnumerable<object> constructorArgs = null)
         {
+            ConstructorArgs = constructorArgs ?? Enumerable.Empty<object>();
             MockSettings = mockSettings;
             TestSettings = testSettings;
         }
 
-        public MockBuilder(object mockSettings, DxSettings testSettings)
-            : this(new MockSettings(mockSettings), testSettings)
+        public MockBuilder(object mockSettings, DxSettings testSettings, IEnumerable<object> constructorArgs = null)
+            : this(new MockSettings(mockSettings), testSettings, constructorArgs)
         {
         }
 
@@ -177,7 +179,7 @@ namespace Dynamox.Mocks
             lock (Concrete)
             {
                 if (!Concrete.ContainsKey(mockType))
-                    Concrete.Add(mockType, new Mock(mockType, this, TestSettings));
+                    Concrete.Add(mockType, new Mock(mockType, this, TestSettings, ConstructorArgs));
 
                 return Concrete[mockType].Object;
             }

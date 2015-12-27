@@ -11,27 +11,27 @@ namespace Dynamox
     {
         internal static readonly DxSettings GlobalSettings = new DxSettings
         {
-            _CreateSealedClassesWithEmptyConstructors = true,
+            _CreateSealedClasses = true,
             _SetNonVirtualPropertiesOrFields = true,
             _TestForInvalidMocks = false,
             _CacheTypeCheckers = true
         };
 
         //TODO: enforce
-        bool _CreateSealedClassesWithEmptyConstructors;
-        public bool CreateSealedClassesWithEmptyConstructors
+        bool _CreateSealedClasses;
+        public bool CreateSealedClasses
         {
             get
             {
-                return _CreateSealedClassesWithEmptyConstructors;
+                return _CreateSealedClasses;
             }
             set
             {
-                if (value != _CreateSealedClassesWithEmptyConstructors)
+                if (value != _CreateSealedClasses)
                 {
-                    _CreateSealedClassesWithEmptyConstructors = value;
+                    _CreateSealedClasses = value;
                     if (PropertyChanged != null)
-                        PropertyChanged(this, new PropertyChangedEventArgs("CreateSealedClassesWithEmptyConstructors"));
+                        PropertyChanged(this, new PropertyChangedEventArgs("CreateSealedClasses"));
                 }
             }
         }
@@ -102,7 +102,7 @@ namespace Dynamox
             if (GlobalSettings == null)
                 return;
 
-            _CreateSealedClassesWithEmptyConstructors = GlobalSettings.CreateSealedClassesWithEmptyConstructors;
+            _CreateSealedClasses = GlobalSettings.CreateSealedClasses;
             _SetNonVirtualPropertiesOrFields = GlobalSettings.SetNonVirtualPropertiesOrFields;
             _TestForInvalidMocks = GlobalSettings.TestForInvalidMocks;
             _CacheTypeCheckers = GlobalSettings.CacheTypeCheckers;
