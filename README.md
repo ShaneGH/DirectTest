@@ -310,6 +310,7 @@ mock(new MockSettings { Returns = "Returns_New" }).GetUser(123).Retuns_New(user)
 ## Contribute
 
 Contribute in (almost) any way you would like
+
 1. Fork it.
 2. Ask questions by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "help wanted" tag.
 3. Request features by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "enhancement" tag.
