@@ -47,11 +47,32 @@ namespace Dynamox.Mocks
         }
     }
 
+    public class OutArg
+    {
+        public readonly int Index;
+        public readonly string Name;
+        public readonly object Value;
+
+        public OutArg(int index, object value)
+        {
+            Index = index;
+            Value = value;
+            Name = null;
+        }
+
+        public OutArg(string name, object value)
+        {
+            Index = -1;
+            Value = value;
+            Name = name;
+        }
+    }
+
     internal class MethodMockBuilder : DynamicObject
     {
         public readonly IMethodAssert ArgChecker;
         public object ReturnValue { get; private set; }
-        public readonly List<Tuple<int, object>> OutParamValues = new List<Tuple<int,object>>();
+        public readonly List<OutArg> OutParamValues = new List<OutArg>();
         public bool MustBeCalled { get; private set; }
         public bool WasCalled { get; private set; }
 
@@ -104,14 +125,26 @@ namespace Dynamox.Mocks
 
         bool Out(object[] args)
         {
-            if (args.Length != 2 || !(args[0] is int))
-                throw new InvalidOperationException("The arguments for Out are [int, object].");   //TODE
+            if (args.Length != 2 || (!(args[0] is int) && !(args[0] is string)))
+                throw new InvalidOperationException("The arguments for Out are [int, object] or [string, object].");   //TODE
 
-            int index = (int)args[0];
-            if (OutParamValues.Any(o => o.Item1 == index))
-                throw new InvalidOperationException("There is already an out value defined for this index [" + index + "].");   //TODE
+            if (args[0] is int)
+            {
+                int index = (int)args[0];
+                if (OutParamValues.Any(o => o.Index == index))
+                    throw new InvalidOperationException("There is already an out value defined for this index [" + index + "].");   //TODE
 
-            OutParamValues.Add(new Tuple<int, object>(index, args[1]));
+                OutParamValues.Add(new OutArg(index, args[1]));
+            }
+            if (args[0] is string)
+            {
+                string name = (string)args[0];
+                if (OutParamValues.Any(o => o.Name == name))
+                    throw new InvalidOperationException("There is already an out value defined for this name \"" + name + "\".");   //TODE
+
+                OutParamValues.Add(new OutArg(name, args[1]));
+            }
+
 
             return true;
         }
@@ -233,9 +266,10 @@ namespace Dynamox.Mocks
             if (ArgChecker.TestArgs(arguments))
             {
                 result = ReturnValue;
-                foreach (var _out in OutParamValues.Where(p => p.Item1 < arguments.Count()))
-                    arguments.ElementAt(_out.Item1).Arg = _out.Item2;
-                    
+                foreach (var _out in OutParamValues.Where(p => p.Index >= 0 && p.Index < arguments.Count()))
+                    arguments.ElementAt(_out.Index).Arg = _out.Value;
+                foreach (var _out in OutParamValues.Where(p => p.Name != null))
+                    arguments.Where(a => a.ArgName == _out.Name).ForEach(a => a.Arg = _out.Value);
 
                 foreach (var after in Actions)
                     if (!after.Do(arguments.Select(a => a.Arg)))

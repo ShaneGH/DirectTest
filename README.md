@@ -246,6 +246,9 @@ var mock = Dx.Mock();
 // the first parameter is the index of the out parameter, the second parameter is the value
 mock.GetUserName(123, Dx.Any).Out(1, "John");
 
+// -OR - the first parameter is the name of the out parameter, the second parameter is the value
+mock.GetUserName(123, Dx.Any).Out("name", "John");
+
 string name;
 mock.As<IUserService>().GetUserName(123, out name);
 

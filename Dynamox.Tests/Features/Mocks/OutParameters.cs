@@ -60,7 +60,6 @@ namespace Dynamox.Tests.Features.Mocks
         }
 
         [Test]
-        [Ignore("TODO: not implemented")]
         public void OutParams_TestOuts_String()
         {
             // Arrange

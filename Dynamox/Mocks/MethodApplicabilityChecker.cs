@@ -10,22 +10,21 @@ namespace Dynamox.Mocks
     public interface IMethodAssert
     {
         bool TestArgs(IEnumerable<MethodArg> args);
-        
-        // TODO: out params
-        bool TestInputArgTypes(IEnumerable<Type> types);
+
+        bool TestInputArgTypes(IEnumerable<MethodArg> inputArgs);
         
         // TODO: out params
         bool CanMockMethod(MethodInfo method);
 
         IEnumerable<Type> InputTypes { get; }
 
-        List<Tuple<int, object>> OutParamValues { get; set; }
+        List<OutArg> OutParamValues { get; set; }
     }
 
     internal class MethodApplicabilityChecker : IMethodAssert
     {
         public static readonly object Any = new AnyValue(typeof(AnyValue));
-        public List<Tuple<int, object>> OutParamValues { get; set; }
+        public List<OutArg> OutParamValues { get; set; }
 
         public static object AnyT<T>()
         {
@@ -42,7 +41,7 @@ namespace Dynamox.Mocks
 
         public MethodApplicabilityChecker() 
         {
-            OutParamValues = new List<Tuple<int, object>>();
+            OutParamValues = new List<OutArg>();
         }
 
         public bool TestArgs()
@@ -50,10 +49,10 @@ namespace Dynamox.Mocks
             return TestArgs(Enumerable.Empty<MethodArg>());
         }
 
-        public bool TestInputArgTypes(IEnumerable<Type> types)
+        public bool TestInputArgTypes(IEnumerable<MethodArg> inputArgs)
         {
             var methodArgTypes = InputTypes.ToArray();
-            var inputArgTypes = types.ToArray();
+            var inputArgTypes = inputArgs.Select(a => a.ArgType).ToArray();
 
             if (methodArgTypes.Length != inputArgTypes.Length)
                 return false;
@@ -67,9 +66,20 @@ namespace Dynamox.Mocks
                     return false;
                 }
 
-                if (OutParamValues.Any(p => p.Item1 == i))
+                if (OutParamValues.Any(p => p.Index == i))
                 {
-                    param = OutParamValues.First(p => p.Item1 == i).Item2;
+                    param = OutParamValues.First(p => p.Index == i).Value;
+                    if ((param == null && inputArgTypes[i].IsValueType) ||
+                        (param != null && !inputArgTypes[i].IsAssignableFrom(param.GetType())))
+                    {
+                        return false;
+                    }
+                }
+
+                var ia = inputArgs.ElementAt(i);
+                if (OutParamValues.Any(p => p.Name == ia.ArgName))
+                {
+                    param = OutParamValues.First(p => p.Name == ia.ArgName).Value;
                     if ((param == null && inputArgTypes[i].IsValueType) ||
                         (param != null && !inputArgTypes[i].IsAssignableFrom(param.GetType())))
                     {
@@ -120,7 +130,7 @@ namespace Dynamox.Mocks
 
         public bool TestArgs(IEnumerable<MethodArg> args)
         {
-            if (!TestInputArgTypes(args.Select(a => a.ArgType)))
+            if (!TestInputArgTypes(args))
                 return false;
 
             var methodArgs = InputTypes.ToArray();

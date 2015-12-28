@@ -27,9 +27,12 @@ namespace Dynamox.Tests.Mocks
         {
             var subject = new MethodApplicabilityChecker<string, int, object>(null);
 
-            Assert.IsTrue(subject.TestInputArgTypes(new[] { typeof(string), typeof(int), typeof(object) }));
-            Assert.IsTrue(subject.TestInputArgTypes(new[] { typeof(string), typeof(int), typeof(string) }));
-            Assert.IsFalse(subject.TestInputArgTypes(new[] { typeof(string), typeof(float), typeof(object) }));
+            Func<IEnumerable<Type>, IEnumerable<MethodArg>> convert = a => 
+                a.Select(x => new MethodArg(null, x, null));
+
+            Assert.IsTrue(subject.TestInputArgTypes(convert(new[] { typeof(string), typeof(int), typeof(object) })));
+            Assert.IsTrue(subject.TestInputArgTypes(convert(new[] { typeof(string), typeof(int), typeof(string) })));
+            Assert.IsFalse(subject.TestInputArgTypes(convert(new[] { typeof(string), typeof(float), typeof(object) })));
         }
     }
 }
