@@ -9,26 +9,33 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Compile
 {
-    internal interface ITypeOverrideDescriptor
-    {
-        IEnumerable<PropertyInfo> OverridableProperties { get; }
-        IEnumerable<MethodInfo> OverridableMethods { get; }
-        bool HasAbstractInternal { get; }
-    }
-
     /// <summary>
     /// Reflect over an interface to get the parts needed to build a virtual proxy
     /// </summary>
-    internal class InterfaceDescriptor : ITypeOverrideDescriptor
+    internal class InterfaceDescriptor
     {
         public readonly Type Interface;
 
-        public InterfaceDescriptor(Type _interface)
+        public InterfaceDescriptor(Type @interface)
         {
-            if (!_interface.IsInterface)
+            if (!@interface.IsInterface)
                 throw new ArgumentException();  //TODO
 
-            Interface = _interface;
+            Interface = @interface;
+        }
+
+        IEnumerable<EventInfo> _OverridableEvents;
+        public IEnumerable<EventInfo> OverridableEvents
+        {
+            get
+            {
+                if (_OverridableEvents == null)
+                {
+                    _OverridableEvents = Array.AsReadOnly(Interface.GetEvents().ToArray());
+                }
+
+                return _OverridableEvents;
+            }
         }
 
         IEnumerable<PropertyInfo> _OverridableProperties;
@@ -77,7 +84,7 @@ namespace Dynamox.Compile
     /// <summary>
     /// Reflect over a class to get the parts needed to build a virtual proxy
     /// </summary>
-    internal class TypeOverrideDescriptor : ITypeOverrideDescriptor
+    internal class TypeOverrideDescriptor
     {
         public static readonly BindingFlags AllInstanceMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -126,7 +133,24 @@ namespace Dynamox.Compile
             get
             {
                 return _HasAbstractInternal ??
-                    (_HasAbstractInternal = Type.GetMethods(AllInstanceMembers).Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly)).Value;
+                    (_HasAbstractInternal = Type.GetMethods(AllInstanceMembers)
+                        .Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly)).Value;
+            }
+        }
+
+        IEnumerable<EventInfo> _OverridableEvents;
+        public IEnumerable<EventInfo> OverridableEvents
+        {
+            get
+            {
+                if (_OverridableEvents == null)
+                {
+                    _OverridableEvents = Array.AsReadOnly(
+                        _Type.GetEvents(AllInstanceMembers).Where(e => (e.IsAbstract() || e.IsVirtual()) && !e.IsFinal() && !e.IsAssembly() && !e.IsPrivate())
+                        .ToArray());
+                }
+
+                return _OverridableEvents;
             }
         }
 

@@ -47,6 +47,46 @@ namespace System
             return property.GetAccessors(true).All(a => a.IsAssembly);
         }
 
+        //TODO: test
+        public static bool IsAbstract(this EventInfo @event)
+        {
+            return CheckEventFlag(@event, e => e.IsAbstract);
+        }
+
+        //TODO: test
+        public static bool IsVirtual(this EventInfo @event)
+        {
+            return CheckEventFlag(@event, e => e.IsVirtual);
+        }
+
+        //TODO: test
+        public static bool IsPrivate(this EventInfo @event)
+        {
+            return CheckEventFlag(@event, e => e.IsPrivate);
+        }
+
+        //TODO: test
+        public static bool IsAssembly(this EventInfo @event)
+        {
+            return CheckEventFlag(@event, e => e.IsAssembly);
+        }
+
+        //TODO: test
+        public static bool IsFinal(this EventInfo @event)
+        {
+            return CheckEventFlag(@event, e => e.IsFinal);
+        }
+
+        private static bool CheckEventFlag(EventInfo @event, Func<MethodInfo, bool> flag)
+        {
+            //return flag(@event.AddMethod) || flag(@event.RemoveMethod) || flag(@event.RaiseMethod);
+
+
+            return (@event.AddMethod != null && flag(@event.AddMethod)) ||
+                (@event.RemoveMethod != null && flag(@event.RemoveMethod)) ||
+                (@event.RaiseMethod != null && flag(@event.RaiseMethod));
+        }
+
         //These functions are not correct
         //public static bool IsPublic(this PropertyInfo property)
         //{

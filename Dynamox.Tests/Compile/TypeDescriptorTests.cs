@@ -258,6 +258,12 @@ namespace Dynamox.Tests.Compile
             Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(MethodTestType1)).HasAbstractInternal);
             Assert.IsTrue(TypeOverrideDescriptor.Create(typeof(MethodTestType2)).HasAbstractInternal);
             Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(MethodTestType3)).HasAbstractInternal);
+
+            Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(IEvents1)).HasAbstractInternal);
+            Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(Events1)).HasAbstractInternal);
+            Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(Events2)).HasAbstractInternal);
+            Assert.IsFalse(TypeOverrideDescriptor.Create(typeof(Events3)).HasAbstractInternal);
+            Assert.IsTrue(TypeOverrideDescriptor.Create(typeof(Events4)).HasAbstractInternal);
         }
 
         public class TheIndexes
@@ -317,6 +323,48 @@ namespace Dynamox.Tests.Compile
             Assert.AreEqual(desc.SettableFields.ElementAt(0).Name, "Field1");
             Assert.AreEqual(desc.SettableProperties.Count(), 1);
             Assert.AreEqual(desc.SettableProperties.ElementAt(0).Name, "Prop1");
+        }
+
+        public interface IEvents1
+        {
+            event EventHandler Event;
+        }
+
+        public class Events1
+        {
+            public event EventHandler Event;
+        }
+
+        public abstract class Events2
+        {
+            public abstract event EventHandler Event;
+        }
+
+        public class Events3
+        {
+            protected virtual event EventHandler Event;
+        }
+
+        public abstract class Events4
+        {
+            internal abstract event EventHandler Event;
+        }
+
+        [Test]
+        public void Events()
+        {
+            // arrange
+            // act
+            var desc1 = TypeOverrideDescriptor.Create(typeof(IEvents1));
+            var desc2 = TypeOverrideDescriptor.Create(typeof(Events1));
+            var desc3 = TypeOverrideDescriptor.Create(typeof(Events2));
+            var desc4 = TypeOverrideDescriptor.Create(typeof(Events3));
+
+            // assert
+            Assert.AreEqual(desc1.OverridableEvents.Count(), 1);
+            Assert.AreEqual(desc2.OverridableEvents.Count(), 0);
+            Assert.AreEqual(desc3.OverridableEvents.Count(), 1);
+            Assert.AreEqual(desc4.OverridableEvents.Count(), 1);
         }
     }
 }
