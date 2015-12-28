@@ -65,7 +65,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var out1 = new object();
-            var out2 = new object();
+            var out2 = "rwerewrwrew";
             var mock = Dx.Mock();
             mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
                 .Returns("44")
@@ -96,7 +96,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var out1 = new object();
-            var out2 = new object();
+            var out2 = "rwerewrwrew";
             var mock = Dx.Mock();
             mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
                 .Returns("44")

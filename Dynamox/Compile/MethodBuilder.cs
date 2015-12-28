@@ -133,8 +133,8 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Ldelem_Ref);
             Body.Emit(OpCodes.Ldfld, MethodArg_Arg);
 
-            // arg_i = args[i].Arg;
-            if (paramType.IsValueType)
+            // arg_i = (T)args[i].Arg;
+            if (paramType.IsGenericParameter || paramType.IsValueType)
             {
                 Body.Emit(OpCodes.Unbox_Any, paramType);
                 Body.Emit(OpCodes.Stobj, paramType);
