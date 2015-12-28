@@ -265,11 +265,9 @@ var objectWithConstructorArgs = mock.As<ObjectWithConstructorArgs>();
 ```
 
 ###Constructor args in chained mocks
+Specify constructor args with the `Constructor(..)` function
 ```C#
-
 var mock = Dx.Mock();
-
-// specify constructor args with the Constructor(..) function
 
 // for properties
 mock.ObjectWithConstructorArgs.Constructor(new object[] { "arg1", 2 }).ToString().Returns("Hello!");
