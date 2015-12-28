@@ -21,7 +21,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns("hello"))
-                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(33))
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(33))
                 .Assert((bag, val) => Assert.AreEqual(val, "hello"))
                 .Run();
         }
@@ -31,7 +31,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns(null))
-                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(33))
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(33))
                 .Assert((bag, val) => Assert.IsNull(val))
                 .Run();
         }
@@ -41,7 +41,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns("hello"))
-                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(44))
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44))
                 .Assert((bag, val) => Assert.AreEqual(val, null))
                 .Run();
         }
@@ -51,7 +51,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             var test = Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(33).Returns(new object()))
-                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething(33))
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(33))
                 .Assert((bag, val) => Assert.Fail());
 
             Assert.Throws<InvalidOperationException>(() => test.Run());

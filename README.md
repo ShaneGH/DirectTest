@@ -82,8 +82,10 @@ Mocking like this will allow us to write far more complex mocks far faster than 
 ## Philosophy
 
 * Dynamox is productive. You write code which explains exactly what you want to do, no more expressions and natural language, just code. Simple code.
+* Dynamox is magic! Watch properties and methods appear from nowhere.
 * Dynamox is dynamic. You mock what you want to mock, you ignore everything else.
-* Dynamox is fast. Very fast. Dynamox has a new proxy generation engine which is tuned for mocking only.
+* Dynamox is expressive. You have complete power over mocks and functions.
+* Dynamox is fast. Dynamox has a new proxy generation engine which is tuned for mocking only.
 
 
 ## Examples
@@ -267,6 +269,13 @@ Assert.AreEqual("John", name);
 
 ###Partial Mocks
 Partial mocks are mocked exactly the same as interfaces.
+```C#
+var mock = Dx.Mock();
+mock.GetUserFirstName(123).Returns("John");
+
+UserService service = mock.As<UserService>();
+var userName = service.GetFullUserName(123);
+```
 
 ###Constructor args
 ```C#

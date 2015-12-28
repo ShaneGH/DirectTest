@@ -24,10 +24,10 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag => bag.subject.BeSomething = Dx.Property<int>(() => v++))
                 .Act(bag =>
                 {
-                    bag.v1 = bag.subject.As<ICurrentTest>().BeSomething;
-                    bag.v2 = bag.subject.As<ICurrentTest>().BeSomething;
-                    bag.subject.As<ICurrentTest>().BeSomething = 99;
-                    bag.v3 = bag.subject.As<ICurrentTest>().BeSomething;
+                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
+                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
+                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething = 99;
+                    bag.v3 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
                 })
                 .Assert((bag) =>
                 {
@@ -46,10 +46,10 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag => bag.subject.BeSomething = Dx.Property<int>(() => v++, true))
                 .Act(bag =>
                 {
-                    bag.v1 = bag.subject.As<ICurrentTest>().BeSomething;
-                    bag.v2 = bag.subject.As<ICurrentTest>().BeSomething;
-                    bag.subject.As<ICurrentTest>().BeSomething = 99;
-                    bag.v3 = bag.subject.As<ICurrentTest>().BeSomething;
+                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
+                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
+                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething = 99;
+                    bag.v3 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
                 })
                 .Assert((bag) =>
                 {
@@ -64,7 +64,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void DynamicPropertyVal_Callback()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.BeSomething = 
+                .Arrange(bag => bag.subject.BeSomething =
                     Dx.Property<int>(33)
                         .OnGet(a =>
                         {
@@ -79,8 +79,8 @@ namespace Dynamox.Tests.Features.Mocks
                         }))
                 .Act(bag =>
                 {
-                    var x = bag.subject.As<ICurrentTest>().BeSomething;
-                    bag.subject.As<ICurrentTest>().BeSomething = 44;
+                    var x = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
+                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething = 44;
                 })
                 .Assert((bag) =>
                 {

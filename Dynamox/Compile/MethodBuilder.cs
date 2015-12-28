@@ -22,11 +22,11 @@ namespace Dynamox.Compile
         protected readonly FieldInfo ObjBase;
         protected readonly MethodInfo ParentMethod;
 
-        protected readonly GenericTypeParameterBuilder[] Generics;
+        protected GenericTypeParameterBuilder[] Generics { get; private set; }
         protected readonly ParameterInfo[] Parameters;
         protected readonly Type[] ParameterTypes;
-        public readonly System.Reflection.Emit.MethodBuilder Method;
-        protected readonly ILGenerator Body;
+        public System.Reflection.Emit.MethodBuilder Method { get; private set; }
+        protected ILGenerator Body { get; private set; }
 
         public MethodBuilder(TypeBuilder toType, FieldInfo objBase, MethodInfo parentMethod)
         {
@@ -36,23 +36,15 @@ namespace Dynamox.Compile
 
             Parameters = ParentMethod.GetParameters();
             ParameterTypes = Parameters.Select(p => p.ParameterType).ToArray();
-            Method = ToType.DefineMethod(ParentMethod.Name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);
-            Body = Method.GetILGenerator();
-
-            if (!ParentMethod.ContainsGenericParameters)
-            {
-                Generics = new GenericTypeParameterBuilder[0];
-            }
-            else
-            {
-                var generics = ParentMethod.GetGenericArguments();
-                Generics = Method.DefineGenericParameters(generics.Select((g, i) => "T" + 1).ToArray());
-            }
         }
 
         protected virtual MethodAttributes GetAttrs(MethodInfo forMethod)
         {
             var _base = MethodAttributes.HideBySig | MethodAttributes.Virtual;
+            if (forMethod.DeclaringType.IsInterface)
+                return _base | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final;
+
+            _base = _base | MethodAttributes.HideBySig;
             if (forMethod.IsPublic)
                 _base = _base | MethodAttributes.Public;
             else if (forMethod.IsFamilyOrAssembly)
@@ -193,19 +185,20 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Ret);
         }
 
-        bool Built = false;
-        readonly object BuildLock = new object();
-        public void Build()
+        void _Build()
         {
-            lock (BuildLock)
-            {
-                if (Built)
-                    throw new InvalidOperationException();  //TODO
-                Built = true;
-            }
+            var name = ParentMethod.DeclaringType.IsInterface ? ParentMethod.DeclaringType.Name + "." + ParentMethod.Name : ParentMethod.Name;
+            Method = ToType.DefineMethod(name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);
+            Body = Method.GetILGenerator();
 
-            if (!ParentMethod.IsAbstract && !ParentMethod.IsVirtual)
-                throw new InvalidOperationException();  //TODO
+            if (!ParentMethod.ContainsGenericParameters)
+            {
+                Generics = new GenericTypeParameterBuilder[0];
+            }
+            else
+            {
+                Generics = Method.DefineGenericParameters(ParentMethod.GetGenericArguments().Select((g, i) => "T" + 1).ToArray());
+            }
 
             var onFailure = Body.DefineLabel();
             var onReturn = Body.DefineLabel();
@@ -240,6 +233,27 @@ namespace Dynamox.Compile
 
             Body.MarkLabel(onReturn);
             OnReturn(methodOut);
+
+            if (ParentMethod.DeclaringType.IsInterface)
+                ToType.DefineMethodOverride(Method, ParentMethod);
+        }
+
+        bool Built = false;
+        readonly object BuildLock = new object();
+        public void Build()
+        {
+            lock (BuildLock)
+            {
+                if (Built)
+                    return;
+
+                Built = true;
+
+                if (!ParentMethod.IsAbstract && !ParentMethod.IsVirtual)
+                    throw new InvalidOperationException();  //TODO
+
+                _Build();
+            }
         }
 
         public LocalBuilder CreateGenerics()

@@ -15,6 +15,8 @@ namespace Dynamox.Tests.Features.Mocks
             int DoSomething(int val);
         }
 
+        static T Y<T>(object input) { return default(T); }
+
         [Test]
         public void Returns()
         {
@@ -26,8 +28,11 @@ namespace Dynamox.Tests.Features.Mocks
                 })
                 .Act(bag =>
                 {
-                    bag.v1 = bag.subject.As<ICurrentTest>().DoSomething(22);
-                    bag.v2 = bag.subject.As<ICurrentTest>().DoSomething(44);
+                    var yy = Y<int>(bag);
+
+                    ICurrentTest val = bag.subject;
+                    bag.v1 = val.DoSomething(22);
+                    bag.v2 = val.DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -49,8 +54,8 @@ namespace Dynamox.Tests.Features.Mocks
                 })
                 .Act(bag =>
                 {
-                    bag.v1 = bag.subject.As<ICurrentTest>().DoSomething(22);
-                    bag.v2 = bag.subject.As<ICurrentTest>().DoSomething(44);
+                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
+                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -64,7 +69,7 @@ namespace Dynamox.Tests.Features.Mocks
                 .UseParentAct(false)
                 .Act(bag =>
                 {
-                    bag.v2 = bag.subject.As<ICurrentTest>().DoSomething(44);
+                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
                 })
                 .SkipParentAssert();
 
@@ -74,7 +79,7 @@ namespace Dynamox.Tests.Features.Mocks
                 .UseParentAct(false)
                 .Act(bag =>
                 {
-                    bag.v2 = bag.subject.As<ICurrentTest>().DoSomething(22);
+                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
                 })
                 .SkipParentAssert(false);
 
@@ -96,8 +101,8 @@ namespace Dynamox.Tests.Features.Mocks
                 })
                 .Act(bag =>
                 {
-                    bag.v1 = bag.subject.As<ICurrentTest>().DoSomething(22);
-                    bag.v2 = bag.subject.As<ICurrentTest>().DoSomething(44);
+                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
+                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -120,8 +125,8 @@ namespace Dynamox.Tests.Features.Mocks
                 })
                 .Act(bag =>
                 {
-                    bag.subject.As<ICurrentTest>().DoSomething(22);
-                    bag.subject.As<ICurrentTest>().DoSomething(44);
+                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
+                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -139,8 +144,8 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag => bag.subject.DoSomething(22).Returns(44))
                 .Act(bag =>
                 {
-                    bag.v1 = bag.subject(new MockSettings { As = "baboon" }).baboon<ICurrentTest>().DoSomething(22);
-                    bag.v2 = bag.subject(new { As = "baboon" }).baboon<ICurrentTest>().DoSomething(22);
+                    bag.v1 = ((ICurrentTest)bag.subject(new MockSettings { As = "baboon" }).baboon<ICurrentTest>()).DoSomething(22);
+                    bag.v2 = ((ICurrentTest)bag.subject(new { As = "baboon" }).baboon<ICurrentTest>()).DoSomething(22);
                 })
                 .Assert((bag) =>
                 {

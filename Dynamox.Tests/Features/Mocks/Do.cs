@@ -25,7 +25,7 @@ namespace Dynamox.Tests.Features.Mocks
                     Assert.AreEqual("Hello", a);
                     bag.ok = true;
                 })))
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -39,7 +39,7 @@ namespace Dynamox.Tests.Features.Mocks
                     Assert.IsNull(a);
                     bag.ok = true;
                 })))
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething(null); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(null); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -49,7 +49,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Callback(() => bag.ok = true)))
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -63,7 +63,7 @@ namespace Dynamox.Tests.Features.Mocks
                     Assert.AreEqual("Hello", a);
                     bag.ok = true;
                 })))
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -73,7 +73,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             var test = Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Callback<int>(a => { })))
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); });
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }

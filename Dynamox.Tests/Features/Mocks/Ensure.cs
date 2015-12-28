@@ -23,7 +23,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
                 .Run();
         }
 
@@ -32,7 +32,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             var test = Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Not hello"); });
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Not hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
@@ -42,7 +42,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.GetAnother().Ensure().DoSomething("Hello").Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().GetAnother().DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).GetAnother().DoSomething("Hello"); })
                 .Run();
         }
 
@@ -51,7 +51,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             var test = Dx.Test("")
                 .Arrange(bag => bag.subject.GetAnother().DoSomething("Hello").Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().GetAnother().DoSomething("Not hello"); });
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).GetAnother().DoSomething("Not hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
@@ -61,7 +61,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().Another.DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).Another.DoSomething("Hello"); })
                 .Run();
         }
 
@@ -70,7 +70,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             var test = Dx.Test("")
                 .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().Another.DoSomething("Not hello"); });
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).Another.DoSomething("Not hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
@@ -84,12 +84,12 @@ namespace Dynamox.Tests.Features.Mocks
             mock2.DoSomething("hello2").Ensure();
             Assert.Throws<InvalidOperationException>(() => Dx.Ensure(mock1, mock2));
 
-            mock1.As<ICurrentTest>().DoSomething("hello");
-            mock2.As<ICurrentTest>().DoSomething("hello");
+            ((ICurrentTest)mock1.As<ICurrentTest>()).DoSomething("hello");
+            ((ICurrentTest)mock2.As<ICurrentTest>()).DoSomething("hello");
             Assert.Throws<InvalidOperationException>(() => Dx.Ensure(mock1, mock2));
 
-            mock1.As<ICurrentTest>().DoSomething("hello1");
-            mock2.As<ICurrentTest>().DoSomething("hello2");
+            ((ICurrentTest)mock1.As<ICurrentTest>()).DoSomething("hello1");
+            ((ICurrentTest)mock2.As<ICurrentTest>()).DoSomething("hello2");
             Dx.Ensure(mock1, mock2);
         }
     }

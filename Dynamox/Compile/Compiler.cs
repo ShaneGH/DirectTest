@@ -201,7 +201,7 @@ namespace Dynamox.Compile
         public static void AddProperty(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
         { 
             if (!parentProperty.IsAbstract() && !parentProperty.IsVirtual())
-                throw new InvalidOperationException();  //TODO
+                throw new InvalidOperationException();  //TODE
 
             var parameterTypes = parentProperty.GetIndexParameters().Select(pt => pt.ParameterType).ToArray();
             var property = toType.DefineProperty(parentProperty.Name, PropertyAttributes.None, parentProperty.PropertyType, parameterTypes.Any() ? parameterTypes : null);

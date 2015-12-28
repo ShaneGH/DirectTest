@@ -27,7 +27,7 @@ namespace Dynamox.Tests.Features.Mocks
                     bag.subject.DoResult().Returns(33);
                     bag.subject.DoResult().Returns(44);
                 })
-                .Act(bag => (int)bag.subject.As<ICurrentTest>().DoResult())
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoResult())
                 .Assert((bag, val) =>
                 {
                     Assert.AreEqual(val, 44);
@@ -40,7 +40,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => { bag.subject.DoSomething().GetSomething.DoSomething().Result = 8; })
-                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething().GetSomething.DoSomething().Result)
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething().GetSomething.DoSomething().Result)
                 .Assert((bag, result) => Assert.AreEqual(8, result))
                 .Run();
         }
@@ -50,7 +50,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => { bag.subject.GetSomething.DoSomething().GetSomething.DoResult().Returns(8); })
-                .Act(bag => bag.subject.As<ICurrentTest>().GetSomething.DoSomething().GetSomething.DoResult())
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).GetSomething.DoSomething().GetSomething.DoResult())
                 .Assert((bag, result) => Assert.AreEqual(8, result))
                 .Run();
         }
@@ -60,7 +60,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => { bag.subject.DoSomething().DoSomething().DoResult().Returns(8); })
-                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething().DoSomething().DoResult())
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething().DoSomething().DoResult())
                 .Assert((bag, result) => Assert.AreEqual(8, result))
                 .Run();
         }
@@ -70,7 +70,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => { bag.subject.GetSomething.GetSomething.Result = 8; })
-                .Act(bag => bag.subject.As<ICurrentTest>().GetSomething.GetSomething.Result)
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).GetSomething.GetSomething.Result)
                 .Assert((bag, result) => Assert.AreEqual(8, result))
                 .Run();
         }
@@ -84,7 +84,7 @@ namespace Dynamox.Tests.Features.Mocks
                     bag.temp.DoResult().Returns(8);
                     bag.subject.DoSomething().Returns(bag.temp); 
                 })
-                .Act(bag => bag.subject.As<ICurrentTest>().DoSomething().DoResult())
+                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething().DoResult())
                 .Assert((bag, result) => Assert.AreEqual(8, result))
                 .Run();
         }

@@ -18,8 +18,8 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tmp = new OutParamaters();
-            tmp.OutParams_Generic_ValTypes();
+            var tmp = new SettingsTests();
+            tmp.Returns();
         }
     }
 }

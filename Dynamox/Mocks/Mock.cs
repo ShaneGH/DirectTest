@@ -30,31 +30,16 @@ namespace Dynamox.Mocks
             }
         }
 
-        public Mock(object value, DxSettings settings, IEnumerable<object> constructorArgs)   //TODO: last arg should be optional
-            : this(settings, constructorArgs ?? Enumerable.Empty<object>())
-        {
-            _Object = value;
-        }
-
-        public Mock(Type mockType, MockBuilder builder, DxSettings settings, IEnumerable<object> constructorArgs)   //TODO: last arg should be optional
-            : this(settings, constructorArgs ?? Enumerable.Empty<object>())
+        public Mock(Type mockType, MockBuilder builder, DxSettings settings, IEnumerable<object> constructorArgs = null)
         {
             if (mockType.IsSealed && !settings.CreateSealedClasses)
                 throw new InvalidOperationException("Cannot mock sealed");  //TODE
 
+            ConstructorArgs = constructorArgs ?? Enumerable.Empty<object>();
+            Settings = settings;
             MockType = mockType;
             Members = builder.Values;
             Indexes = builder.IndexedValues;
-        }
-
-        /// <summary>
-        /// Must be used in conjunction with another constructor
-        /// </summary>
-        /// <param name="settings"></param>
-        private Mock(DxSettings settings, IEnumerable<object> constructorArgs)
-        {
-            ConstructorArgs = constructorArgs;
-            Settings = settings;
         }
 
         private static readonly Dictionary<Type, Constructors> Constructors = new Dictionary<Type, Constructors>();

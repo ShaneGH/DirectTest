@@ -27,7 +27,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(Dx.Any).Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
                 .Run();
         }
 
@@ -36,7 +36,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(Dx.Any).Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething(4); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(4); })
                 .Run();
         }
 
@@ -45,7 +45,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomething(Dx.Any).Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomething(null); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(null); })
                 .Run();
         }
 
@@ -54,7 +54,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomethingT(Dx.AnyT<C1>()).Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomethingT(new C1()); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomethingT(new C1()); })
                 .Run();
         }
 
@@ -63,7 +63,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomethingT(Dx.AnyT<C1>()).Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomethingT(new C2()); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomethingT(new C2()); })
                 .Run();
         }
 
@@ -72,7 +72,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.DoSomethingT(Dx.AnyT<C1>()).Ensure())
-                .Act(bag => { bag.subject.As<ICurrentTest>().DoSomethingT(null); })
+                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomethingT(null); })
                 .Run();
         }
     }
