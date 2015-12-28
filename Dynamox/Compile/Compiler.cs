@@ -82,6 +82,9 @@ namespace Dynamox.Compile
             compiling.Join();
             if (compileException != null)
                 throw new InvalidOperationException("", compileException);  //TODE
+
+            if (!Built.ContainsKey(baseType))
+                throw new InvalidOperationException("An error ocured creating proxy type for " + baseType + ". See previous exception for more details.");
         }
 
         bool AreEqual<T>(IEnumerable<T> array1, IEnumerable<T> array2)

@@ -13,6 +13,7 @@ namespace Dynamox.Tests.Features.Mocks
         public interface I1
         {
             string DoSomething(int val1, object ref1, ref int val2, ref object ref2, out int val3, out object ref3);
+            T Generic<T>(out T val1, ref T val2);
         }
 
         [Test]
@@ -143,6 +144,52 @@ namespace Dynamox.Tests.Features.Mocks
             Assert.AreEqual(result, "44");
             Assert.AreEqual(9, a);
             Assert.AreEqual(b1, b);
+        }
+
+        [Test]
+        public void OutParams_Generic_RefTypes()
+        {
+            // Arrange
+            object x1, x2 = new object(), y1 = new object(), y2 = new object(), output = new object();
+            var mock = Dx.Mock();
+            mock.Generic<object>(Dx.Any, Dx.Any)
+                .Returns(output)
+                .Out(0, x2)
+                .Out(1, y2);
+
+            int y = 9;
+
+            // Act
+            I1 obj = mock.As<I1>();
+            var result = obj.Generic<object>(out x1, ref y1);
+
+            // Assert
+            Assert.AreEqual(result, output);
+            Assert.AreEqual(x1, x2);
+            Assert.AreEqual(y1, y2);
+        }
+
+        [Test]
+        public void OutParams_Generic_ValTypes()
+        {
+            // Arrange
+            var mock = Dx.Mock();
+            mock.Generic<int>(Dx.Any, Dx.Any)
+                .Returns(44)
+                .Out(0, 55)
+                .Out(1, 77);
+
+            int x;
+            int y = 9;
+
+            // Act
+            I1 obj = mock.As<I1>();
+            var result = obj.Generic<int>(out x, ref y);
+
+            // Assert
+            Assert.AreEqual(result, 44);
+            Assert.AreEqual(55, x);
+            Assert.AreEqual(77, y);
         }
     }
 }
