@@ -126,6 +126,9 @@ namespace Dynamox.Compile
             var allMembers = baseType.GetMembers(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Select(m => m.Name).ToArray();
 
+            // store raise event methods
+            var events = new List<Tuple<string, MethodInfo>>();
+
             // define ObjectBase field
             var objBase = type.DefineField(GetFreeMemberName(baseType, UnderlyingObject),
                 typeof(ObjectBase), FieldAttributes.NotSerialized | FieldAttributes.Private | FieldAttributes.InitOnly);
@@ -157,6 +160,12 @@ namespace Dynamox.Compile
                 builder.Build();
             }
 
+            // add events
+            foreach (var @event in typeDescriptor.OverridableEvents)
+            {
+                events.Add(AddEvent(type, objBase, @event));
+            }
+
             // add interface properties
             foreach (var property in typeDescriptor.OverridableInterfaces.SelectMany(i => i.OverridableProperties))
             {
@@ -177,6 +186,9 @@ namespace Dynamox.Compile
                 builder.Build();
             }
 
+            if (events.Any())
+                AddRaiseEventMethod(type, events);
+
             return type.CreateType();
         }
 
@@ -196,6 +208,49 @@ namespace Dynamox.Compile
                 output = nameBase + number;
 
             return output;
+        }
+
+        public interface IRaiseEvent 
+        {
+            void RaiseEvent(string eventName, object[] args);
+        }
+
+        public static void AddRaiseEventMethod(TypeBuilder toType, IEnumerable<Tuple<string, MethodInfo>> eventRaiseMethods)
+        {
+            toType.AddInterfaceImplementation(typeof(IRaiseEvent));
+
+            var method = toType.DefineMethod("IRaiseEvent.RaiseEvent",
+                MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final,
+                null, new[] { typeof(string), typeof(object[]) });
+
+            var body = method.GetILGenerator();
+            foreach (var eventRaise in eventRaiseMethods)
+            {
+                var next = body.DefineLabel();
+                body.Emit(OpCodes.Ldarg_1);
+                body.Emit(OpCodes.Ldstr, eventRaise.Item1);
+                body.Emit(OpCodes.Ceq);
+                body.Emit(OpCodes.Brfalse, next);
+
+                //body.Emit(OpCodes.Brfalse, next);
+                //body.Emit(OpCodes.Ret);
+
+                body.MarkLabel(next);
+            }
+
+            body.Emit(OpCodes.Ret);
+            toType.DefineMethodOverride(method, typeof(IRaiseEvent).GetMethod("RaiseEvent"));
+        }
+
+        public static Tuple<string, MethodInfo> AddEvent(TypeBuilder toType, FieldInfo objBase, EventInfo parentEvent)
+        {
+            return null;
+            //if (!parentEvent.IsAbstract()/* && !parentEvent.IsVirtual()*/)
+            //    throw new InvalidOperationException();  //TODE
+
+            //var @event = toType.DefineEvent("", EventAttributes.None, parentEvent.EventHandlerType);
+            //@event.re
+            
         }
 
         public static void AddProperty(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)

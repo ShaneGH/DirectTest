@@ -38,6 +38,24 @@ namespace Dynamox.Compile
             }
         }
 
+        IEnumerable<MethodInfo> _AllEventAccessors;
+        public IEnumerable<MethodInfo> AllEventAccessors
+        {
+            get
+            {
+                if (_AllEventAccessors == null)
+                {
+                    _AllEventAccessors = Array.AsReadOnly(Interface.GetEvents()
+                        .SelectMany(e => new[] { e.AddMethod, e.RaiseMethod, e.RemoveMethod }.Union(e.GetOtherMethods(true)))
+                        .Where(m => m != null)
+                        .Distinct()
+                        .ToArray());
+                }
+
+                return _AllEventAccessors;
+            }
+        }
+
         IEnumerable<PropertyInfo> _OverridableProperties;
         public IEnumerable<PropertyInfo> OverridableProperties
         {
@@ -71,7 +89,7 @@ namespace Dynamox.Compile
             get
             {
                 return _OverridableMethods ?? (_OverridableMethods =
-                    Array.AsReadOnly(Interface.GetMethods().Where(m => !AllPropertyAccessors.Contains(m)).ToArray()));
+                    Array.AsReadOnly(Interface.GetMethods().Where(m => !AllPropertyAccessors.Contains(m) && !AllEventAccessors.Contains(m)).ToArray()));
             }
         }
 
@@ -151,6 +169,25 @@ namespace Dynamox.Compile
                 }
 
                 return _OverridableEvents;
+            }
+        }
+
+        IEnumerable<MethodInfo> _AllEventAccessors;
+        public IEnumerable<MethodInfo> AllEventAccessors
+        {
+            get
+            {
+                if (_AllEventAccessors == null)
+                {
+                    _AllEventAccessors = Array.AsReadOnly(InheritanceTree
+                        .SelectMany(e => e.GetEvents(AllInstanceMembers))
+                        .SelectMany(e => new[] { e.AddMethod, e.RaiseMethod, e.RemoveMethod }.Union(e.GetOtherMethods(true)))
+                        .Where(m => m != null)
+                        .Distinct()
+                        .ToArray());
+                }
+
+                return _AllEventAccessors;
             }
         }
 
@@ -247,7 +284,7 @@ namespace Dynamox.Compile
                 {
                     _OverridableMethods = Array.AsReadOnly(Type.GetMethods(AllInstanceMembers)
                         .Where(m => (m.IsAbstract || m.IsVirtual) && !m.IsFinal)
-                        .Where(m => !m.IsAssembly && !m.IsPrivate && !AllPropertyAccessors.Contains(m))
+                        .Where(m => !m.IsAssembly && !m.IsPrivate && !AllPropertyAccessors.Contains(m) && !AllEventAccessors.Contains(m))
                         .Where(m => m.Name != "Finalize" || m.ReturnType != typeof(void) || m.GetParameters().Length != 0)
                         .ToArray());
                 }

@@ -494,5 +494,23 @@ namespace Dynamox.Tests.Compile
 
             Assert.AreEqual(subject["goodbye"], 989898);
         }
+
+        public interface IEvents
+        {
+            event EventHandler Event;
+        }
+
+        public class Events
+        {
+            public event EventHandler Event;
+        }
+
+        //[Test]
+        //public void RaiseEvents()
+        //{
+        //    var ev = typeof(Events).GetEvents()[0];
+
+        //    //var subject = Compiler.Compile(typeof(Events));
+        //}
     }
 }

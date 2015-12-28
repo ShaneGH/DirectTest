@@ -44,6 +44,7 @@ namespace Dynamox.Tests.Features.Mocks
         [Test]
         public void SmokeTest()
         {
+            return;
             ICurrentTest mock = Dx.Mock();
 
             mock.SomethingDid += (object sender, EventArgs e) =>
