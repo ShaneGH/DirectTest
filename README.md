@@ -10,6 +10,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
 
 * [Introduction to mocking](#introduction-to-mocking)
 * [How Dynamox is different](#how-dynamox-is-different)
+* [Philosophy](#philosophy)
 * [Examples](#examples)
   * [Creating Mocks](#creating-mocks)
   * [Matching arguments](#matching-arguments)
@@ -51,9 +52,10 @@ Assert.AreEqual("John", user.Name);
 ```
 
 ## How Dynamox is different
-Unit testing is a long and often boring task. It is thankless and time consuming. Dynamox is a reaction to this. Rather than attempting to make unit testing sexy (it isn't..... it REALLY isn't), dynamox is built to reduce the amount of code you have to write in order to test, giving you faster turnaround time and tests which look more similar to the code which they are testing.
 
-Dynamox does this by sacrificing strong typing, so that you can work within the bounds of the logic you wish to execute, not the classes you wish to look like.
+Unit testing is a long and boring task. It is thankless and time consuming. Dynamox is a reaction to this. Rather than attempting to make unit testing sexy (it isn't..... it REALLY isn't), dynamox is built to reduce the amount of code you have to write in order to test, giving you faster turnaround time and test code which flows better an more naturally than it could within the bounds of strong typing and .Net expressions.
+
+Dynamox is dynamic. It sacrifices strong typing, so that you can work within the bounds of the logic you wish to execute, not the classes you wish to look like.
 
 Lets have a closer look at the example in the introduction to mocking section.
 
@@ -76,6 +78,13 @@ var testSubject = new UserService(userRepositoryMock.As<IUserRepository>());
 ```
 
 Mocking like this will allow us to write far more complex mocks far faster than with other mocking frameworks
+
+## Philosophy
+
+* Dynamox is productive. You write code which explains exactly what you want to do, no more expressions and natural language, just code. Simple code.
+* Dynamox is dynamic. You mock what you want to mock, you ignore everything else.
+* Dynamox is fast. Very fast. Dynamox has a new proxy generation engine which is tuned for mocking only.
+
 
 ## Examples
 
