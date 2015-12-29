@@ -4,23 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dynamox.Mocks
+namespace Dynamox.Mocks.Info
 {
-    public interface IPropertyMockAccessor
-    {
-        TProperty Get<TProperty>();
-        void Set(object value);
-    }
-
-    public interface IPropertyMockBuilder<out TProperty>
-    {
-        IPropertyMockBuilder<TProperty> OnGet(Action<TProperty> get);
-        IPropertyMockBuilder<TProperty> OnGet(Action get);
-
-        IPropertyMockBuilder<TProperty> OnSet(Action<TProperty, TProperty> set);
-        IPropertyMockBuilder<TProperty> OnSet(Action set);
-    }
-
+    /// <summary>
+    /// A mocked property with get and set functionality
+    /// </summary>
+    /// <typeparam name="TProperty">The property type</typeparam>
     internal class PropertyMockBuilder<TProperty> : IPropertyMockBuilder<TProperty>, IPropertyMockAccessor
     {
         Func<TProperty> GetProperty { get; set; }

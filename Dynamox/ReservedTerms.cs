@@ -4,10 +4,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks.Info;
 
 namespace Dynamox
 {
-    public class MockSettings
+    /// <summary>
+    /// Specifies the method and property names which will be used by Dynamox to perform core actions, such as Return values or Ensure mocks are called
+    /// </summary>
+    public class ReservedTerms : IReservedTerms
     {
         public string Returns { get; set; }
         public string Ensure { get; set; }
@@ -17,7 +21,7 @@ namespace Dynamox
         public string Constructor { get; set; }
         public string Out { get; set; }
 
-        public MockSettings()
+        public ReservedTerms()
         {
             Returns = "Returns";
             Ensure = "Ensure";
@@ -28,9 +32,12 @@ namespace Dynamox
             Out = "Out";
         }
 
-        public MockSettings(object settings)
+        public ReservedTerms(object settings)
             : this()
         {
+            if (settings == null)
+                return;
+
             var properties = settings.GetType().GetProperties();
             var fields = settings.GetType().GetFields();
 

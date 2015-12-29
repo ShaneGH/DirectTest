@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Compile;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 using NUnit.Framework;
-
 using COMPILER = Dynamox.Compile.Compiler;
 
 namespace Dynamox.Tests.Compile.Compiler

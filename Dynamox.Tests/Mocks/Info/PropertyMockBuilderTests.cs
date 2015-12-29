@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 using NUnit.Framework;
 
-namespace Dynamox.Tests.Mocks
+namespace Dynamox.Tests.Mocks.Info
 {
     [TestFixture]
     public class PropertyMockBuilderTests
@@ -16,6 +17,7 @@ namespace Dynamox.Tests.Mocks
         {
             var subject = new PropertyMockBuilder<string>();
 
+            Assert.True(subject is IPropertyMockBuilder<string>);
             Assert.True(subject is IPropertyMockBuilder<object>);
         }
     }

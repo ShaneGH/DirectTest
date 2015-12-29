@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Builders;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 
 namespace Dynamox
 {
@@ -47,14 +48,14 @@ namespace Dynamox
             return new MockBuilder(settings, constructorArgs);
         }
 
-        public static dynamic Mock(DxSettings settings, MockSettings mockSettings, IEnumerable<object> constructorArgs = null)
+        public static dynamic Mock(DxSettings settings, IReservedTerms mockSettings, IEnumerable<object> constructorArgs = null)
         {
             return new MockBuilder(mockSettings, settings, constructorArgs);
         }
 
         public static dynamic Mock(DxSettings settings, object mockSettings, IEnumerable<object> constructorArgs = null)
         {
-            return new MockBuilder(mockSettings, settings, constructorArgs);
+            return new MockBuilder(new ReservedTerms(mockSettings), settings, constructorArgs);
         }
 
         #endregion

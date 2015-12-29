@@ -8,11 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Dynamic;
 
-namespace Dynamox.Mocks
+namespace Dynamox.Mocks.Info
 {
     /// <summary>
-    /// This class is not thread safe.
-    /// It is intended to be used multiple times, however the Settings property will be changed at the beginning of each operation
+    /// The core of building mocks. Should be cast as a dynamic and used to build mock information
     /// </summary>
     internal class MockBuilder : DynamicBag
     {
@@ -21,18 +20,7 @@ namespace Dynamox.Mocks
 
         public readonly DxSettings TestSettings;
 
-        private MockSettings _MockSettings;
-        internal MockSettings MockSettings 
-        {
-            get 
-            {
-                return _MockSettings ?? (_MockSettings = new MockSettings());
-            }
-            set 
-            {
-                _MockSettings = value;
-            }
-        }
+        internal readonly ReservedTermsContainer MockSettings;
 
         public MockBuilder(IEnumerable<object> constructorArgs = null)
             : this(Dx.Settings, constructorArgs)
@@ -40,20 +28,15 @@ namespace Dynamox.Mocks
         }
 
         public MockBuilder(DxSettings testSettings, IEnumerable<object> constructorArgs = null)
-            : this(new MockSettings(), testSettings, constructorArgs)
+            : this(new ReservedTerms(), testSettings, constructorArgs)
         {
         }
 
-        public MockBuilder(MockSettings mockSettings, DxSettings testSettings, IEnumerable<object> constructorArgs = null)
+        public MockBuilder(IReservedTerms mockSettings, DxSettings testSettings, IEnumerable<object> constructorArgs = null)
         {
             ConstructorArgs = constructorArgs ?? Enumerable.Empty<object>();
-            MockSettings = mockSettings;
+            MockSettings = new ReservedTermsContainer(mockSettings);
             TestSettings = testSettings;
-        }
-
-        public MockBuilder(object mockSettings, DxSettings testSettings, IEnumerable<object> constructorArgs = null)
-            : this(new MockSettings(mockSettings), testSettings, constructorArgs)
-        {
         }
 
         private static Assembly CurrentAssembly = typeof(MockBuilder).Assembly;
@@ -87,7 +70,7 @@ namespace Dynamox.Mocks
             if (base.TryGetMember(binder, out result))
                 return true;
 
-            SetMember(binder.Name, new MockBuilder(MockSettings, TestSettings));
+            SetMember(binder.Name, new MockBuilder(MockSettings.Next(), TestSettings));
 
             return base.TryGetMember(binder, out result);
         }
@@ -97,23 +80,23 @@ namespace Dynamox.Mocks
             if (base.TryGetIndex(binder, indexes, out result))
                 return true;
 
-            SetIndex(indexes, new MockBuilder(MockSettings, TestSettings));
+            SetIndex(indexes, new MockBuilder(MockSettings.Next(), TestSettings));
 
             return base.TryGetIndex(binder, indexes, out result);
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder.Name == MockSettings.Clear)
+            if (binder.Name == MockSettings.Use_Unsafe(s => s.Clear))
             {
                 Clear();
                 result = this;
             }
-            else if (binder.Name == MockSettings.Constructor)
+            else if (binder.Name == MockSettings.Use_Unsafe(s => s.Constructor))
             {
                 result = _Constructor(args);
             }
-            else if (binder.Name == MockSettings.As)
+            else if (binder.Name == MockSettings.Use_Unsafe(s => s.As))
             {
                 result = _As(binder, args);
             }
@@ -145,7 +128,7 @@ namespace Dynamox.Mocks
             {
                 var typeArgs = GenericArguments(binder);
                 if (typeArgs == null || typeArgs.Count != 1)
-                    throw new InvalidOperationException("A call to " + MockSettings.As + " must have 1 generic type argument or 1 argument for return type.");
+                    throw new InvalidOperationException("A call to " + MockSettings.Use_Unsafe(s => s.As) + " must have 1 generic type argument or 1 argument for return type.");
 
                 convert = typeArgs[0];
             }
@@ -162,9 +145,9 @@ namespace Dynamox.Mocks
 
         public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
         {
-            if (args.Length == 1 && args[0] is MockSettings)
+            if (args.Length == 1 && args[0] is IReservedTerms)
             {
-                MockSettings = args[0] as MockSettings;
+                MockSettings.Set(args[0] as IReservedTerms);
                 result = this;
             }
             else
@@ -178,15 +161,18 @@ namespace Dynamox.Mocks
         protected object GetOrMockProperty(string name)
         {
             object result;
+
+            // get
             if (base.TryGetMember(name, out result))
             {
                 if (result is MockBuilder)
-                    (result as MockBuilder).MockSettings = MockSettings;
+                    (result as MockBuilder).MockSettings.Set(MockSettings);
 
                 return result;
             }
 
-            SetMember(name, result = new MockBuilder(MockSettings, TestSettings));
+            // or mock
+            SetMember(name, result = new MockBuilder(MockSettings.Next(), TestSettings));
             return result;
         }
 
@@ -207,7 +193,8 @@ namespace Dynamox.Mocks
             if (TryGetMember(name, out existingMock) && !(existingMock is MethodGroup))
                 throw new InvalidOperationException("The member \"" + name + "\" has already been set as a parameter, and cannot be mocked now as a function");    //TODM
 
-            var result = new MethodMockBuilder(MockSettings, new MockBuilder(MockSettings, TestSettings), genericArgs, args);
+            var settings = MockSettings.Next();
+            var result = new MethodMockBuilder(settings, new MockBuilder(settings, TestSettings), genericArgs, args);
             if (existingMock == null)
             {
                 existingMock = new MethodGroup(result);

@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using Dynamox.Dynamic;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 
 namespace Dynamox.Builders
 {
@@ -29,16 +30,17 @@ namespace Dynamox.Builders
             if (args.Length != 1)
                 throw new InvalidOperationException("There can only be one argument to this method: the mock settings.");
 
+            var terms = args[0] is IReservedTerms ? args[0] as IReservedTerms : new ReservedTerms(args[0]);
             if (!base.TryGetMember(binder.Name, out result))
             {
-                SetMember(binder.Name, result = new MockBuilder(args[0] is MockSettings ? args[0] as MockSettings : args[0], Settings));
+                SetMember(binder.Name, result = new MockBuilder(terms, Settings));
                 return true;
             }
 
             if (!(result is MockBuilder))
                 throw new InvalidOperationException("The member \"" + binder.Name + "\" has already been set as a property, and cannot be mocked");    //TODM
 
-            (result as MockBuilder).MockSettings = args[0] is MockSettings ? args[0] as MockSettings : new MockSettings(args[0]);
+            (result as MockBuilder).MockSettings.Set(terms);
 
             return true;
         }
@@ -46,7 +48,7 @@ namespace Dynamox.Builders
         public void SetAllSettingsToDefault() 
         {
             foreach (var builder in Values.Values.OfType<MockBuilder>())
-                builder.MockSettings = null;
+                builder.MockSettings.Set((IReservedTerms)null);
         }
 
         public IEnumerable<string> ShouldHaveBeenCalled

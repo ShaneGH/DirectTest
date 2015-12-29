@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dynamox.Builders;
 using Dynamox.Compile;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 using NUnit.Framework;
 
 namespace Dynamox.Tests.Mocks

@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using System.Reflection;
+using Dynamox.Mocks.Info;
 using NUnit.Framework;
 
-namespace Dynamox.Mocks
+namespace Dynamox.Mocks.Info
 {
     [TestFixture]
     internal class MethodMockBuilderTests

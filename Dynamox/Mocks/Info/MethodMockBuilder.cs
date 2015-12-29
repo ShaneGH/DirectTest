@@ -7,67 +7,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dynamox.Mocks
+namespace Dynamox.Mocks.Info
 {
-    internal class MethodGroup : Collection<MethodMockBuilder>
-    {
-        public MethodGroup()
-            : base()
-        {
-        }
-
-        public MethodGroup(MethodMockBuilder first)
-            : this()
-        {
-            Add(first);
-        }
-
-        public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<MethodArg> arguments, out object result) 
-        {
-            foreach (var item in this)
-                if (item.TryInvoke(genericArguments, arguments, out result))
-                    return true;
-            
-            result = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Returns a a summary of the args of any method which was strict mocked and not called
-        /// </summary>
-        public IEnumerable<string> ShouldHaveBeenCalled 
-        {
-            get
-            {
-                return this.Where(m => m.MustBeCalled && !m.WasCalled)
-                    .Select(m => m.ArgChecker.InputTypes.Any() ? "Args: " + string.Join(", ", m.ArgChecker.InputTypes) : string.Empty)
-                    .Union(
-                        this.Select(m => m.ReturnValue).OfType<MockBuilder>().SelectMany(b => b.ShouldHaveBeenCalled));
-            }
-        }
-    }
-
-    public class OutArg
-    {
-        public readonly int Index;
-        public readonly string Name;
-        public readonly object Value;
-
-        public OutArg(int index, object value)
-        {
-            Index = index;
-            Value = value;
-            Name = null;
-        }
-
-        public OutArg(string name, object value)
-        {
-            Index = -1;
-            Value = value;
-            Name = name;
-        }
-    }
-
+    /// <summary>
+    /// Builds method mock functionality. Created and returned by MockBuilder
+    /// </summary>
     internal class MethodMockBuilder : DynamicObject
     {
         public readonly IMethodAssert ArgChecker;
@@ -88,16 +32,16 @@ namespace Dynamox.Mocks
         }
 
         public MethodMockBuilder(MockBuilder nextPiece, IEnumerable<Type> genericArgs, IEnumerable<object> args)
-            : this(new MockSettings(), nextPiece, genericArgs, args)
+            : this(new ReservedTerms(), nextPiece, genericArgs, args)
         {
         }
 
-        public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece, IEnumerable<object> args)
+        public MethodMockBuilder(IReservedTerms settings, MockBuilder nextPiece, IEnumerable<object> args)
             : this(settings, nextPiece, Enumerable.Empty<Type>(), args)
         {
         }
 
-        public MethodMockBuilder(MockSettings settings, MockBuilder nextPiece, IEnumerable<Type> genericArgs, IEnumerable<object> args)
+        public MethodMockBuilder(IReservedTerms terms, MockBuilder nextPiece, IEnumerable<Type> genericArgs, IEnumerable<object> args)
         {
             if (args.Count() == 1 && args.First() is IMethodAssert)
                 ArgChecker = args.First() as IMethodAssert;
@@ -114,12 +58,13 @@ namespace Dynamox.Mocks
             MustBeCalled = false;
             WasCalled = false;
 
+            // register special actions based on the input terms
             SpecialActions = new ReadOnlyDictionary<string, Func<object[], bool>>(new Dictionary<string, Func<object[], bool>> 
             {
-                { settings.Out, Out },
-                { settings.Returns, Returns },
-                { settings.Ensure, Ensure },
-                { settings.Do, Do }
+                { terms.Out, Out },
+                { terms.Returns, Returns },
+                { terms.Ensure, Ensure },
+                { terms.Do, Do }
             });
         }
 
@@ -216,6 +161,7 @@ namespace Dynamox.Mocks
             return TryInvoke(Enumerable.Empty<Type>(), arguments, out result);
         }
 
+        //TODO: should be in an interface
         public bool RepresentsMethod(MethodInfo method)
         {
             //TODO: generic constraints???
@@ -243,7 +189,8 @@ namespace Dynamox.Mocks
             //TODO: out params
             return ArgChecker.CanMockMethod(method);
         }
-        
+
+        //TODO: should be in an interface
         public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<MethodArg> arguments, out object result)
         {
             var gen1 = GenericArguments.ToArray();

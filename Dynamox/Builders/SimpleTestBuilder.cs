@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Dynamic;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 
 namespace Dynamox.Builders
 {

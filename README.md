@@ -322,7 +322,7 @@ mock.GetUser(123).Retuns(user);
 mock(new { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
 
 // Example 3: alter the name of the returns method (strongly typed)
-mock(new MockSettings { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
+mock(new ReservedTerms { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
 ```
 
 ## Contribute
