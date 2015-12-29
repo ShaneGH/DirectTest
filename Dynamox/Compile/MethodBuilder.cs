@@ -38,6 +38,24 @@ namespace Dynamox.Compile
             ParameterTypes = Parameters.Select(p => p.ParameterType).ToArray();
         }
 
+        public static MethodAttributes? GetAccessAttr(MethodInfo forMethod)
+        {
+            if (forMethod.IsPublic)
+                return MethodAttributes.Public;
+            else if (forMethod.IsFamilyOrAssembly)
+                return MethodAttributes.FamORAssem;
+            else if (forMethod.IsFamily)
+                return MethodAttributes.Family;
+            else if (forMethod.IsAssembly)
+                return MethodAttributes.Assembly;
+            else if (forMethod.IsFamilyAndAssembly)
+                return MethodAttributes.FamANDAssem;
+            else if (forMethod.IsPrivate)
+                return MethodAttributes.Private;
+
+            return null;
+        }
+
         protected virtual MethodAttributes GetAttrs(MethodInfo forMethod)
         {
             var _base = MethodAttributes.HideBySig | MethodAttributes.Virtual;
@@ -45,18 +63,9 @@ namespace Dynamox.Compile
                 return _base | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final;
 
             _base = _base | MethodAttributes.HideBySig;
-            if (forMethod.IsPublic)
-                _base = _base | MethodAttributes.Public;
-            else if (forMethod.IsFamilyOrAssembly)
-                _base = _base | MethodAttributes.FamORAssem;
-            else if (forMethod.IsFamily)
-                _base = _base | MethodAttributes.Family;
-            else if (forMethod.IsAssembly)
-                _base = _base | MethodAttributes.Assembly;
-            else if (forMethod.IsFamilyAndAssembly)
-                _base = _base | MethodAttributes.FamANDAssem;
-            else if (forMethod.IsPrivate)
-                _base = _base | MethodAttributes.Private;
+            var access = GetAccessAttr(forMethod);
+            if (access.HasValue)
+                _base = _base | access.Value;
 
             return _base;
         }

@@ -164,7 +164,7 @@ namespace Dynamox.Compile
                 if (_OverridableEvents == null)
                 {
                     _OverridableEvents = Array.AsReadOnly(
-                        _Type.GetEvents(AllInstanceMembers).Where(e => (e.IsAbstract() || e.IsVirtual()) && !e.IsFinal() && !e.IsAssembly() && !e.IsPrivate())
+                        Type.GetEvents(AllInstanceMembers).Where(e => (e.IsAbstract() || e.IsVirtual()) && !e.IsFinal() && !e.IsAssembly() && !e.IsPrivate())
                         .ToArray());
                 }
 

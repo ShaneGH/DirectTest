@@ -22,4 +22,31 @@ namespace Dynamox.Tests
             tmp.Returns();
         }
     }
+
+    public abstract class Abs
+    {
+        public abstract event EventHandler Event;
+    }
+
+    public interface IXXX
+    {
+        event EventHandler Event;
+    }
+
+    public class Con : IXXX
+    {
+        public event EventHandler Event;
+    }
+
+    //public class C2 : C1
+    //{
+    //    public void RaiseEvent1(string eventName, object[] args)
+    //    {
+    //        if (eventName == "Event")
+    //            if (Event != null)
+    //                Event((object)args[0], (EventArgs)args[1]);
+    //    }
+
+    //    public override event EventHandler Event;
+    //}
 }

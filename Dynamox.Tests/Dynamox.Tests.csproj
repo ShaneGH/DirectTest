@@ -46,7 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compile\CompileTests2.cs" />
+    <Compile Include="Compile\Compiler\Compiler_Indexes.cs" />
+    <Compile Include="Compile\Compiler\Compiler_Events.cs" />
+    <Compile Include="Compile\Compiler\Compiler_SetFieldsAndProperties.cs" />
+    <Compile Include="Compile\Compiler\Compiler_Properties.cs" />
+    <Compile Include="Compile\Compiler\Compiler_Methods.cs" />
+    <Compile Include="Compile\Compiler\Compiler_InterfacesAndClasses.cs" />
     <Compile Include="Compile\TypeDescriptorTests.cs" />
     <Compile Include="Features\Mocks\Events.cs" />
     <Compile Include="Features\Mocks\ConstructorArgs.cs" />

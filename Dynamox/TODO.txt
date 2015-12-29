@@ -12,6 +12,7 @@ Mock settings: var mock = Dx.Mock(); mock(new {Returns = "banana"}).DoSomething(
 
 Static classes, Classes with private constructors, Classes inside non public or internal classes
 Override method with generic constraints (interface and class)
+ensure event handler was called
 
 Hubris:
 No records, no mocks vs stubs, no It<int>.Is.Anything, no endless lambdas, no Setup() and it's significantly faster than all of the leading mocking libraries

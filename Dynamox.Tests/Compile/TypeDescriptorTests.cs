@@ -361,7 +361,8 @@ namespace Dynamox.Tests.Compile
             var desc4 = TypeOverrideDescriptor.Create(typeof(Events3));
 
             // assert
-            Assert.AreEqual(desc1.OverridableEvents.Count(), 1);
+            Assert.AreEqual(desc1.OverridableEvents.Count(), 0);
+            Assert.AreEqual(desc1.OverridableInterfaces.SelectMany(i => i.OverridableEvents).Count(), 1);
             Assert.AreEqual(desc2.OverridableEvents.Count(), 0);
             Assert.AreEqual(desc3.OverridableEvents.Count(), 1);
             Assert.AreEqual(desc4.OverridableEvents.Count(), 1);
