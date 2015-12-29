@@ -35,9 +35,7 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Ldfld, ObjBase);
             Body.Emit(OpCodes.Ldstr, PropertyName);
 
-            Body.Emit(OpCodes.Ldloc, args);
-            Body.Emit(OpCodes.Ldc_I4_0);
-            Body.Emit(OpCodes.Ldelem_Ref);
+            Body.LoadArrayElement(args, 0);
             Body.Emit(OpCodes.Ldfld, MethodArg_Arg);
 
             Body.Emit(OpCodes.Call, ObjectBase.Reflection.TrySetProperty);

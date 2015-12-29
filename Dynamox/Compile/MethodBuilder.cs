@@ -13,13 +13,10 @@ namespace Dynamox.Compile
     /// Build a method for a dynamic type based on a method in the parent class
     /// Dumb class which is not not thread safe
     /// </summary>
-    public abstract class MethodBuilder
+    public abstract class MethodBuilder : IlBuilder
     {
-        protected static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
         protected static readonly FieldInfo MethodArg_Arg = typeof(MethodArg).GetField("Arg");
 
-        protected readonly TypeBuilder ToType;
-        protected readonly FieldInfo ObjBase;
         protected readonly MethodInfo ParentMethod;
 
         protected GenericTypeParameterBuilder[] Generics { get; private set; }
@@ -29,31 +26,12 @@ namespace Dynamox.Compile
         protected ILGenerator Body { get; private set; }
 
         public MethodBuilder(TypeBuilder toType, FieldInfo objBase, MethodInfo parentMethod)
+            : base(toType, objBase)
         {
-            ToType = toType;
-            ObjBase = objBase;
             ParentMethod = parentMethod;
 
             Parameters = ParentMethod.GetParameters();
             ParameterTypes = Parameters.Select(p => p.ParameterType).ToArray();
-        }
-
-        public static MethodAttributes? GetAccessAttr(MethodInfo forMethod)
-        {
-            if (forMethod.IsPublic)
-                return MethodAttributes.Public;
-            else if (forMethod.IsFamilyOrAssembly)
-                return MethodAttributes.FamORAssem;
-            else if (forMethod.IsFamily)
-                return MethodAttributes.Family;
-            else if (forMethod.IsAssembly)
-                return MethodAttributes.Assembly;
-            else if (forMethod.IsFamilyAndAssembly)
-                return MethodAttributes.FamANDAssem;
-            else if (forMethod.IsPrivate)
-                return MethodAttributes.Private;
-
-            return null;
         }
 
         protected virtual MethodAttributes GetAttrs(MethodInfo forMethod)
@@ -129,9 +107,7 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Ldarg, argumentIndex + 1);
 
             // args[i].Arg
-            Body.Emit(OpCodes.Ldloc, args);
-            Body.Emit(OpCodes.Ldc_I4, argumentIndex);
-            Body.Emit(OpCodes.Ldelem_Ref);
+            Body.LoadArrayElement(args, argumentIndex);
             Body.Emit(OpCodes.Ldfld, MethodArg_Arg);
 
             // arg_i = (T)args[i].Arg;
@@ -194,8 +170,11 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Ret);
         }
 
-        void _Build()
+        protected override sealed void _Build()
         {
+            if (!ParentMethod.IsAbstract && !ParentMethod.IsVirtual)
+                throw new InvalidOperationException();  //TODE
+
             var name = ParentMethod.DeclaringType.IsInterface ? ParentMethod.DeclaringType.Name + "." + ParentMethod.Name : ParentMethod.Name;
             Method = ToType.DefineMethod(name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);
             Body = Method.GetILGenerator();
@@ -247,24 +226,6 @@ namespace Dynamox.Compile
                 ToType.DefineMethodOverride(Method, ParentMethod);
         }
 
-        bool Built = false;
-        readonly object BuildLock = new object();
-        public void Build()
-        {
-            lock (BuildLock)
-            {
-                if (Built)
-                    return;
-
-                Built = true;
-
-                if (!ParentMethod.IsAbstract && !ParentMethod.IsVirtual)
-                    throw new InvalidOperationException();  //TODO
-
-                _Build();
-            }
-        }
-
         public LocalBuilder CreateGenerics()
         {
             var generics = CreateArray(typeof(Type), Generics.Length);
@@ -273,8 +234,7 @@ namespace Dynamox.Compile
                 // generics[i] = typeof(TParamater);
                 Body.Emit(OpCodes.Ldloc, generics);
                 Body.Emit(OpCodes.Ldc_I4, i);
-                Body.Emit(OpCodes.Ldtoken, Generics[i]);
-                Body.Emit(OpCodes.Call, GetTypeFromHandle);
+                Body.TypeOf(Generics[i]);
                 Body.Emit(OpCodes.Stelem_Ref);
             }
 

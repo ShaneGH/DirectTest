@@ -17,7 +17,7 @@ namespace Dynamox.Compile
         const string _ObjectBase = "_ObjectBase";
         private const string RootNamespace = "Dynamox.Proxies";
         private const string UnderlyingObject = "__DynamoxTests_BaseObject";
-        private static readonly BindingFlags AllMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        public static readonly BindingFlags AllMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         static readonly Compiler Instance = new Compiler();
         public static Type Compile(Type baseType) 
@@ -163,7 +163,10 @@ namespace Dynamox.Compile
             // add events
             foreach (var @event in typeDescriptor.OverridableEvents)
             {
-                eventNames.Add(AddEvent(type, objBase, @event));
+                var eventBuilder = new EventBuilder(type, objBase, @event);
+                eventBuilder.Build();
+                if (eventBuilder.EventField != null)
+                    eventNames.Add(eventBuilder.EventField);
             }
 
             // add interface properties
@@ -189,11 +192,14 @@ namespace Dynamox.Compile
             // add interface events
             foreach (var @event in typeDescriptor.OverridableInterfaces.SelectMany(i => i.OverridableEvents))
             {
-                eventNames.Add(AddEvent(type, objBase, @event));
+                var eventBuilder = new EventBuilder(type, objBase, @event);
+                eventBuilder.Build();
+                if (eventBuilder.EventField != null)
+                    eventNames.Add(eventBuilder.EventField);
             }
 
-            if (eventNames.Any(e => e != null))
-                AddRaiseEventMethod(type, eventNames.Where(e => e != null));
+            if (eventNames.Any())
+                EventBuilder.AddRaiseEventMethod(type, eventNames);
 
             return type.CreateType();
         }
@@ -215,11 +221,6 @@ namespace Dynamox.Compile
 
             return output;
         }
-
-        public interface IRaiseEvent 
-        {
-            bool RaiseEvent(string eventName, object[] args);
-        }
         
         //TODO: this is an exploratory temp method
         public static void CheckEventArgs(IEnumerable<object> args, Type eventHandlerType)
@@ -236,304 +237,6 @@ namespace Dynamox.Compile
                     (arguments[i] != null && !argTypes[i].IsAssignableFrom(arguments[i].GetType())))
                     throw new InvalidOperationException();  //TODE
             }
-        }
-
-        static readonly MethodInfo _CheckEventArgs = typeof(Compiler).GetMethod("CheckEventArgs", new[] { typeof(IEnumerable<object>), typeof(Type) });
-        static readonly MethodInfo StringEquals = typeof(string).GetMethod("Equals", new[] { typeof(string) });
-        public static void AddRaiseEventMethod(TypeBuilder toType, IEnumerable<FieldInfo> events)
-        {
-            toType.AddInterfaceImplementation(typeof(IRaiseEvent));
-
-            var method = toType.DefineMethod("IRaiseEvent.RaiseEvent",
-                MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final,
-                typeof(bool), new[] { typeof(string), typeof(object[]) });
-
-            var body = method.GetILGenerator();
-            var @return = body.DefineLabel();
-
-            var output = body.DeclareLocal(typeof(bool));
-            body.Emit(OpCodes.Ldc_I4_0);
-            body.Emit(OpCodes.Stloc, output);
-
-            foreach (var eventField in events)
-            {
-                var invoke = eventField.FieldType.GetMethod("Invoke");
-                var eventArgs = invoke.GetParameters().Select(p => p.ParameterType).ToArray();
-                var eventHandlerType = body.DeclareLocal(typeof(Type));
-                var next = body.DefineLabel();
-
-                // var eventHandlerType = typeof(TheEventHandler);
-                body.Emit(OpCodes.Ldtoken, eventField.FieldType);
-                body.Emit(OpCodes.Call, GetTypeFromHandle);
-                body.Emit(OpCodes.Stloc, eventHandlerType);
-                
-                // if ("EventName".Equals(eventName)) GO TO Next
-                body.Emit(OpCodes.Ldstr, eventField.Name);
-                body.Emit(OpCodes.Ldarg_1);
-                body.Emit(OpCodes.Call, StringEquals);
-                body.Emit(OpCodes.Ldc_I4_0);
-                body.Emit(OpCodes.Ceq);
-                body.Emit(OpCodes.Brtrue, next);
-
-                // output = true
-                body.Emit(OpCodes.Ldc_I4_1);
-                body.Emit(OpCodes.Stloc, output);
-
-                // CheckEventArgs(arg1, eventHandlerType);
-                body.Emit(OpCodes.Ldarg_2);
-                body.Emit(OpCodes.Ldloc, eventHandlerType);
-                body.Emit(OpCodes.Call, _CheckEventArgs);
-
-                // if (EventName == null) GO TO Return;
-                body.Emit(OpCodes.Ldarg_0);
-                body.Emit(OpCodes.Ldfld, eventField);
-                body.Emit(OpCodes.Ldnull);
-                body.Emit(OpCodes.Ceq);
-                body.Emit(OpCodes.Brtrue, @return);
-
-                // EventName((T)arg1[0], (T)arg1[1]....);
-                body.Emit(OpCodes.Ldarg_0);
-                body.Emit(OpCodes.Ldfld, eventField);
-                for (var i = 0; i < eventArgs.Length; i++)
-                {
-                    // args[i]
-                    body.Emit(OpCodes.Ldarg_2);
-                    body.Emit(OpCodes.Ldc_I4, i);
-                    body.Emit(OpCodes.Ldelem_Ref);
-
-                    // (T)args[i]
-                    if (eventArgs[i] == typeof(object)) ;
-                    else if (eventArgs[i].IsValueType)
-                    {
-                        body.Emit(OpCodes.Unbox_Any, eventArgs[i]);
-                    }
-                    else
-                    {
-                        body.Emit(OpCodes.Castclass, eventArgs[i]);
-                    }
-                }
-
-                body.Emit(OpCodes.Callvirt, invoke);
-
-                body.Emit(OpCodes.Br, @return);
-                body.MarkLabel(next);
-            }
-
-            body.MarkLabel(@return);
-
-            // return output
-            body.Emit(OpCodes.Ldloc, output);
-            body.Emit(OpCodes.Ret);
-            toType.DefineMethodOverride(method, typeof(IRaiseEvent).GetMethod("RaiseEvent"));
-        }
-
-        /// <summary>
-        /// only add interface events if it is not hiding another event
-        /// </summary>
-        /// <param name="toType"></param>
-        /// <param name="parentEvent"></param>
-        /// <returns></returns>
-        public static bool ShouldAddInterfaceEvent(Type toType, EventInfo parentEvent) 
-        {
-            return !toType.GetEvents(AllMembers).Any(e => e.Name == parentEvent.Name);
-        }
-
-        public static FieldInfo AddEvent(TypeBuilder toType, FieldInfo objBase, EventInfo parentEvent)
-        {
-            if (parentEvent.DeclaringType.IsInterface && !ShouldAddInterfaceEvent(toType.BaseType, parentEvent))
-                return null;
-
-            if (!parentEvent.IsAbstract() && !parentEvent.IsVirtual())
-                throw new InvalidOperationException();  //TODE
-
-            var compareExchange = typeof(System.Threading.Interlocked)
-                .GetMethods(BindingFlags.Static | BindingFlags.Public)
-                .First(m => m.Name == "CompareExchange" && m.GetGenericArguments().Any())
-                .MakeGenericMethod(parentEvent.EventHandlerType);
-            var eventFld = toType.DefineField(parentEvent.Name, parentEvent.EventHandlerType, FieldAttributes.Private);
-            var @event = toType.DefineEvent(parentEvent.Name, EventAttributes.None, parentEvent.EventHandlerType);
-
-            var attrs = MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.Virtual;
-            attrs = attrs | (parentEvent.DeclaringType.IsInterface ? MethodAttributes.NewSlot : MethodAttributes.ReuseSlot);
-            var attr = MethodBuilder.GetAccessAttr(parentEvent.AddMethod);
-            if (attr.HasValue)
-                attrs = attrs | attr.Value;
-
-    //        .method public hidebysig newslot specialname virtual 
-    //        instance void  add_Event(class [mscorlib]System.EventHandler 'value') cil managed
-            var add_Event = toType.DefineMethod("add_" + parentEvent.Name, attrs, null, new[] { parentEvent.EventHandlerType });
-            var body = add_Event.GetILGenerator();
-
-            var var0 = body.DeclareLocal(parentEvent.EventHandlerType);
-            var var1 = body.DeclareLocal(parentEvent.EventHandlerType);
-            var var2 = body.DeclareLocal(parentEvent.EventHandlerType);
-            var var3 = body.DeclareLocal(typeof(bool));
-    //{
-    //  // Code size       48 (0x30)
-    //  .maxstack  3
-    //  .locals init (class [mscorlib]System.EventHandler V_0,
-    //           class [mscorlib]System.EventHandler V_1,
-    //           class [mscorlib]System.EventHandler V_2,
-    //           bool V_3)
-            //  IL_0000:  ldarg.0
-            body.Emit(OpCodes.Ldarg_0);
-            //  IL_0001:  ldfld      class [mscorlib]System.EventHandler Dynamox.Tests.C1::Event
-            body.Emit(OpCodes.Ldfld, eventFld);
-            //  IL_0006:  stloc.0
-            body.Emit(OpCodes.Stloc, var0);
-
-            var beginAgain_add = body.DefineLabel();
-            body.MarkLabel(beginAgain_add);
-
-            //  IL_0007:  ldloc.0
-            body.Emit(OpCodes.Ldloc, var0);
-            //  IL_0008:  stloc.1
-            body.Emit(OpCodes.Stloc, var1);
-            //  IL_0009:  ldloc.1
-            body.Emit(OpCodes.Ldloc, var1);
-            //  IL_000a:  ldarg.1
-            body.Emit(OpCodes.Ldarg_1);
-            //  IL_000b:  call       class [mscorlib]System.Delegate [mscorlib]System.Delegate::Combine(class [mscorlib]System.Delegate,
-            //                                                                                          class [mscorlib]System.Delegate)
-
-            body.Emit(OpCodes.Call, typeof(Delegate).GetMethod("Combine", new[] { typeof(Delegate), typeof(Delegate) }));
-            //  IL_0010:  castclass  [mscorlib]System.EventHandler
-            body.Emit(OpCodes.Castclass, parentEvent.EventHandlerType);
-            //  IL_0015:  stloc.2
-            body.Emit(OpCodes.Stloc, var2);
-            //  IL_0016:  ldarg.0
-            body.Emit(OpCodes.Ldarg_0);
-            //  IL_0017:  ldflda     class [mscorlib]System.EventHandler Dynamox.Tests.C1::Event
-            body.Emit(OpCodes.Ldflda, eventFld);
-            //  IL_001c:  ldloc.2
-            body.Emit(OpCodes.Ldloc, var2);
-            //  IL_001d:  ldloc.1
-            body.Emit(OpCodes.Ldloc, var1);
-            //  IL_001e:  call       !!0 [mscorlib]System.Threading.Interlocked::CompareExchange<class [mscorlib]System.EventHandler>(!!0&,
-            //                                                                                                                        !!0,
-            //                                                                                                                        !!0)
-            body.Emit(OpCodes.Call, compareExchange);
-            //  IL_0023:  stloc.0
-            body.Emit(OpCodes.Stloc, var0);
-            //  IL_0024:  ldloc.0
-            body.Emit(OpCodes.Ldloc, var0);
-            //  IL_0025:  ldloc.1
-            body.Emit(OpCodes.Ldloc, var1);
-            //  IL_0026:  ceq
-            body.Emit(OpCodes.Ceq);
-            //  IL_0028:  ldc.i4.0
-            body.Emit(OpCodes.Ldc_I4_0);
-            //  IL_0029:  ceq
-            body.Emit(OpCodes.Ceq);
-            //  IL_002b:  stloc.3
-            body.Emit(OpCodes.Stloc, var3);
-            //  IL_002c:  ldloc.3
-            body.Emit(OpCodes.Ldloc, var3);
-            //  IL_002d:  brtrue.s   IL_0007
-            body.Emit(OpCodes.Brtrue_S, beginAgain_add);
-            //  IL_002f:  ret
-            body.Emit(OpCodes.Ret);
-    ////} // end of method C1::add_Event
-
-            @event.SetAddOnMethod(add_Event);
-
-
-
-
-
-
-
-            attrs = MethodAttributes.HideBySig | MethodAttributes.Virtual;
-            attrs = attrs | (parentEvent.DeclaringType.IsInterface ? MethodAttributes.NewSlot : MethodAttributes.ReuseSlot);
-            attr = MethodBuilder.GetAccessAttr(parentEvent.RemoveMethod);
-            if (attr.HasValue)
-                attrs = attrs | attr.Value;
-    
-
-//            .method public hidebysig newslot specialname virtual 
-            //        instance void  remove_Event(class [mscorlib]System.EventHandler 'value') cil managed
-            var remove_Event = toType.DefineMethod("remove_" + parentEvent.Name, attrs, null, new[] { parentEvent.EventHandlerType });
-            body = remove_Event.GetILGenerator();
-
-            var0 = body.DeclareLocal(parentEvent.EventHandlerType);
-            var1 = body.DeclareLocal(parentEvent.EventHandlerType);
-            var2 = body.DeclareLocal(parentEvent.EventHandlerType);
-            var3 = body.DeclareLocal(typeof(bool));
-//{
-//  // Code size       48 (0x30)
-//  .maxstack  3
-//  .locals init (class [mscorlib]System.EventHandler V_0,
-//           class [mscorlib]System.EventHandler V_1,
-//           class [mscorlib]System.EventHandler V_2,
-//           bool V_3)
-            //  IL_0000:  ldarg.0
-            body.Emit(OpCodes.Ldarg_0);
-            //  IL_0001:  ldfld      class [mscorlib]System.EventHandler Dynamox.Tests.C1::Event
-            body.Emit(OpCodes.Ldfld, eventFld);
-            //  IL_0006:  stloc.0
-            body.Emit(OpCodes.Stloc, var0);
-            
-            var beginAgain_rem = body.DefineLabel();
-            body.MarkLabel(beginAgain_rem);
-            //  IL_0007:  ldloc.0
-            body.Emit(OpCodes.Ldloc, var0);
-            //  IL_0008:  stloc.1
-            body.Emit(OpCodes.Stloc, var1);
-            //  IL_0009:  ldloc.1
-            body.Emit(OpCodes.Ldloc, var1);
-            //  IL_000a:  ldarg.1
-            body.Emit(OpCodes.Ldarg_1);
-//  IL_000b:  call       class [mscorlib]System.Delegate [mscorlib]System.Delegate::Remove(class [mscorlib]System.Delegate,
-            //                                                                                         class [mscorlib]System.Delegate)
-            body.Emit(OpCodes.Call, typeof(Delegate).GetMethod("Remove", new[] { typeof(Delegate), typeof(Delegate) }));
-            //  IL_0010:  castclass  [mscorlib]System.EventHandler
-            body.Emit(OpCodes.Castclass, parentEvent.EventHandlerType);
-            //  IL_0015:  stloc.2
-            body.Emit(OpCodes.Stloc, var2);
-            //  IL_0016:  ldarg.0
-            body.Emit(OpCodes.Ldarg_0);
-            //  IL_0017:  ldflda     class [mscorlib]System.EventHandler Dynamox.Tests.C1::Event
-            body.Emit(OpCodes.Ldflda, eventFld);
-            //  IL_001c:  ldloc.2
-            body.Emit(OpCodes.Ldloc, var2);
-            //  IL_001d:  ldloc.1
-            body.Emit(OpCodes.Ldloc, var1);
-//  IL_001e:  call       !!0 [mscorlib]System.Threading.Interlocked::CompareExchange<class [mscorlib]System.EventHandler>(!!0&,
-//                                                                                                                        !!0,
-            //                                                                                                                        !!0)
-            body.Emit(OpCodes.Call, compareExchange);
-            //  IL_0023:  stloc.0
-            body.Emit(OpCodes.Stloc, var0);
-            //  IL_0024:  ldloc.0
-            body.Emit(OpCodes.Ldloc, var0);
-            //  IL_0025:  ldloc.1
-            body.Emit(OpCodes.Ldloc, var1);
-            //  IL_0026:  ceq
-            body.Emit(OpCodes.Ceq);
-            //  IL_0028:  ldc.i4.0
-            body.Emit(OpCodes.Ldc_I4_0);
-            //  IL_0029:  ceq
-            body.Emit(OpCodes.Ceq);
-            //  IL_002b:  stloc.3
-            body.Emit(OpCodes.Stloc, var3);
-            //  IL_002c:  ldloc.3
-            body.Emit(OpCodes.Ldloc, var3);
-            //  IL_002d:  brtrue.s   IL_0007
-            body.Emit(OpCodes.Brtrue_S, beginAgain_rem);
-            //  IL_002f:  ret
-            body.Emit(OpCodes.Ret);
-//} // end of method C1::remove_Event
-
-            @event.SetRemoveOnMethod(remove_Event);
-
-            return eventFld;
-        }
-
-        static void WriteLine(ILGenerator body)
-        {
-            var c = typeof(Console).GetMethod("WriteLine", new[] { typeof(object) });
-            body.EmitWriteLine("Writing:");
-            body.Emit(OpCodes.Call, c);
         }
 
         public static void AddProperty(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
@@ -648,7 +351,6 @@ namespace Dynamox.Compile
         protected static readonly MethodInfo GetEnumerator = typeof(IEnumerable<IEnumerable<MethodArg>>).GetMethod("GetEnumerator");
         protected static readonly MethodInfo GetIndex = typeof(ObjectBase).GetMethod("GetIndex");
         protected static readonly MethodInfo MoveNext = typeof(IEnumerator).GetMethod("MoveNext");
-        protected static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
         protected static readonly MethodInfo GetMockedIndexKeys = typeof(ObjectBase).GetMethod("GetMockedIndexKeys");
         static void AddIndexSetter(ILGenerator body, MethodInfo setMethod)
         {
@@ -669,8 +371,7 @@ namespace Dynamox.Compile
                 // indexes[i] = typeof(TKey);
                 body.Emit(OpCodes.Ldloc, indexes);
                 body.Emit(OpCodes.Ldc_I4, i);
-                body.Emit(OpCodes.Ldtoken, indexTypes[i]);
-                body.Emit(OpCodes.Call, GetTypeFromHandle);
+                body.TypeOf(indexTypes[i]);
                 body.Emit(OpCodes.Stelem_Ref);
             }
 

@@ -82,7 +82,7 @@ namespace Dynamox.Tests.Compile.Compiler
                 Assert.AreEqual(b, input4);
             });
 
-            var ev = mock as COMPILER.IRaiseEvent;
+            var ev = mock as IRaiseEvent;
             Assert.True(ev.RaiseEvent("Event1", new[] { input1, input2 }));
             Assert.True(ev.RaiseEvent("Event2", new object[] { input3, input4 }));
 
