@@ -7,13 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
-    /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb class which is not not thread safe
+    /// Base class to build a method
     /// </summary>
-    public abstract class MethodBuilder : IlBuilder
+    public abstract class MethodBuilder : NewBlockILBuilder
     {
         protected static readonly FieldInfo MethodArg_Arg = typeof(MethodArg).GetField("Arg");
 
@@ -176,7 +175,7 @@ namespace Dynamox.Compile
                 throw new InvalidOperationException();  //TODE
 
             var name = ParentMethod.DeclaringType.IsInterface ? ParentMethod.DeclaringType.Name + "." + ParentMethod.Name : ParentMethod.Name;
-            Method = ToType.DefineMethod(name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);
+            Method = TypeBuilder.DefineMethod(name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);
             Body = Method.GetILGenerator();
 
             if (!ParentMethod.ContainsGenericParameters)
@@ -223,7 +222,7 @@ namespace Dynamox.Compile
             OnReturn(methodOut);
 
             if (ParentMethod.DeclaringType.IsInterface)
-                ToType.DefineMethodOverride(Method, ParentMethod);
+                TypeBuilder.DefineMethodOverride(Method, ParentMethod);
         }
 
         public LocalBuilder CreateGenerics()

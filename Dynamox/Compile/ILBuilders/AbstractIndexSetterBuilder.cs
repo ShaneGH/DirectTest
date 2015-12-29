@@ -8,17 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
-    /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb cass which is not not thread safe
+    /// Build a setter for an indexed property which overrides an abstract parent property
     /// </summary>
-    public class VirtualIndexSetterBuilder : PropertyBuilder
+    public class AbstractIndexSetterBuilder : PropertyBuilder
     {
         readonly string PropertyName;
 
-        public VirtualIndexSetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
+        public AbstractIndexSetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
             : base(toType, objBase, parentProperty.SetMethod)
         {
             if (parentProperty.SetMethod == null)
@@ -64,11 +63,10 @@ namespace Dynamox.Compile
             Body.Emit(OpCodes.Ldloc, last);
             Body.Emit(OpCodes.Ldelem_Ref);
             Body.Emit(OpCodes.Ldfld, MethodArg_Arg);
-            Body.Emit(OpCodes.Call, ObjectBase.Reflection.TrySetIndex);
+            Body.Emit(OpCodes.Call, ObjectBase.Reflection.SetIndex);
 
-            // ifResult = topOfStack == 1
+            // ifResult = true
             Body.Emit(OpCodes.Ldc_I4_1);
-            Body.Emit(OpCodes.Ceq);
             Body.Emit(OpCodes.Stloc, ifResult);
 
             return ifResult;

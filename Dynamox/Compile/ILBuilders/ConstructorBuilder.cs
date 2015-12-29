@@ -7,9 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
-    internal class ConstructorBuilder : IlBuilder
+    /// <summary>
+    /// Build a constructor with initial property setters
+    /// </summary>
+    internal class ConstructorBuilder : NewBlockILBuilder
     {
         readonly ConstructorInfo Constructor;
         readonly TypeOverrideDescriptor Descriptor;
@@ -26,7 +29,7 @@ namespace Dynamox.Compile
         {
             var args = new[] { typeof(ObjectBase) }
                 .Concat(Constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
-            var con = ToType.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, args);
+            var con = TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, args);
 
             MethodBody = con.GetILGenerator();
 
@@ -63,21 +66,21 @@ namespace Dynamox.Compile
 
         void BuildSetters()
         {
-            foreach (var field in Descriptor.SettableFields.Select(f => new FieldSetter(MethodBody, f)))
+            foreach (var field in Descriptor.SettableFields.Select(f => new FieldSetterBuilder(MethodBody, f)))
             {
                 field.Build();
             }
 
             foreach (var property in Descriptor.SettableProperties
                 .Where(p => !p.GetIndexParameters().Any())
-                .Select(p => new PropertySetter(MethodBody, p)))
+                .Select(p => new PropertySetterBuilder(MethodBody, p)))
             {
                 property.Build();
             }
 
             foreach (var property in Descriptor.SettableProperties
                 .Where(p => p.GetIndexParameters().Any())
-                .Select(p => new IndexedPropertySetter(MethodBody, p)))
+                .Select(p => new IndexedPropertySetterBuilder(MethodBody, p)))
             {
                 property.Build();
             }

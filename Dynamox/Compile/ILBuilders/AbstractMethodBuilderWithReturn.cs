@@ -7,15 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
-    /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb cass which is not not thread safe
+    /// Build a method which overrides an abstract parent method
     /// </summary>
-    public class VirtualMethodBuilderNoReturn : MethodBuilder
+    public class AbstractMethodBuilderWithReturn : MethodBuilder
     {
-        public VirtualMethodBuilderNoReturn(TypeBuilder toType, FieldInfo objBase, MethodInfo parentMethod)
+        public AbstractMethodBuilderWithReturn(TypeBuilder toType, FieldInfo objBase, MethodInfo parentMethod)
             : base(toType, objBase, parentMethod)
         {
         }
@@ -24,17 +23,17 @@ namespace Dynamox.Compile
         {
             var ifResult = Body.DeclareLocal(typeof(bool));
 
-            // this.ObjectBase.Invoke("MethodName", generics, args);
+            // methodOut = this.ObjectBase.Invoke<TVal>("MethodName", generics, args);
             Body.Emit(OpCodes.Ldarg_0);
             Body.Emit(OpCodes.Ldfld, ObjBase);
             Body.Emit(OpCodes.Ldstr, ParentMethod.Name);
             Body.Emit(OpCodes.Ldloc, generics);
             Body.Emit(OpCodes.Ldloc, args);
-            Body.Emit(OpCodes.Call, ObjectBase.Reflection.TryInvokeGeneric);
+            Body.Emit(OpCodes.Call, ObjectBase.Reflection.InvokeGenericReturnValue.MakeGenericMethod(ParentMethod.ReturnType));
+            Body.Emit(OpCodes.Stloc, methodOut);
 
-            // ifResult = topOfStack == 1
+            // ifResult = true
             Body.Emit(OpCodes.Ldc_I4_1);
-            Body.Emit(OpCodes.Ceq);
             Body.Emit(OpCodes.Stloc, ifResult);
 
             return ifResult;

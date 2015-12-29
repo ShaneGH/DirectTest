@@ -7,35 +7,30 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
-    /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb cass which is not not thread safe
+    /// Build a method which overrides a virtual parent method
     /// </summary>
-    public class VirtualIndexGetterBuilder : PropertyBuilder
+    public class VirtualMethodBuilderWithReturn : MethodBuilder
     {
-        readonly string PropertyName;
-
-        public VirtualIndexGetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
-            : base(toType, objBase, parentProperty.GetMethod)
+        public VirtualMethodBuilderWithReturn(TypeBuilder toType, FieldInfo objBase, MethodInfo parentMethod)
+            : base(toType, objBase, parentMethod)
         {
-            if (parentProperty.GetMethod == null)
-                throw new InvalidOperationException("Cannot overrided getter"); //TODO
-
-            PropertyName = parentProperty.Name;
         }
 
         protected override LocalBuilder CallMockedMethod(LocalBuilder generics, LocalBuilder args, LocalBuilder methodOut)
         {
             var ifResult = Body.DeclareLocal(typeof(bool));
 
-            // this.ObjectBase.TryGetIndex<TVal>(args, out methodOut);
+            // this.ObjectBase.TryInvoke<TVal>("MethodName", generics, args, out methodOut);
             Body.Emit(OpCodes.Ldarg_0);
             Body.Emit(OpCodes.Ldfld, ObjBase);
+            Body.Emit(OpCodes.Ldstr, ParentMethod.Name);
+            Body.Emit(OpCodes.Ldloc, generics);
             Body.Emit(OpCodes.Ldloc, args);
             Body.Emit(OpCodes.Ldloca, methodOut);
-            Body.Emit(OpCodes.Call, ObjectBase.Reflection.TryGetIndex.MakeGenericMethod(ParentMethod.ReturnType));
+            Body.Emit(OpCodes.Call, ObjectBase.Reflection.TryInvokeGenericReturnValue.MakeGenericMethod(ParentMethod.ReturnType));
 
             // ifResult = topOfStack == 1
             Body.Emit(OpCodes.Ldc_I4_1);

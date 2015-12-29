@@ -8,9 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
-    public class IndexedPropertySetter : ILBuilderBase
+    /// <summary>
+    /// Set an indexed property
+    /// </summary>
+    public class IndexedPropertySetterBuilder : ILBuilder
     {
         static readonly FieldInfo Arg = typeof(MethodArg).GetField("Arg");
         static readonly MethodInfo ElementAt = typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(new[] { typeof(MethodArg) });
@@ -23,7 +26,7 @@ namespace Dynamox.Compile
         readonly ILGenerator MethodBody;
         readonly PropertyInfo Property;
 
-        public IndexedPropertySetter(ILGenerator methodBody, PropertyInfo property)
+        public IndexedPropertySetterBuilder(ILGenerator methodBody, PropertyInfo property)
         {
             MethodBody = methodBody;
             Property = property;

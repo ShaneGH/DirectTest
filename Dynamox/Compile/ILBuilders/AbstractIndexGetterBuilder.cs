@@ -7,17 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
-    /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb cass which is not not thread safe
+    /// Build a getter for an indexed property which overrides an abstract parent property
     /// </summary>
-    public class AbstractPropertyGetterBuilder : PropertyBuilder
+    public class AbstractIndexGetterBuilder : PropertyBuilder
     {
         readonly string PropertyName;
 
-        public AbstractPropertyGetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
+        public AbstractIndexGetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
             : base(toType, objBase, parentProperty.GetMethod)
         {
             if (parentProperty.GetMethod == null)
@@ -30,11 +29,11 @@ namespace Dynamox.Compile
         {
             var ifResult = Body.DeclareLocal(typeof(bool));
 
-            // this.ObjectBase.GetProperty<TProperty>("PropertyName")
+            // this.ObjectBase.GetIndex<TProperty>(indexValues)
             Body.Emit(OpCodes.Ldarg_0);
             Body.Emit(OpCodes.Ldfld, ObjBase);
-            Body.Emit(OpCodes.Ldstr, PropertyName);
-            Body.Emit(OpCodes.Call, ObjectBase.Reflection.GetProperty.MakeGenericMethod(ParentMethod.ReturnType));
+            Body.Emit(OpCodes.Ldloc, args);
+            Body.Emit(OpCodes.Call, ObjectBase.Reflection.GetIndex.MakeGenericMethod(ParentMethod.ReturnType));
             Body.Emit(OpCodes.Stloc, methodOut);
 
             // ifResult = true

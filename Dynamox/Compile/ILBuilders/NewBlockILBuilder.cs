@@ -5,38 +5,20 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
-using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
-    public abstract class ILBuilderBase
+    /// <summary>
+    /// Base class for building IL where the method body will be defined by the class
+    /// </summary>
+    public abstract class NewBlockILBuilder : ILBuilder
     {
-        protected abstract void _Build();
-
-        bool Built = false;
-        readonly object BuildLock = new object();
-        public void Build()
-        {
-            lock (BuildLock)
-            {
-                if (Built)
-                    return;
-
-                Built = true;
-
-                _Build();
-            }
-        }
-    }
-
-    public abstract class IlBuilder : ILBuilderBase
-    {
-        protected readonly TypeBuilder ToType;
+        protected readonly TypeBuilder TypeBuilder;
         protected readonly FieldInfo ObjBase;
 
-        public IlBuilder(TypeBuilder toType, FieldInfo objBase)
+        public NewBlockILBuilder(TypeBuilder toType, FieldInfo objBase)
         {
-            ToType = toType;
+            TypeBuilder = toType;
             ObjBase = objBase;
         }
 

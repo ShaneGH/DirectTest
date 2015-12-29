@@ -7,14 +7,14 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
     /// Build an event for the given type, based on an event from an ancestor.
     /// If the ancestor is an interface and the type already has an event of the same name, the event will not be built.
     /// If built, the EventField property is set
     /// </summary>
-    public class EventBuilder : IlBuilder
+    public class EventBuilder : NewBlockILBuilder
     {
         static readonly ConcurrentDictionary<Type, MethodInfo> CompareExchange = new ConcurrentDictionary<Type, MethodInfo>();
         private static readonly MethodInfo _CompareExchange = typeof(System.Threading.Interlocked)
@@ -36,14 +36,14 @@ namespace Dynamox.Compile
         {
             // only add interface events if it is not hiding another event
             if (ParentEvent.DeclaringType.IsInterface && 
-                ToType.BaseType.GetEvents(Compiler.AllMembers).Any(e => e.Name == ParentEvent.Name))
+                TypeBuilder.BaseType.GetEvents(Compiler.AllMembers).Any(e => e.Name == ParentEvent.Name))
                 return;
 
             if (!ParentEvent.IsAbstract() && !ParentEvent.IsVirtual())
                 throw new InvalidOperationException();  //TODE
 
-            EventField = ToType.DefineField(ParentEvent.Name, ParentEvent.EventHandlerType, FieldAttributes.Private);
-            var @event = ToType.DefineEvent(ParentEvent.Name, EventAttributes.None, ParentEvent.EventHandlerType);
+            EventField = TypeBuilder.DefineField(ParentEvent.Name, ParentEvent.EventHandlerType, FieldAttributes.Private);
+            var @event = TypeBuilder.DefineEvent(ParentEvent.Name, EventAttributes.None, ParentEvent.EventHandlerType);
 
             @event.SetAddOnMethod(BuildAddMethod());
             @event.SetRemoveOnMethod(BuildRemoveMethod());
@@ -64,7 +64,7 @@ namespace Dynamox.Compile
         {
             //        .method public hidebysig newslot specialname virtual 
             //        instance void  add_Event(class [mscorlib]System.EventHandler 'value') cil managed
-            var addEvent = ToType.DefineMethod("add_" + ParentEvent.Name, 
+            var addEvent = TypeBuilder.DefineMethod("add_" + ParentEvent.Name, 
                 GetMethodAttributes(ParentEvent.AddMethod), null, new[] { ParentEvent.EventHandlerType });
             var body = addEvent.GetILGenerator();
 
@@ -147,7 +147,7 @@ namespace Dynamox.Compile
         {
             //            .method public hidebysig newslot specialname virtual 
             //        instance void  remove_Event(class [mscorlib]System.EventHandler 'value') cil managed
-            var removeEvent = ToType.DefineMethod("remove_" + ParentEvent.Name, 
+            var removeEvent = TypeBuilder.DefineMethod("remove_" + ParentEvent.Name, 
                 GetMethodAttributes(ParentEvent.RemoveMethod), null, new[] { ParentEvent.EventHandlerType });
             var body = removeEvent.GetILGenerator();
 

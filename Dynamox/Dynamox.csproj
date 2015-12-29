@@ -54,31 +54,32 @@
     <Compile Include="Builders\TestBuilder_Runners.cs" />
     <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
-    <Compile Include="Compile\ConstructorBuilder.cs" />
-    <Compile Include="Compile\EmitLib.cs" />
-    <Compile Include="Compile\EventBuilder.cs" />
-    <Compile Include="Compile\IndexedPropertySetter.cs" />
-    <Compile Include="Compile\PropertySetter.cs" />
-    <Compile Include="Compile\FieldSetter.cs" />
+    <Compile Include="Compile\ILBuilders\ConstructorBuilder.cs" />
+    <Compile Include="Compile\EmitExtensions.cs" />
+    <Compile Include="Compile\ILBuilders\EventBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\IndexedPropertySetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\NewBlockILBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\PropertySetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\FieldSetterBuilder.cs" />
     <Compile Include="Compile\IRaiseEvent.cs" />
-    <Compile Include="Compile\ILBuilder.cs" />
-    <Compile Include="Compile\RaiseEventMethodBuilder.cs" />
-    <Compile Include="Compile\Setter.cs" />
-    <Compile Include="Compile\VirtualIndexSetterBuilder.cs" />
-    <Compile Include="Compile\AbstractMethodBuilderNoReturn.cs" />
-    <Compile Include="Compile\AbstractIndexGetterBuilder.cs" />
-    <Compile Include="Compile\AbstractIndexSetterBuilder.cs" />
-    <Compile Include="Compile\AbstractPropertySetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\ILBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\RaiseEventMethodBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\SetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\VirtualIndexSetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\AbstractMethodBuilderNoReturn.cs" />
+    <Compile Include="Compile\ILBuilders\AbstractIndexGetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\AbstractIndexSetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\AbstractPropertySetterBuilder.cs" />
     <Compile Include="Compile\Compiler.cs" />
-    <Compile Include="Compile\VirtualMethodBuilderNoReturn.cs" />
-    <Compile Include="Compile\PropertyBuilder.cs" />
-    <Compile Include="Compile\VirtualMethodBuilderWithReturn.cs" />
-    <Compile Include="Compile\AbstractPropertyGetterBuilder.cs" />
-    <Compile Include="Compile\VirtualIndexGetterBuilder.cs" />
-    <Compile Include="Compile\VirtualPropertySetterBuilder.cs" />
-    <Compile Include="Compile\VirtualPropertyGetterBuilder.cs" />
-    <Compile Include="Compile\AbstractMethodBuilderWithReturn.cs" />
-    <Compile Include="Compile\MethodBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\VirtualMethodBuilderNoReturn.cs" />
+    <Compile Include="Compile\ILBuilders\PropertyBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\VirtualMethodBuilderWithReturn.cs" />
+    <Compile Include="Compile\ILBuilders\AbstractPropertyGetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\VirtualIndexGetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\VirtualPropertySetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\VirtualPropertyGetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\AbstractMethodBuilderWithReturn.cs" />
+    <Compile Include="Compile\ILBuilders\MethodBuilder.cs" />
     <Compile Include="Compile\MethodInfoComparer.cs" />
     <Compile Include="Compile\TypeDescriptor.cs" />
     <Compile Include="Dx.cs" />
@@ -111,6 +112,7 @@
   <ItemGroup>
     <Content Include="TODO.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -6,9 +6,12 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
-    public class RaiseEventMethodBuilder : IlBuilder
+    /// <summary>
+    /// Implement the IRaiseEvent interface
+    /// </summary>
+    public class RaiseEventMethodBuilder : NewBlockILBuilder
     {
         static readonly MethodInfo _CheckEventArgs = typeof(RaiseEventMethodBuilder).GetMethod("CheckEventArgs", new[] { typeof(IEnumerable<object>), typeof(Type) });
         static readonly MethodInfo StringEquals = typeof(string).GetMethod("Equals", new[] { typeof(string) });
@@ -23,12 +26,12 @@ namespace Dynamox.Compile
         protected override void _Build()
         {
             // no need to add twice or if there are no events on the object
-            if (ToType.GetInterfaces().Contains(typeof(IRaiseEvent)) || !Events.Any())
+            if (TypeBuilder.GetInterfaces().Contains(typeof(IRaiseEvent)) || !Events.Any())
                 return;
 
-            ToType.AddInterfaceImplementation(typeof(IRaiseEvent));
+            TypeBuilder.AddInterfaceImplementation(typeof(IRaiseEvent));
 
-            var method = ToType.DefineMethod("IRaiseEvent.RaiseEvent",
+            var method = TypeBuilder.DefineMethod("IRaiseEvent.RaiseEvent",
                 MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final,
                 typeof(bool), new[] { typeof(string), typeof(object[]) });
 
@@ -105,7 +108,7 @@ namespace Dynamox.Compile
             // return output
             body.Emit(OpCodes.Ldloc, output);
             body.Emit(OpCodes.Ret);
-            ToType.DefineMethodOverride(method, typeof(IRaiseEvent).GetMethod("RaiseEvent"));
+            TypeBuilder.DefineMethodOverride(method, typeof(IRaiseEvent).GetMethod("RaiseEvent"));
         }
 
         //TODO: this is an exploratory temp method

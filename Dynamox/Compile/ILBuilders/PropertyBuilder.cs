@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
-    /// Build a method for a dynamic type based on a property getter or setter
+    /// Base class for building a property getter or setter
     /// </summary>
     public abstract class PropertyBuilder : MethodBuilder
     {

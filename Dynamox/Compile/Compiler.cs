@@ -4,10 +4,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Dynamox.Compile.ILBuilders;
 using Dynamox.Mocks;
+
+using AssemblyBuilder = System.Reflection.Emit.AssemblyBuilder;
+using ModuleBuilder = System.Reflection.Emit.ModuleBuilder;
+using AssemblyBuilderAccess = System.Reflection.Emit.AssemblyBuilderAccess;
+using TypeBuilder = System.Reflection.Emit.TypeBuilder;
 
 namespace Dynamox.Compile
 {

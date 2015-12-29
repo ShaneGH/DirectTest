@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Dynamox.Compile
 {
-    public static class EmitLib
+    public static class EmitExtensions
     {
         public static void LoadArrayElement(this ILGenerator body, LocalBuilder array, int index)
         {

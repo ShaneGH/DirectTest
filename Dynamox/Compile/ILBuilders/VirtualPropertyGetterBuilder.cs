@@ -7,11 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
     /// <summary>
-    /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb cass which is not not thread safe
+    /// Build a getter for a property which overrides a virtual parent property
     /// </summary>
     public class VirtualPropertyGetterBuilder : PropertyBuilder
     {

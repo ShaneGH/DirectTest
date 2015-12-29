@@ -7,9 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Mocks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
-    public abstract class Setter : ILBuilderBase
+    /// <summary>
+    /// Base class to set a property or field
+    /// </summary>
+    public abstract class SetterBuilder : ILBuilder
     {
         static readonly MethodInfo HasMockedFieldOrProperty = typeof(ObjectBase).GetMethod("HasMockedFieldOrProperty");
         static readonly MethodInfo GetProperty = typeof(ObjectBase).GetMethod("GetProperty");
@@ -18,7 +21,7 @@ namespace Dynamox.Compile
         readonly string FieldOrPropertyName;
         readonly Type FieldOrPropertyType;
 
-        public Setter(ILGenerator methodBody, string fieldOrPropertyName, Type fieldOrPropertyType)
+        public SetterBuilder(ILGenerator methodBody, string fieldOrPropertyName, Type fieldOrPropertyType)
         {
             FieldOrPropertyName = fieldOrPropertyName;
             FieldOrPropertyType = fieldOrPropertyType;

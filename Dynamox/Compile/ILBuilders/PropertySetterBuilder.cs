@@ -6,13 +6,16 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dynamox.Compile
+namespace Dynamox.Compile.ILBuilders
 {
-    public class PropertySetter : Setter
+    /// <summary>
+    /// Set a property
+    /// </summary>
+    public class PropertySetterBuilder : SetterBuilder
     {
         readonly PropertyInfo Property;
 
-        public PropertySetter(ILGenerator methodBody, PropertyInfo property)
+        public PropertySetterBuilder(ILGenerator methodBody, PropertyInfo property)
             : base(methodBody, property.Name, property.PropertyType)
         {
             Property = property;
