@@ -325,6 +325,12 @@ mock(new { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
 mock(new ReservedTerms { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
 ```
 
+Note, if two terms clash (1 from Dynamox and one from your mocked class), the Dynamox term will take precendence.
+
+You can also permanently change these terms.
+```C#
+ReservedTerms.Default.Returns = "Returns_New";
+```
 ## Contribute
 
 Contribute in (almost) any way you would like

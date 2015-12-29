@@ -19,3 +19,5 @@ Should have been called, message structure
 
 Hubris:
 No records, no mocks vs stubs, no It<int>.Is.Anything, no endless lambdas, no Setup() and it's significantly faster than all of the leading mocking libraries
+
+Rename Clear method. To much like ICollection<>.Clear

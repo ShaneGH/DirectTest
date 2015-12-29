@@ -13,6 +13,17 @@ namespace Dynamox
     /// </summary>
     public class ReservedTerms : IReservedTerms
     {
+        public static readonly ReservedTerms Default = new ReservedTerms 
+        {
+            Returns = "Returns",
+            Ensure = "Ensure",
+            Clear = "Clear",
+            Do = "Do",
+            As = "As",
+            Constructor = "Constructor",
+            Out = "Out"
+        };
+
         public string Returns { get; set; }
         public string Ensure { get; set; }
         public string Clear { get; set; }
@@ -23,13 +34,16 @@ namespace Dynamox
 
         public ReservedTerms()
         {
-            Returns = "Returns";
-            Ensure = "Ensure";
-            Clear = "Clear";
-            Do = "Do";
-            As = "As";
-            Constructor = "Constructor";
-            Out = "Out";
+            if (Default == null)
+                return;
+
+            Returns = Default.Returns;
+            Ensure = Default.Ensure;
+            Clear = Default.Clear;
+            Do = Default.Do;
+            As = Default.As;
+            Constructor = Default.Constructor;
+            Out = Default.Out;
         }
 
         public ReservedTerms(object settings)
