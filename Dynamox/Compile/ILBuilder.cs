@@ -9,16 +9,30 @@ using Dynamox.Mocks;
 
 namespace Dynamox.Compile
 {
-    /// <summary>
-    /// Build a method for a dynamic type based on a method in the parent class
-    /// Dumb class which is not not thread safe
-    /// </summary>
-    public abstract class IlBuilder
+    public abstract class ILBuilderBase
+    {
+        protected abstract void _Build();
+
+        bool Built = false;
+        readonly object BuildLock = new object();
+        public void Build()
+        {
+            lock (BuildLock)
+            {
+                if (Built)
+                    return;
+
+                Built = true;
+
+                _Build();
+            }
+        }
+    }
+
+    public abstract class IlBuilder : ILBuilderBase
     {
         protected readonly TypeBuilder ToType;
         protected readonly FieldInfo ObjBase;
-
-        protected ILGenerator Body { get; private set; }
 
         public IlBuilder(TypeBuilder toType, FieldInfo objBase)
         {
@@ -42,23 +56,6 @@ namespace Dynamox.Compile
                 return MethodAttributes.Private;
 
             return null;
-        }
-
-        protected abstract void _Build();
-
-        bool Built = false;
-        readonly object BuildLock = new object();
-        public void Build()
-        {
-            lock (BuildLock)
-            {
-                if (Built)
-                    return;
-
-                Built = true;
-
-                _Build();
-            }
         }
     }
 }

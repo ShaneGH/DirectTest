@@ -54,10 +54,16 @@
     <Compile Include="Builders\TestBuilder_Runners.cs" />
     <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
+    <Compile Include="Compile\ConstructorBuilder.cs" />
     <Compile Include="Compile\EmitLib.cs" />
     <Compile Include="Compile\EventBuilder.cs" />
+    <Compile Include="Compile\IndexedPropertySetter.cs" />
+    <Compile Include="Compile\PropertySetter.cs" />
+    <Compile Include="Compile\FieldSetter.cs" />
     <Compile Include="Compile\IRaiseEvent.cs" />
     <Compile Include="Compile\ILBuilder.cs" />
+    <Compile Include="Compile\RaiseEventMethodBuilder.cs" />
+    <Compile Include="Compile\Setter.cs" />
     <Compile Include="Compile\VirtualIndexSetterBuilder.cs" />
     <Compile Include="Compile\AbstractMethodBuilderNoReturn.cs" />
     <Compile Include="Compile\AbstractIndexGetterBuilder.cs" />
