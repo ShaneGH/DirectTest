@@ -80,7 +80,7 @@
     <Compile Include="Compile\ILBuilders\VirtualPropertyGetterBuilder.cs" />
     <Compile Include="Compile\ILBuilders\AbstractMethodBuilderWithReturn.cs" />
     <Compile Include="Compile\ILBuilders\MethodBuilder.cs" />
-    <Compile Include="Compile\MethodInfoComparer.cs" />
+    <Compile Include="Compile\MethodSignatureComparer.cs" />
     <Compile Include="Compile\TypeDescriptor.cs" />
     <Compile Include="Dx.cs" />
     <Compile Include="DxSettings.cs" />

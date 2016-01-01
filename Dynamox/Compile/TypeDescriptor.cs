@@ -282,7 +282,7 @@ namespace Dynamox.Compile
             {
                 if (_OverridableMethods == null)
                 {
-                    _OverridableMethods = Array.AsReadOnly(Type.GetMethods(AllInstanceMembers)
+                    _OverridableMethods = Array.AsReadOnly(AllMethods
                         .Where(m => (m.IsAbstract || m.IsVirtual) && !m.IsFinal)
                         .Where(m => !m.IsAssembly && !m.IsPrivate && !AllPropertyAccessors.Contains(m) && !AllEventAccessors.Contains(m))
                         .Where(m => m.Name != "Finalize" || m.ReturnType != typeof(void) || m.GetParameters().Length != 0)
@@ -293,56 +293,23 @@ namespace Dynamox.Compile
             }
         }
 
-        /// <summary>
-        /// For a group of methods which are all the same, return the one which has been defeind latest in the inheritance tree
-        /// </summary>
-        /// <param name="methods"></param>
-        /// <returns></returns>
-        static MethodInfo Youngest(IEnumerable<MethodInfo> methods)
+        IEnumerable<MethodInfo> _AllMethods;
+        public IEnumerable<MethodInfo> AllMethods
         {
-            var output = methods.FirstOrDefault();
-            foreach (var method in methods.Skip(1))
+            get
             {
-                if (!MethodInfoComparer.Instance.Equals(output, method))
-                    throw new InvalidOperationException("Methods are not in the same inheritance tree");    //TODO
+                if (_AllMethods == null)
+                {
+                    _AllMethods = Array.AsReadOnly(Type.GetMethods(AllInstanceMembers));
+                }
 
-                if (output.DeclaringType.IsAssignableFrom(method.DeclaringType))
-                {
-                    output = method;
-                }
-                else if (!method.DeclaringType.IsAssignableFrom(output.DeclaringType))
-                {
-                    throw new InvalidOperationException("Methods are not in the same inheritance tree");    //TODO
-                }
+                return _AllMethods;
             }
-
-            return output;
         }
 
-        /// <summary>
-        /// For a group of methods which are all the same, return the one which has been defeind latest in the inheritance tree
-        /// </summary>
-        /// <param name="properties"></param>
-        /// <returns></returns>
-        static PropertyInfo Youngest(IEnumerable<PropertyInfo> properties)
+        public bool MethodClashes(MethodInfo method)
         {
-            var output = properties.FirstOrDefault();
-            foreach (var property in properties.Skip(1))
-            {
-                if (output.Name != property.Name || output.PropertyType != property.PropertyType)
-                    throw new InvalidOperationException("Properties are not in the same inheritance tree");    //TODO
-
-                if (output.DeclaringType.IsAssignableFrom(property.DeclaringType))
-                {
-                    output = property;
-                }
-                else if (!property.DeclaringType.IsAssignableFrom(output.DeclaringType))
-                {
-                    throw new InvalidOperationException("Properties are not in the same inheritance tree");    //TODO
-                }
-            }
-
-            return output;
+            return AllMethods.Any(m => MethodSignatureComparer.Instance.Equals(method, m) && m != method);
         }
 
         IEnumerable<Type> _InheritanceTree;

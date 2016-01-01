@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 namespace Dynamox.Compile
 {
     /// <summary>
-    /// Compares name paramter type and return type to determine if 2 methods are the same
+    /// Compares name paramter type and number of generics to determine if 2 methods are the same
     /// </summary>
-    public class MethodInfoComparer : IEqualityComparer<MethodInfo>
+    public class MethodSignatureComparer : IEqualityComparer<MethodInfo>
     {
-        public static readonly IEqualityComparer<MethodInfo> Instance = new MethodInfoComparer();
+        public static readonly IEqualityComparer<MethodInfo> Instance = new MethodSignatureComparer();
 
-        private MethodInfoComparer() { }
+        private MethodSignatureComparer() { }
 
         bool IEqualityComparer<MethodInfo>.Equals(MethodInfo x, MethodInfo y)
         {
@@ -22,6 +22,9 @@ namespace Dynamox.Compile
                 return true;
 
             if (x == null || y == null)
+                return false;
+
+            if (x.Name != y.Name)
                 return false;
             
             ParameterInfo[] xParams = x.GetParameters(), yParams = y.GetParameters();
@@ -34,13 +37,13 @@ namespace Dynamox.Compile
                     return false;
             }
 
-            return x.ReturnType == y.ReturnType && x.Name == y.Name;
+            return x.GetGenericArguments().Length == y.GetGenericArguments().Length;
         }
 
         int IEqualityComparer<MethodInfo>.GetHashCode(MethodInfo obj)
         {
-            var stringDescriptor = obj.ReturnType.GetHashCode().ToString() + ";" +
-                obj.Name.GetHashCode().ToString() + ";" +
+            var stringDescriptor = obj.GetGenericArguments().Length.ToString() + ";" +
+                obj.Name + ";" +
                 string.Join(",", obj.GetParameters().Select(p => p.ParameterType.GetHashCode().ToString()));
 
             return stringDescriptor.GetHashCode();

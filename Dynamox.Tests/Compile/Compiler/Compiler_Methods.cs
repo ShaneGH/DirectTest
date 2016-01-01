@@ -148,5 +148,19 @@ namespace Dynamox.Tests.Compile.Compiler
             Assert.AreEqual(subject.GM2<object>(1), default(object));
             Assert.AreEqual(subject.GM2<object>(2), default(object));
         }
+
+        [Test]
+        public void ILotsOfMethods_NonExplicitMethods()
+        {
+            // arrange
+            var mock = Dx.Mock();
+            mock.M1(44).Returns("Hi");
+
+            // act
+            var result = mock.As<ILostOfMethods<object>>().M1(44);
+
+            // assert 
+            Assert.AreEqual("Hi", result);
+        }
     }
 }

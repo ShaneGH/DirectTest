@@ -114,5 +114,19 @@ namespace Dynamox.Tests.Compile.Compiler
             subject.Prop3 = "somethinfg";
             Assert.AreEqual(subject.Prop3, "somethinfg");
         }
+
+        [Test]
+        public void ILotsOfProperties_NonExplicitProperties()
+        {
+            // arrange
+            var mock = Dx.Mock();
+            mock.Prop2 = 100;
+
+            // act
+            var result = mock.As<ILostOfProperties<object>>().Prop2;
+
+            // assert 
+            Assert.AreEqual(100, result);
+        }
     }
 }

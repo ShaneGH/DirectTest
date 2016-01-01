@@ -17,7 +17,7 @@ using TypeBuilder = System.Reflection.Emit.TypeBuilder;
 namespace Dynamox.Compile
 {
     public class Compiler
-    { 
+    {
         private readonly ConcurrentDictionary<Type, Type> Built = new ConcurrentDictionary<Type, Type>();
         const string _ObjectBase = "_ObjectBase";
         private const string RootNamespace = "Dynamox.Proxies";
@@ -25,7 +25,7 @@ namespace Dynamox.Compile
         public static readonly BindingFlags AllMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         static readonly Compiler Instance = new Compiler();
-        public static Type Compile(Type baseType) 
+        public static Type Compile(Type baseType)
         {
             return Instance._Compile(baseType);
         }
@@ -64,7 +64,7 @@ namespace Dynamox.Compile
                 }
                 else
                 {
-                    Compiling.Add(baseType, compiling = new Thread(() => 
+                    Compiling.Add(baseType, compiling = new Thread(() =>
                     {
                         try
                         {
@@ -116,14 +116,14 @@ namespace Dynamox.Compile
 
             if (baseType.IsNestedAssembly)
                 throw new InvalidOperationException("You cannot mock a nested internal class or interface"); //TODE
-                        
+
             var typeDescriptor = TypeOverrideDescriptor.Create(baseType);
             if (typeDescriptor.HasAbstractInternal)
                 throw new InvalidOperationException("You cannot mock a class with an internal abstract member"); //TODE
-            
+
             // define type
             var type = Module.DefineType(
-                "Dynamox.Proxy." + baseType.Namespace + "." + baseType.Name + "_" + (++TypeIncrement), 
+                "Dynamox.Proxy." + baseType.Namespace + "." + baseType.Name + "_" + (++TypeIncrement),
                 TypeAttributes.Public | TypeAttributes.Class,
                 typeDescriptor.Type,
                 typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());
@@ -180,18 +180,17 @@ namespace Dynamox.Compile
             {
                 //TODO: if property signature is available
 
-                AddProperty(type, objBase, property);
+                AddProperty(type, objBase, property, typeDescriptor);
             }
 
             // add interface methods
             foreach (var method in typeDescriptor.OverridableInterfaces.SelectMany(i => i.OverridableMethods))
             {
-                //TODO: if method signature is available
-
                 var builder = (method.ReturnType == typeof(void) ?
                     (MethodBuilder)new AbstractMethodBuilderNoReturn(type, objBase, method) :
                     new AbstractMethodBuilderWithReturn(type, objBase, method));
 
+                builder.AddInterfaceMethodsExplicitly = typeDescriptor.MethodClashes(method);
                 builder.Build();
             }
 
@@ -228,16 +227,16 @@ namespace Dynamox.Compile
             return output;
         }
 
-        public static void AddProperty(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
-        { 
+        internal static void AddProperty(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty, TypeOverrideDescriptor typeDescriptor = null)
+        {
             if (!parentProperty.IsAbstract() && !parentProperty.IsVirtual())
                 throw new InvalidOperationException();  //TODE
 
             var parameterTypes = parentProperty.GetIndexParameters().Select(pt => pt.ParameterType).ToArray();
             var property = toType.DefineProperty(parentProperty.Name, PropertyAttributes.None, parentProperty.PropertyType, parameterTypes.Any() ? parameterTypes : null);
 
-            if (parentProperty.GetMethod != null && 
-                (parentProperty.GetMethod.IsAbstract || parentProperty.GetMethod.IsVirtual) && 
+            if (parentProperty.GetMethod != null &&
+                (parentProperty.GetMethod.IsAbstract || parentProperty.GetMethod.IsVirtual) &&
                 !parentProperty.GetMethod.IsPrivate && !parentProperty.GetMethod.IsAssembly)
             {
                 var builder = parameterTypes.Any() ?
@@ -248,6 +247,8 @@ namespace Dynamox.Compile
                         new AbstractPropertyGetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
                         new VirtualPropertyGetterBuilder(toType, objBase, parentProperty));
 
+                if (typeDescriptor != null)
+                    builder.AddInterfaceMethodsExplicitly = typeDescriptor.MethodClashes(parentProperty.GetMethod);
                 builder.Build();
                 property.SetGetMethod(builder.Method);
             }
@@ -264,6 +265,8 @@ namespace Dynamox.Compile
                         new AbstractPropertySetterBuilder(toType, objBase, parentProperty) as MethodBuilder :
                         new VirtualPropertySetterBuilder(toType, objBase, parentProperty));
 
+                if (typeDescriptor != null)
+                    builder.AddInterfaceMethodsExplicitly = typeDescriptor.MethodClashes(parentProperty.SetMethod);
                 builder.Build();
                 property.SetSetMethod(builder.Method);
             }

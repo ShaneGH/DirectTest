@@ -24,6 +24,8 @@ namespace Dynamox.Compile.ILBuilders
         public System.Reflection.Emit.MethodBuilder Method { get; private set; }
         protected ILGenerator Body { get; private set; }
 
+        public bool AddInterfaceMethodsExplicitly { get; set; }
+
         public MethodBuilder(TypeBuilder toType, FieldInfo objBase, MethodInfo parentMethod)
             : base(toType, objBase)
         {
@@ -36,7 +38,7 @@ namespace Dynamox.Compile.ILBuilders
         protected virtual MethodAttributes GetAttrs(MethodInfo forMethod)
         {
             var _base = MethodAttributes.HideBySig | MethodAttributes.Virtual;
-            if (forMethod.DeclaringType.IsInterface)
+            if (AddInterfaceMethodsExplicitly && forMethod.DeclaringType.IsInterface)
                 return _base | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final;
 
             _base = _base | MethodAttributes.HideBySig;
@@ -174,7 +176,7 @@ namespace Dynamox.Compile.ILBuilders
             if (!ParentMethod.IsAbstract && !ParentMethod.IsVirtual)
                 throw new InvalidOperationException();  //TODE
 
-            var name = ParentMethod.DeclaringType.IsInterface ? ParentMethod.DeclaringType.Name + "." + ParentMethod.Name : ParentMethod.Name;
+            var name = AddInterfaceMethodsExplicitly && ParentMethod.DeclaringType.IsInterface ? ParentMethod.DeclaringType.Name + "." + ParentMethod.Name : ParentMethod.Name;
             Method = TypeBuilder.DefineMethod(name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);
             Body = Method.GetILGenerator();
 
@@ -221,7 +223,7 @@ namespace Dynamox.Compile.ILBuilders
             Body.MarkLabel(onReturn);
             OnReturn(methodOut);
 
-            if (ParentMethod.DeclaringType.IsInterface)
+            if (AddInterfaceMethodsExplicitly && ParentMethod.DeclaringType.IsInterface)
                 TypeBuilder.DefineMethodOverride(Method, ParentMethod);
         }
 
