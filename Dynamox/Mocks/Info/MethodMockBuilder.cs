@@ -186,7 +186,6 @@ namespace Dynamox.Mocks.Info
                 }
             }
 
-            //TODO: out params
             return ArgChecker.CanMockMethod(method);
         }
 

@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Mocks
 {
+    /// <summary>
+    /// Test args which have been explicitly declared
+    /// </summary>
     internal class EqualityMethodApplicabilityChecker : MethodApplicabilityChecker
     {
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {

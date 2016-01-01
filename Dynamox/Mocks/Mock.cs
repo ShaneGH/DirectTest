@@ -9,6 +9,9 @@ using Dynamox.Mocks.Info;
 
 namespace Dynamox.Mocks
 {
+    /// <summary>
+    /// A mock, which takes in a mock builder and the type to mock and returns a proxy object of that type
+    /// </summary>
     internal class Mock
     {
         public readonly DxSettings Settings;

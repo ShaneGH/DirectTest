@@ -48,7 +48,7 @@ namespace Dynamox.Mocks.Info
             get
             {
                 return this.Where(m => m.MustBeCalled && !m.WasCalled)
-                    .Select(m => m.ArgChecker.InputTypes.Any() ? "Args: " + string.Join(", ", m.ArgChecker.InputTypes) : string.Empty)
+                    .Select(m => m.ArgChecker.ArgTypes.Any() ? "Args: " + string.Join(", ", m.ArgChecker.ArgTypes) : string.Empty)
                     .Union(
                         this.Select(m => m.ReturnValue).OfType<MockBuilder>().SelectMany(b => b.ShouldHaveBeenCalled));
             }

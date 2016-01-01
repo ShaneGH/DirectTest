@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Dynamox.Mocks
 {
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     public interface IMethodCallback
     {
         /// <summary>
@@ -14,6 +17,9 @@ namespace Dynamox.Mocks
         bool Do(IEnumerable<object> args);
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal abstract class MethodCallbackBase : IMethodCallback
     {
         public virtual IEnumerable<Type> InputTypes

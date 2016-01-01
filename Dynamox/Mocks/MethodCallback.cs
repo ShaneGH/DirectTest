@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Mocks
 {
-    //TODO: MORE!!!!!
-
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback : MethodCallbackBase
     {
         readonly Action Callback;
@@ -31,6 +32,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T> : MethodCallbackBase
     {
         readonly Action<T> Callback;
@@ -55,6 +59,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2> : MethodCallbackBase
     {
         readonly Action<T1, T2> Callback;
@@ -80,6 +87,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3> Callback;
@@ -106,6 +116,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3, T4> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3, T4> Callback;
@@ -133,6 +146,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3, T4, T5> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3, T4, T5> Callback;
@@ -161,6 +177,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3, T4, T5, T6> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3, T4, T5, T6> Callback;
@@ -190,6 +209,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3, T4, T5, T6, T7> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3, T4, T5, T6, T7> Callback;
@@ -220,6 +242,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3, T4, T5, T6, T7, T8> Callback;
@@ -251,6 +276,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8, T9> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> Callback;
@@ -283,6 +311,9 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// A callback to invoke when a method is called
+    /// </summary>
     internal class MethodCallback<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : MethodCallbackBase
     {
         readonly Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> Callback;

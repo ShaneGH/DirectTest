@@ -98,8 +98,7 @@ namespace Dynamox.Tests.Compile.Compiler
                 {
                     {"Prop0", 22},
                     {"Prop1", 33},
-                    {"Prop2", 44}
-                    ,
+                    {"Prop2", 44},
                     {"Prop3", "hello"}
                 })) });
 

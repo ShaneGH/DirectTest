@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Mocks
 {
-    //TODO: MORE!!!!!
-
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T> : MethodApplicabilityChecker
     {
         readonly Func<T, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -32,11 +33,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -57,11 +61,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -83,11 +90,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3, T4> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, T4, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -110,11 +120,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, T4, T5, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -138,11 +151,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, T4, T5, T6, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -167,11 +183,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, T4, T5, T6, T7, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -197,11 +216,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -228,11 +250,14 @@ namespace Dynamox.Mocks
         }
     }
 
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -259,12 +284,15 @@ namespace Dynamox.Mocks
             return ArgsAreValid((T1)a[0], (T2)a[1], (T3)a[2], (T4)a[3], (T5)a[4], (T6)a[5], (T7)a[6], (T8)a[7], (T9)a[8]);
         }
     }
-
+    
+    /// <summary>
+    /// Test args using a function
+    /// </summary>
     internal class MethodApplicabilityChecker<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : MethodApplicabilityChecker
     {
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, bool> ArgsAreValid;
 
-        public override IEnumerable<Type> InputTypes
+        public override IEnumerable<Type> ArgTypes
         {
             get
             {

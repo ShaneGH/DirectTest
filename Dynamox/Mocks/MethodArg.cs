@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Dynamox.Mocks
 {
     /// <summary>
-    /// Input to ObjctBase get methods
+    /// Input to ObjctBase get/invoke methods
     /// </summary>
     public class MethodArg
     {
@@ -28,6 +28,9 @@ namespace Dynamox.Mocks
         T Arg { get; }
     }
 
+    /// <summary>
+    /// Input to ObjctBase get/invoke methods. Not really necessary, but removes the need to cast/box in IL
+    /// </summary>
     public class MethodArg<T> : MethodArg, IMethodArg<T>
     {
         public MethodArg(T arg, string argName)

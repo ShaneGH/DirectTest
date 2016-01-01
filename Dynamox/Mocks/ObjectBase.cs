@@ -10,6 +10,9 @@ using Dynamox.Mocks.Info;
 
 namespace Dynamox.Mocks
 {
+    /// <summary>
+    /// The underlying functionality behind a proxy class 
+    /// </summary>
     public class ObjectBase
     {
         public static readonly Meta Reflection = new Meta();

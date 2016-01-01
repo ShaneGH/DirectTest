@@ -8,20 +8,9 @@ using Dynamox.Mocks.Info;
 
 namespace Dynamox.Mocks
 {
-    public interface IMethodAssert
-    {
-        bool TestArgs(IEnumerable<MethodArg> args);
-
-        bool TestInputArgTypes(IEnumerable<MethodArg> inputArgs);
-        
-        // TODO: out params
-        bool CanMockMethod(MethodInfo method);
-
-        IEnumerable<Type> InputTypes { get; }
-
-        List<OutArg> OutParamValues { get; set; }
-    }
-
+    /// <summary>
+    /// Checks whether a mocked method can be used with a set of args or method
+    /// </summary>
     internal class MethodApplicabilityChecker : IMethodAssert
     {
         public static readonly object Any = new AnyValue(typeof(AnyValue));
@@ -32,7 +21,7 @@ namespace Dynamox.Mocks
             return new AnyValue(typeof(T));
         }
 
-        public virtual IEnumerable<Type> InputTypes
+        public virtual IEnumerable<Type> ArgTypes
         {
             get
             {
@@ -52,7 +41,7 @@ namespace Dynamox.Mocks
 
         public bool TestInputArgTypes(IEnumerable<MethodArg> inputArgs)
         {
-            var methodArgTypes = InputTypes.ToArray();
+            var methodArgTypes = ArgTypes.ToArray();
             var inputArgTypes = inputArgs.Select(a => a.ArgType).ToArray();
 
             if (methodArgTypes.Length != inputArgTypes.Length)
@@ -94,7 +83,7 @@ namespace Dynamox.Mocks
 
         public bool CanMockMethod(MethodInfo method)
         {
-            var mockArgTypes = InputTypes.ToArray();
+            var mockArgTypes = ArgTypes.ToArray();
             var methodArgTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
 
             if (mockArgTypes.Length != methodArgTypes.Length)
@@ -134,7 +123,7 @@ namespace Dynamox.Mocks
             if (!TestInputArgTypes(args))
                 return false;
 
-            var methodArgs = InputTypes.ToArray();
+            var methodArgs = ArgTypes.ToArray();
             var inputArgs = args.Select(a => a.Arg).ToArray();
 
             if (methodArgs.Length != inputArgs.Length)

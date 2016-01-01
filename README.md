@@ -173,7 +173,7 @@ factoryMock.GetUserService().Returns(userServiceMock);
 Fields and properties can be mocked by setting them on the mock.
 ```C#
 var mock = Dx.Mock();
-var user = new user();
+var user = new User();
 mock.CurrentUser = user;
 ```
 Nested fields and properties are also allowed
@@ -250,7 +250,7 @@ IDictionary<string, int> dictionary = mock.As<IDictionary<string, int>>();
 ```
 
 ###Out and Ref values
-Specify out and ref values with the `Out(...)` method.
+Specify `out` and `ref` values with the `Out(...)` method.
 ```C#
 var mock = Dx.Mock();
 
