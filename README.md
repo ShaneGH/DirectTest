@@ -291,9 +291,9 @@ Specify constructor args with the `Constructor(..)` function
 var mock = Dx.Mock();
 
 // for properties
-mock.ObjectWithConstructorArgs.Constructor(new object[] { "arg1", 2 }).ToString().Returns("Hello!");
+mock.ObjectWithConstructorArgs.Constructor("arg1", 2).ToString().Returns("Hello!");
 // and functions
-mock.GetObjectWithConstructorArgs().Constructor(new object[] { "arg1", 2 }).ToString().Returns("Hello!");
+mock.GetObjectWithConstructorArgs().Constructor("arg1", 2).ToString().Returns("Hello!");
 ```
 
 ###Structs (value types) and sealed classes

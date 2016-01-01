@@ -110,10 +110,7 @@ namespace Dynamox.Mocks.Info
 
         object _Constructor(object[] args)
         {
-            if (args.Length != 1 && !(args[0] is IEnumerable<object>))
-                throw new InvalidOperationException("not constructor args");    //TODO
-
-            ConstructorArgs = args[0] as IEnumerable<object>;
+            ConstructorArgs = args;
             return this;
         }
 

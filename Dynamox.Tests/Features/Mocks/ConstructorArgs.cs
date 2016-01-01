@@ -32,7 +32,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock(new[] { "nothing" });
-            mock.Chained.Constructor(new[] { "tada" }).ToString();
+            mock.Chained.Constructor("tada").ToString();
 
             // Act
             // Assert
@@ -44,7 +44,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock(new[] { "nothing" });
-            mock.GetChained().Constructor(new[] { "tada" }).ToString();
+            mock.GetChained().Constructor("tada").ToString();
 
             // Act
             // Assert
