@@ -132,19 +132,11 @@ namespace Dynamox.Compile
                 .Select(m => m.Name).ToArray();
 
             // store raise event methods
-            var eventNames = new List<FieldInfo>();
+            var eventHandlerFields = new List<FieldInfo>();
 
             // define ObjectBase field
             var objBase = type.DefineField(GetFreeMemberName(baseType, UnderlyingObject),
                 typeof(ObjectBase), FieldAttributes.NotSerialized | FieldAttributes.Private | FieldAttributes.InitOnly);
-
-            // add constructors
-            foreach (var constructor in typeDescriptor.Type.GetConstructors(AllMembers)
-                .Where(c => !c.IsAssembly || c.IsFamilyOrAssembly)
-                .Select(c => new ConstructorBuilder(type, objBase, c, typeDescriptor)))
-            {
-                constructor.Build();
-            }
 
             // add properties
             foreach (var property in typeDescriptor.OverridableProperties)
@@ -172,7 +164,7 @@ namespace Dynamox.Compile
                 var eventBuilder = new EventBuilder(type, objBase, @event);
                 eventBuilder.Build();
                 if (eventBuilder.EventField != null)
-                    eventNames.Add(eventBuilder.EventField);
+                    eventHandlerFields.Add(eventBuilder.EventField);
             }
 
             // add interface properties
@@ -200,11 +192,23 @@ namespace Dynamox.Compile
                 var eventBuilder = new EventBuilder(type, objBase, @event);
                 eventBuilder.Build();
                 if (eventBuilder.EventField != null)
-                    eventNames.Add(eventBuilder.EventField);
+                    eventHandlerFields.Add(eventBuilder.EventField);
             }
 
-            if (eventNames.Any())
-                new RaiseEventMethodBuilder(type, objBase, eventNames).Build();
+            var implementEventInterfaces = eventHandlerFields.Any();
+            if (implementEventInterfaces)
+            {
+                new RaiseEventMethodBuilder(type, objBase, eventHandlerFields).Build();
+                new EventChainMethodBuilder(type, objBase).Build();
+            }
+
+            // add constructors
+            foreach (var constructor in typeDescriptor.Type.GetConstructors(AllMembers)
+                .Where(c => !c.IsAssembly || c.IsFamilyOrAssembly)
+                .Select(c => new ConstructorBuilder(type, objBase, c, typeDescriptor)))
+            {
+                constructor.Build();
+            }
 
             return type.CreateType();
         }

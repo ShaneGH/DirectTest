@@ -94,6 +94,75 @@ namespace Dynamox
             throw new InvalidOperationException(string.Join("\n", errors));  //TODE
         }
 
+        #region Events
+
+        public static IEventHandler EventHandler(Action eventHandler)
+        {
+            return new DynamoxEventHandler(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1>(
+            Action<TArg1> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2>(
+            Action<TArg1, TArg2> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3>(
+            Action<TArg1, TArg2, TArg3> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3, TArg4>(
+            Action<TArg1, TArg2, TArg3, TArg4> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3, TArg4>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3, TArg4, TArg5>(
+            Action<TArg1, TArg2, TArg3, TArg4, TArg5> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3, TArg4, TArg5>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(
+            Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(
+            Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(
+            Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9>(
+            Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9>(eventHandler);
+        }
+
+        public static IEventHandler EventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9, TArg10>(
+            Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9, TArg10> eventHandler)
+        {
+            return new DynamoxEventHandler<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9, TArg10>(eventHandler);
+        }
+
+        #endregion
+
         #region Properties
 
         public static IPropertyMockBuilder<TProperty> Property<TProperty>()

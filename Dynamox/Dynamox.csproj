@@ -54,6 +54,8 @@
     <Compile Include="Builders\TestBuilder_Runners.cs" />
     <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
+    <Compile Include="Compile\ICallProtected.cs" />
+    <Compile Include="Compile\IEventChain.cs" />
     <Compile Include="Compile\ILBuilders\ConstructorBuilder.cs" />
     <Compile Include="Compile\EmitExtensions.cs" />
     <Compile Include="Compile\ILBuilders\EventBuilder.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="Compile\ILBuilders\NewBlockILBuilder.cs" />
     <Compile Include="Compile\ILBuilders\PropertySetterBuilder.cs" />
     <Compile Include="Compile\ILBuilders\FieldSetterBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\EventChainMethodBuilder.cs" />
     <Compile Include="Compile\IRaiseEvent.cs" />
     <Compile Include="Compile\ILBuilders\ILBuilder.cs" />
     <Compile Include="Compile\ILBuilders\RaiseEventMethodBuilder.cs" />
@@ -89,6 +92,9 @@
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
     <Compile Include="Mocks\IConstructor.cs" />
     <Compile Include="Mocks\IMethodAssert.cs" />
+    <Compile Include="Mocks\Info\DynamoxEventHandler.cs" />
+    <Compile Include="Mocks\Info\DynamoxEventHandlerBase.cs" />
+    <Compile Include="Mocks\Info\IEventHandler.cs" />
     <Compile Include="Mocks\Info\IPropertyMockAccessor.cs" />
     <Compile Include="Mocks\Info\IPropertyMockBuilder.cs" />
     <Compile Include="Mocks\Info\IReservedTerms.cs" />
@@ -117,7 +123,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="TODO.txt" />

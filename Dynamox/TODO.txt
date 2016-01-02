@@ -17,6 +17,8 @@ interfaces implementing eachother with conflicting methods
 Event ensure
 Should have been called, message structure
 
+Ensure for event handers
+
 Hubris:
 No records, no mocks vs stubs, no It<int>.Is.Anything, no endless lambdas, no Setup() and it's significantly faster than all of the leading mocking libraries
 

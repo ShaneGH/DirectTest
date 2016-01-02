@@ -13,6 +13,7 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     public class RaiseEventMethodBuilder : NewBlockILBuilder
     {
+        static readonly MethodInfo RaiseEvent = typeof(IRaiseEvent).GetMethod("RaiseEvent");
         static readonly MethodInfo _CheckEventArgs = typeof(RaiseEventMethodBuilder).GetMethod("CheckEventArgs", new[] { typeof(IEnumerable<object>), typeof(Type) });
         static readonly MethodInfo StringEquals = typeof(string).GetMethod("Equals", new[] { typeof(string) });
         readonly IEnumerable<FieldInfo> Events;
@@ -108,7 +109,7 @@ namespace Dynamox.Compile.ILBuilders
             // return output
             body.Emit(OpCodes.Ldloc, output);
             body.Emit(OpCodes.Ret);
-            TypeBuilder.DefineMethodOverride(method, typeof(IRaiseEvent).GetMethod("RaiseEvent"));
+            TypeBuilder.DefineMethodOverride(method, RaiseEvent);
         }
 
         //TODO: this is an exploratory temp method

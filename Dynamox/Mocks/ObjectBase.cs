@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Compile;
 using Dynamox.Dynamic;
 using Dynamox.Mocks.Info;
 
@@ -13,16 +14,33 @@ namespace Dynamox.Mocks
     /// <summary>
     /// The underlying functionality behind a proxy class 
     /// </summary>
-    public class ObjectBase
+    public class ObjectBase : IEventChain
     {
         public static readonly Meta Reflection = new Meta();
 
         readonly bool StrictMock;
         public readonly DxSettings Settings;
-        public readonly ReadOnlyDictionary<string, object> Members;
-        public readonly ReadOnlyDictionary<IEnumerable<object>, object> MockedIndexes;
+        readonly MockBuilder MockedInfo;
         readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string, object>();
         readonly Dictionary<IEnumerable<object>, object> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, object>(DynamicBag.ArrayComparer);
+
+        readonly ReadOnlyDictionary<string, object> _Members;
+        public ReadOnlyDictionary<string, object> Members 
+        {
+            get
+            {
+                return _Members ?? MockedInfo.Values;
+            }
+        }
+
+        readonly ReadOnlyDictionary<IEnumerable<object>, object> _MockedIndexes;
+        public ReadOnlyDictionary<IEnumerable<object>, object> MockedIndexes
+        {
+            get
+            {
+                return _MockedIndexes ?? MockedInfo.IndexedValues;
+            }
+        }
 
         IEnumerable<KeyValuePair<IEnumerable<object>, object>> Indexes
         {
@@ -52,27 +70,43 @@ namespace Dynamox.Mocks
         }
 
         public ObjectBase(DxSettings settings, bool strictMock = false)
-            : this(settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), strictMock)
+            : this(settings, new MockBuilder(settings), strictMock)
         {
         }
 
+        internal ObjectBase(DxSettings settings, MockBuilder mockedInfo, bool strictMock = false)
+        {
+            Settings = settings;
+            StrictMock = strictMock;
+            MockedInfo = mockedInfo;
+        }
+
+        #region Obsolete
+
+        [Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
         public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, bool strictMock = false)
             : this(settings, members, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object>()), strictMock)
         {
         }
 
+        [Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
         public ObjectBase(DxSettings settings, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
             : this(settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), indexes, strictMock)
         {
         }
 
+        [Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
         public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
         {
             Settings = settings;
             StrictMock = strictMock;
-            MockedIndexes = indexes;
-            Members = members;
+
+            //TODO: remove these properties and obsolete constructors
+            _MockedIndexes = indexes;
+            _Members = members;
         }
+
+        #endregion
 
         static TValue ConvertAndReturn<TValue>(object input)
         {
@@ -110,6 +144,21 @@ namespace Dynamox.Mocks
                 toTest is IPropertyMockBuilder<T> ||
                 toTest is MockBuilder;
         }
+
+        #region Events
+
+        public event EventChainHandler EventBubble
+        {
+            add { MockedInfo.EventBubble += value; }
+            remove { MockedInfo.EventBubble -= value; }
+        }
+
+        public void EventTunnel(EventChainArgs eventArgs)
+        {
+            MockedInfo.EventTunnel(eventArgs);
+        }
+
+        #endregion
 
         #region Properties
 

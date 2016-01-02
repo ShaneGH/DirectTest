@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,16 +11,10 @@ namespace Dynamox
 {
     public class DxSettings : INotifyPropertyChanged
     {
-        internal static readonly DxSettings GlobalSettings = new DxSettings
-        {
-            _CreateSealedClasses = true,
-            _SetNonVirtualPropertiesOrFields = true,
-            _TestForInvalidMocks = false,
-            _CacheTypeCheckers = true
-        };
+        internal static readonly DxSettings GlobalSettings = new DxSettings();
 
         //TODO: enforce
-        bool _CreateSealedClasses;
+        bool _CreateSealedClasses = true;
         public bool CreateSealedClasses
         {
             get
@@ -37,7 +33,7 @@ namespace Dynamox
         }
 
         //TODO: enforce
-        bool _SetNonVirtualPropertiesOrFields;
+        bool _SetNonVirtualPropertiesOrFields = true;
         public bool SetNonVirtualPropertiesOrFields
         {
             get
@@ -56,7 +52,7 @@ namespace Dynamox
         }
 
         //TODO: enforce
-        bool _TestForInvalidMocks;
+        bool _TestForInvalidMocks = false;
         public bool TestForInvalidMocks
         {
             get
@@ -74,7 +70,7 @@ namespace Dynamox
             }
         }
 
-        bool _CacheTypeCheckers;
+        bool _CacheTypeCheckers = true;
 
         /// <summary>
         /// There are several reflection based objects which create and validate a mocked class. 
@@ -97,15 +93,50 @@ namespace Dynamox
             }
         }
 
-        public DxSettings() 
-        {
-            if (GlobalSettings == null)
-                return;
+        //TODO: check intellisense comments and enforce
+        bool _CheckEventArgs = true;
 
-            _CreateSealedClasses = GlobalSettings.CreateSealedClasses;
-            _SetNonVirtualPropertiesOrFields = GlobalSettings.SetNonVirtualPropertiesOrFields;
-            _TestForInvalidMocks = GlobalSettings.TestForInvalidMocks;
-            _CacheTypeCheckers = GlobalSettings.CacheTypeCheckers;
+        /// <summary>
+        /// If set to true, will throw an exception if event args do not match previous event subscriptions, if an event is raised
+        /// and it's args do not match the subscription args or event subscriptions are mocked as methods or properties. Default: true
+        /// </summary>
+        public bool CheckEventArgs
+        {
+            get
+            {
+                return _CheckEventArgs;
+            }
+            set
+            {
+                if (value != _CheckEventArgs)
+                {
+                    _CheckEventArgs = value;
+                    if (PropertyChanged != null)
+                        PropertyChanged(this, new PropertyChangedEventArgs("CheckEventArgs"));
+                }
+            }
+        }
+
+        static readonly Action<DxSettings, DxSettings> Copy;
+        static DxSettings() 
+        {
+            ParameterExpression from = Expression.Parameter(typeof(DxSettings)),
+                to = Expression.Parameter(typeof(DxSettings));
+            var propertiesAndFields = typeof(DxSettings).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.GetMethod != null && p.SetMethod != null && p.GetMethod.IsPublic && p.SetMethod.IsPublic)
+                .Select(p => new { name = p.Name, type = p.PropertyType })
+                .Union(typeof(DxSettings).GetFields(BindingFlags.Public | BindingFlags.Instance)
+                    .Select(p => new { name = p.Name, type = p.FieldType }))
+                .Where(p => p.type.IsValueType || p.type == typeof(string));
+
+            Copy = Expression.Lambda<Action<DxSettings, DxSettings>>(Expression.Block(propertiesAndFields
+                .Select(p => Expression.Assign(Expression.PropertyOrField(to, p.name), Expression.PropertyOrField(from, p.name)))), from, to).Compile();
+        }
+
+        public DxSettings()
+        {
+            if (GlobalSettings != null)
+                Copy(GlobalSettings, this);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
