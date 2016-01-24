@@ -17,8 +17,7 @@ namespace Dynamox.Mocks
         public readonly DxSettings Settings;
         public readonly Type MockType;
         public readonly IEnumerable<object> ConstructorArgs;
-        public readonly ReadOnlyDictionary<string, object> Members;
-        public readonly ReadOnlyDictionary<IEnumerable<object>, object> Indexes;
+        public readonly MockBuilder MockInfo;
 
         private static readonly object UnAssigned = new object();
         private Object _Object = UnAssigned;
@@ -42,8 +41,7 @@ namespace Dynamox.Mocks
             ConstructorArgs = constructorArgs ?? Enumerable.Empty<object>();
             Settings = settings;
             MockType = mockType;
-            Members = builder.Values;
-            Indexes = builder.IndexedValues;
+            MockInfo = builder;
         }
 
         private static readonly Dictionary<Type, Constructors> Constructors = new Dictionary<Type, Constructors>();
@@ -93,7 +91,7 @@ namespace Dynamox.Mocks
         {
             Compile();
 
-            var obj = new ObjectBase(Settings, Members, Indexes);
+            var obj = new ObjectBase(Settings, MockInfo);
             if (Settings.TestForInvalidMocks)
             {
                 var errors = ObjectBaseValidator.Create(MockType).ValidateAgainstType(obj);

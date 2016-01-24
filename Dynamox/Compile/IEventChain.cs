@@ -71,6 +71,11 @@ namespace Dynamox.Compile
             SenderAsArray = new[] { sender };
         }
 
+        public bool HasBeenRaisedBy(object sender) 
+        {
+            return SenderChain.Contains(sender);
+        }
+
         class RootEventChainArgs : IEventChainArgs
         {
             public bool EventHandlerFound { get; set; }
