@@ -14,7 +14,7 @@ namespace Dynamox.Mocks.Info
     /// <summary>
     /// The core of building mocks. Should be cast as a dynamic and used to build mock information
     /// </summary>
-    internal class MockBuilder : DynamicBag, IRaiseEvent, IEventChain
+    internal class MockBuilder : DynamicBag, IRaiseEvent
     {
         IEnumerable<object> ConstructorArgs;
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();
@@ -256,60 +256,14 @@ namespace Dynamox.Mocks.Info
 
         public bool RaiseEvent(string eventName, object[] args)
         {
-            var chainArgs = new EventChainArgs(this, eventName, args);
-            if (EventBubble != null)
-                EventBubble(chainArgs);
+            throw new NotImplementedException();
+            //var chainArgs = new EventChainArgs(this, eventName, args);
+            //if (EventBubble != null)
+            //    EventBubble(chainArgs);
 
-            EventTunnel(chainArgs);
+            //EventTunnel(chainArgs);
 
-            return chainArgs.EventHandlerFound;
-        }
-
-        public event EventChainHandler EventBubble;
-
-        public void EventTunnel(EventChainArgs eventArgs)
-        {
-            if (!Values.ContainsKey(eventArgs.EventName))
-                return;
-
-            if (!(Values[eventArgs.EventName] is MockBuilder))
-            {
-                if (TestSettings.CheckEventArgs)
-                    throw new InvalidOperationException();   //TODE
-
-                return;
-            }
-
-            eventArgs.EventHandlerFound |= (Values[eventArgs.EventName] as MockBuilder).InvokeAsEvent(eventArgs.EventArgs);
-
-            // if any properties or fields are IEventChain create a new eventArgs and call their EventTunnel method here
-        }
-
-        /// <summary>
-        /// Assumes this object represents an event handler subscription and invokes any vaid events
-        /// </summary>
-        /// <param name="eventArgs"></param>
-        bool InvokeAsEvent(IEnumerable<object> eventArgs)
-        {
-            if (TestSettings.CheckEventArgs && Values.Any() || IndexedValues.Any())
-                throw new InvalidOperationException();  //TODE: event subscription has been given properties
-
-            var invoke = new List<IEventHandler>();
-            foreach (var @event in EventHandlers)
-            {
-                if (!@event.CanBeInvoked(eventArgs))
-                {
-                    if (TestSettings.CheckEventArgs)
-                        throw new InvalidOperationException();  //TODE. give detailed explanation for debugging
-                }
-                else
-                {
-                    invoke.Add(@event);
-                }
-            }
-
-            invoke.ForEach(i => i.Invoke(eventArgs));
-            return invoke.Any();
+            //return chainArgs.EventHandlerFound;
         }
 
         #endregion

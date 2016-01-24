@@ -14,7 +14,7 @@ namespace Dynamox.Mocks
     /// <summary>
     /// The underlying functionality behind a proxy class 
     /// </summary>
-    public class ObjectBase : IEventChain
+    public class ObjectBase
     {
         public static readonly Meta Reflection = new Meta();
 
@@ -144,21 +144,6 @@ namespace Dynamox.Mocks
                 toTest is IPropertyMockBuilder<T> ||
                 toTest is MockBuilder;
         }
-
-        #region Events
-
-        public event EventChainHandler EventBubble
-        {
-            add { MockedInfo.EventBubble += value; }
-            remove { MockedInfo.EventBubble -= value; }
-        }
-
-        public void EventTunnel(EventChainArgs eventArgs)
-        {
-            MockedInfo.EventTunnel(eventArgs);
-        }
-
-        #endregion
 
         #region Properties
 

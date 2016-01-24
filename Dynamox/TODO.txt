@@ -24,3 +24,8 @@ No records, no mocks vs stubs, no It<int>.Is.Anything, no endless lambdas, no Se
 
 Rename Clear method. To much like ICollection<>.Clear
 silverlight
+
+
+
+
+EventChainMethodBuilder class

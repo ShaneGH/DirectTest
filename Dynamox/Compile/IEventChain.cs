@@ -4,94 +4,121 @@ using System.Linq;
 
 namespace Dynamox.Compile
 {
-    public delegate void EventChainHandler(EventChainArgs args);
+    public delegate void EventShareHandler(EventShareEventArgs args);
+
+    public class EventShareEventArgs
+    {
+        public readonly string EventName;
+        public readonly IEnumerable<object> EventArgs;
+
+        public EventShareEventArgs(string eventName, IEnumerable<object> eventArgs)
+        {
+            EventName = eventName;
+            EventArgs = eventArgs;
+        }
+    }
 
     /// <summary>
-    /// Signals that the implementing class has events to raise
+    /// Specifies that this class will share it's events (subscribing and triggering) with other classes
     /// </summary>
-    public interface IEventChain
+    public interface IEventShare : IRaiseEvent
     {
         /// <summary>
-        ///  Tell a parent object that an event occured on this object
+        /// An event has been raised
         /// </summary>
-        event EventChainHandler EventBubble;
-
-        /// <summary>
-        /// Tell this object that an event happened on a parent object
-        /// </summary>
-        void EventTunnel(EventChainArgs eventArgs);
+        event EventShareHandler EventRaised;
     }
 
-    public interface IEventChainArgs
-    {
-        string EventName { get; }
-        IEnumerable<object> EventArgs { get; }
-        IEnumerable<object> SenderChain { get; }
-        bool EventHandlerFound { get; set; }
-    }
 
-    public class EventChainArgs : IEventChainArgs
-    {
-        public readonly IEventChainArgs Root;
-        public readonly object[] SenderAsArray;
 
-        public string EventName
-        {
-            get { return Root.EventName; }
-        }
+    //public delegate void EventChainHandler(EventChainArgs args);
 
-        public IEnumerable<object> EventArgs
-        {
-            get { return Root.EventArgs; }
-        }
+    ///// <summary>
+    ///// Signals that the implementing class has events to raise
+    ///// </summary>
+    //public interface IEventChain
+    //{
+    //    /// <summary>
+    //    ///  Tell a parent object that an event occured on this object
+    //    /// </summary>
+    //    event EventChainHandler EventBubble;
 
-        public IEnumerable<object> SenderChain
-        {
-            get { return Root.SenderChain.Concat(SenderAsArray); }
-        }
+    //    /// <summary>
+    //    /// Tell this object that an event happened on a parent object
+    //    /// </summary>
+    //    void EventTunnel(EventChainArgs eventArgs);
+    //}
 
-        //TODO: rename and protect against being set back to false
-        public bool EventHandlerFound
-        {
-            get { return Root.EventHandlerFound; }
-            set { Root.EventHandlerFound |= value; }
-        }
+    //public interface IEventChainArgs
+    //{
+    //    string EventName { get; }
+    //    IEnumerable<object> EventArgs { get; }
+    //    IEnumerable<object> SenderChain { get; }
+    //    bool EventHandlerFound { get; set; }
+    //}
 
-        public EventChainArgs(object sender, string eventName, IEnumerable<object> eventArgs)
-            : this(sender, new RootEventChainArgs(eventName, eventArgs))
-        {
-        }
+    //public class EventChainArgs : IEventChainArgs
+    //{
+    //    public readonly IEventChainArgs Root;
+    //    public readonly object[] SenderAsArray;
 
-        public EventChainArgs(object sender, IEventChainArgs existingChain)
-        {
-            if (existingChain.SenderChain.Contains(sender))
-                throw new InvalidOperationException();  //TODE: circular reference
+    //    public string EventName
+    //    {
+    //        get { return Root.EventName; }
+    //    }
 
-            Root = existingChain;
-            SenderAsArray = new[] { sender };
-        }
+    //    public IEnumerable<object> EventArgs
+    //    {
+    //        get { return Root.EventArgs; }
+    //    }
 
-        public bool HasBeenRaisedBy(object sender) 
-        {
-            return SenderChain.Contains(sender);
-        }
+    //    public IEnumerable<object> SenderChain
+    //    {
+    //        get { return Root.SenderChain.Concat(SenderAsArray); }
+    //    }
 
-        class RootEventChainArgs : IEventChainArgs
-        {
-            public bool EventHandlerFound { get; set; }
-            public string EventName { get; private set; }
-            public IEnumerable<object> EventArgs { get; private set; }
-            public IEnumerable<object> SenderChain
-            {
-                get { return Enumerable.Empty<object>(); }
-            }
+    //    //TODO: rename and protect against being set back to false
+    //    public bool EventHandlerFound
+    //    {
+    //        get { return Root.EventHandlerFound; }
+    //        set { Root.EventHandlerFound |= value; }
+    //    }
 
-            public RootEventChainArgs(string eventName, IEnumerable<object> eventArgs)
-            {
-                EventName = eventName;
-                EventArgs = Array.AsReadOnly(eventArgs.ToArray());
-                EventHandlerFound = false;
-            }
-        }
-    }
+    //    public EventChainArgs(object sender, string eventName, IEnumerable<object> eventArgs)
+    //        : this(sender, new RootEventChainArgs(eventName, eventArgs))
+    //    {
+    //    }
+
+    //    public EventChainArgs(object sender, IEventChainArgs existingChain)
+    //    {
+    //        if (existingChain.SenderChain.Contains(sender))
+    //            throw new InvalidOperationException();  //TODE: circular reference
+
+    //        Root = existingChain;
+    //        SenderAsArray = new[] { sender };
+    //    }
+
+    //    public bool HasBeenRaisedBy(object sender) 
+    //    {
+    //        return SenderChain.Contains(sender);
+    //    }
+
+    //    class RootEventChainArgs : IEventChainArgs
+    //    {
+    //        public bool EventHandlerFound { get; set; }
+    //        public string EventName { get; private set; }
+    //        public IEnumerable<object> EventArgs { get; private set; }
+    //        public IEnumerable<object> SenderChain
+    //        {
+    //            get { return Enumerable.Empty<object>(); }
+    //        }
+
+    //        public RootEventChainArgs(string eventName, IEnumerable<object> eventArgs)
+    //        {
+    //            EventName = eventName;
+    //            EventArgs = Array.AsReadOnly(eventArgs.ToArray());
+    //            EventHandlerFound = false;
+    //        }
+    //    }
+    //}
 }
