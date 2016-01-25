@@ -208,7 +208,7 @@ namespace Dynamox.Mocks.Info
         }
 
         /// <summary>
-        /// Gets a list of messages, each one detailing a method which was marked for being called
+        /// Gets a list of messages, each one detailing a method which was marked to be called
         /// </summary>
         public IEnumerable<string> ShouldHaveBeenCalled
         {
@@ -219,12 +219,12 @@ namespace Dynamox.Mocks.Info
                     // methods
                     .Where(v => v.Value is MethodGroup)
                     .Select(v => new { name = v.Key, args = (v.Value as MethodGroup).ShouldHaveBeenCalled })
-                    .SelectMany(v => v.args.Select(a => "Method: " + v.name + (a.Any() ? "{ " + a  + " }" : string.Empty)))
+                    .SelectMany(v => v.args.Select(a => v.name + a))
                     .Concat(Values
                         // properties
                         .Where(v => v.Value is MockBuilder)
                         .Select(v => new { name = v.Key, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
-                        .SelectMany(v => v.args.Select(a => "Method: " + v.name + (a.Any() ? "{ " + a + " }" : string.Empty))));
+                        .SelectMany(v => v.args.Select(a => v.name + (a.Any() ? "." + a : string.Empty))));
             }
         }
 

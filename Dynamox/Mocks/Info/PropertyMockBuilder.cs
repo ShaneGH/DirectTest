@@ -59,7 +59,7 @@ namespace Dynamox.Mocks.Info
         public T Get<T>()
         {
             if (!typeof(T).IsAssignableFrom(typeof(TProperty)))
-                throw new InvalidMockException("Property");  //TODE
+                throw new InvalidMockException("Property of type " + typeof(TProperty) + " cannot be converted to " + typeof(T));
 
             var property = GetProperty();
             foreach (var p in OnGetActions)
@@ -73,8 +73,15 @@ namespace Dynamox.Mocks.Info
             if (!CanSet)
                 return;
 
-            if (!typeof(TProperty).IsAssignableFrom(value.GetType()))
-                throw new InvalidOperationException();  //TODE
+            if (value == null)
+            {
+                if (typeof(TProperty).IsValueType)
+                    throw new InvalidMockException("Property of type " + typeof(TProperty) + " cannot be assigned from null");
+            }
+            else if (!typeof(TProperty).IsAssignableFrom(value.GetType()))
+            {
+                throw new InvalidMockException("Property of type " + typeof(TProperty) + " cannot be converted to " + value.GetType());
+            }
 
             TProperty val = (TProperty)value;
             var property = GetProperty();

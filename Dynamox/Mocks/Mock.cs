@@ -36,7 +36,7 @@ namespace Dynamox.Mocks
         public Mock(Type mockType, MockBuilder builder, DxSettings settings, IEnumerable<object> constructorArgs = null)
         {
             if (mockType.IsSealed && !settings.CreateSealedClasses)
-                throw new InvalidOperationException("Cannot mock sealed");  //TODE
+                throw new InvalidOperationException("Cannot mock a sealed class" + mockType.Name);
 
             ConstructorArgs = constructorArgs ?? Enumerable.Empty<object>();
             Settings = settings;
@@ -70,7 +70,7 @@ namespace Dynamox.Mocks
         static Func<ObjectBase, object> BuildConstructorForNonMock(Type mockType)
         {
             var type = TypeOverrideDescriptor.Create(mockType);
-            var mock = Expression.Variable(mockType, "asdsadasd");
+            var mock = Expression.Variable(mockType);
             var values = Expression.Parameter(typeof(ObjectBase));
 
             var constructed = (Expression)Expression.Assign(mock, Expression.New(mockType));
@@ -96,7 +96,7 @@ namespace Dynamox.Mocks
             {
                 var errors = ObjectBaseValidator.Create(MockType).ValidateAgainstType(obj);
                 if (errors.Any())
-                    throw new InvalidOperationException(string.Join("\n", errors));  //TODE
+                    throw new InvalidMockException(string.Join(Environment.NewLine, new[] { "Errors detected when attempting to mock " + MockType }.Concat(errors)));
             }
 
             return Constructors[MockType].Construct(obj, constructorArgs);

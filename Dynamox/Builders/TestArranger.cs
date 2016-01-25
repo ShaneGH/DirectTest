@@ -58,7 +58,7 @@ namespace Dynamox.Builders
                 return Values
                     .Where(v => v.Value is MockBuilder)
                     .Select(v => new { name = v.Key, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
-                    .SelectMany(v => v.args.Select(a => "testBag." + v.name + ": { " + a + " }"));
+                    .SelectMany(v => v.args.Select(a => "testBag." + v.name + "." + a));
             }
         }
     }
