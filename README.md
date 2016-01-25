@@ -149,7 +149,7 @@ mock.GetUser(123).Returns(user);
 ```
 
 ### Chaining mocks
-Often with legacy projects and projects which rely heavily on the factory pattern, you may have a mock within a mock. This is very easy to do with dynamox
+Chaining mocks is one of the core concepts of dynamox. Often with legacy projects and projects which rely heavily on the factory pattern, you may have a mock within a mock. This generally leads to you having to write your tests in reverse order to how your code is written, as you create the inner most nested objects first, working outwards to the test method argument. Dynamox fixes this and removes all of the code bloat along the way.
 
 ```C#
 var factoryMock = Dx.Mock();
