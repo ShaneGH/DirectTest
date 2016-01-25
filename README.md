@@ -310,13 +310,13 @@ mock.OnUserAdded += Dx.EventHandler<object, UserAddedEventArgs>((sender, args) =
 // create a concrete type
 UserRepository repository = mock.As<UserRepository>();
 
-// raise event (assuming that there is an add user method and it raises the OnUserAdded event)
+// raise event 1, (assuming that there is an add user method and it raises the OnUserAdded event)
 repository.AddUser(new User("John"));
 
-// raise event using mock
+// raise event 2, using mock
 Dx.RaiseEvent(mock, "OnUserAdded", repository, new UserAddedEventArgs());
 
-// raise event using concrete object
+// raise event 3, using concrete object
 Dx.RaiseEvent(repository, "OnUserAdded", repository, new UserAddedEventArgs());
 ```
 
