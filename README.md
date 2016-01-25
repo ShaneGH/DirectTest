@@ -343,13 +343,13 @@ var mock = Dx.Mock();
 var user = new User();
 
 // Example 1: do not change mock function name
-mock.GetUser(123).Retuns(user);
+mock.GetUser(123).Returns(user);
 
 // Example 2: alter the name of the returns method
-mock(new { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
+mock(new { Returns = "Returns_New" }).GetUser(123).Returns_New(user);
 
 // Example 3: alter the name of the returns method (strongly typed)
-mock(new ReservedTerms { Returns = "Returns_New" }).GetUser(123).Retuns_New(user);
+mock(new ReservedTerms { Returns = "Returns_New" }).GetUser(123).Returns_New(user);
 ```
 
 Note, if two terms clash (1 from Dynamox and one from your mocked class), the Dynamox term will take precendence.
