@@ -115,7 +115,7 @@ namespace Dynamox.Mocks
 
         #endregion
 
-        static TValue ConvertAndReturn<TValue>(object input)
+        static TValue ConvertAndReturn<TValue>(object input, string methodOrPropertyDescription)
         {
             if (input is MockBuilder)
                 return (TValue)(input as MockBuilder).Mock(typeof(TValue));
@@ -124,7 +124,8 @@ namespace Dynamox.Mocks
             else if ((input == null && !typeof(TValue).IsValueType) || input is TValue)
                 return (TValue)input;
             else
-                throw new InvalidOperationException("Bad type");
+                throw new InvalidMockException("Cannot return type " + (input ?? "null") + " from " +
+                    methodOrPropertyDescription + ". Expected " + typeof(TValue) + ".");
         }
 
         public static bool HasEmptyConstructor(Type t)
@@ -217,7 +218,7 @@ namespace Dynamox.Mocks
             {
                 if (StrictMock)
                 {
-                    throw new InvalidOperationException("Property has not been mocked");    //TODE
+                    throw new InvalidMockException("Property " + propertyName + " of type " + typeof(TProperty) + " has not been mocked");
                 }
                 else
                 {
@@ -226,7 +227,7 @@ namespace Dynamox.Mocks
                 }
             }
 
-            result = ConvertAndReturn<TProperty>(property.Value);
+            result = ConvertAndReturn<TProperty>(property.Value, "property " + propertyName);
             return true;
         }
 
@@ -313,7 +314,8 @@ namespace Dynamox.Mocks
             {
                 if (StrictMock)
                 {
-                    throw new InvalidOperationException("Property has not been mocked");    //TODE
+                    throw new InvalidMockException("Indexed property for values " + string.Join(", ", indexValues.Select(v => v.ArgType)) + 
+                        " of type " + typeof(TIndexed) + " has not been mocked");
                 }
                 else
                 {
@@ -322,7 +324,7 @@ namespace Dynamox.Mocks
                 }
             }
 
-            result = ConvertAndReturn<TIndexed>(value.Value);
+            result = ConvertAndReturn<TIndexed>(value.Value, "index");
             return true;
         }
 
@@ -408,7 +410,10 @@ namespace Dynamox.Mocks
             {
                 if (StrictMock)
                 {
-                    throw new InvalidOperationException("Method has not been mocked");    //TODE
+                    var args = arguments.Any() ? " with arguments " + string.Join(", ", arguments.Select(a => a.ArgType.Name)) : string.Empty;
+                    var genericParams = genericArguments.Any() ? ((arguments.Any() ? " and" : " with") + " generic arguments " + 
+                        string.Join(", ", genericArguments.Select(a => a.Name))) : string.Empty;
+                    throw new InvalidMockException("Method " + methodName + args + genericParams + " has not been mocked");
                 }
                 else
                 {
@@ -438,7 +443,8 @@ namespace Dynamox.Mocks
                 return false;
             }
 
-            throw new InvalidOperationException("Bad type");    //TODE
+            throw new InvalidMockException("Cannot return type " + tmp + " from method " + 
+                methodName + ". Expected " + typeof(TResult) + ".");
         }
 
         #endregion

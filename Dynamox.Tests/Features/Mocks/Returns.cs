@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks;
 using NUnit.Framework;
 
 namespace Dynamox.Tests.Features.Mocks
@@ -54,7 +55,7 @@ namespace Dynamox.Tests.Features.Mocks
                 .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(33))
                 .Assert((bag, val) => Assert.Fail());
 
-            Assert.Throws<InvalidOperationException>(() => test.Run());
+            Assert.Throws<InvalidMockException>(() => test.Run());
         }
     }
 }

@@ -222,7 +222,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () => subject.GetProperty<object>("abc"));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetProperty<object>("abc"));
         }
 
         [Test]
@@ -233,7 +233,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () => subject.GetProperty<string>("abc"));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetProperty<string>("abc"));
         }
 
         #endregion
@@ -282,7 +282,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () => subject.GetIndex<object>(new MethodArg[0]));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetIndex<object>(new MethodArg[0]));
         }
 
         [Test]
@@ -295,7 +295,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () => subject.GetIndex<string>(key));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetIndex<string>(key));
         }
 
         #endregion
@@ -359,7 +359,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws(typeof(InvalidMockException), () =>
                 subject.Invoke("abc", new[] { new MethodArg<object>(arg, string.Empty) }));
         }
 
@@ -415,7 +415,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws(typeof(InvalidMockException), () =>
                 subject.Invoke("abc", new[] { new MethodArg<object>(arg, string.Empty) }));
         }
 
@@ -639,7 +639,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws(typeof(InvalidMockException), () =>
                 subject.Invoke("abc", new[] { new MethodArg<object>(arg, string.Empty) }));
         }
 
@@ -694,7 +694,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws(typeof(InvalidMockException), () =>
                 subject.Invoke("abc", new[] { new MethodArg<object>(arg, string.Empty) }));
         }
 

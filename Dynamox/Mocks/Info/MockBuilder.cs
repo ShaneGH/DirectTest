@@ -189,7 +189,7 @@ namespace Dynamox.Mocks.Info
         {
             object existingMock;
             if (TryGetMember(name, out existingMock) && !(existingMock is MethodGroup))
-                throw new InvalidOperationException("The member \"" + name + "\" has already been set as a parameter, and cannot be mocked now as a function");    //TODM
+                throw new InvalidMockException("The member \"" + name + "\" has already been set as a parameter and cannot be mocked now as a function");    //TODM
 
             var settings = MockSettings.Next();
             var result = new MethodMockBuilder(settings, new MockBuilder(settings, TestSettings), genericArgs, args);
