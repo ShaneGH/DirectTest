@@ -97,13 +97,13 @@ namespace Dynamox
 
         #region Events
 
-        public static bool RaiseEvent(object target, string eventName, IEnumerable<object> eventArgs)
+        public static bool RaiseEvent(object target, string eventName, params object[] eventArgs)
         {
             var raiseEvent = target as IRaiseEvent;
             if (raiseEvent == null)
                 return false;
 
-            return raiseEvent.RaiseEvent(eventName, eventArgs.ToArray());
+            return raiseEvent.RaiseEvent(eventName, eventArgs);
         }
 
         public static IEventHandler EventHandler(Action eventHandler)

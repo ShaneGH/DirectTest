@@ -25,6 +25,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Partial Mocks](#partial-mocks)
   * [Constructor args](#constructor-args)
   * [Constructor args in chained mocks](#constructor-args-in-chained-mocks)
+  * [Events](#events)
   * [Structs (value types) and sealed classes](#structs-value-types-and-sealed-classes)
   * [Reserved Terms](#reserved-terms)
 * [Contribute](#contribute)
@@ -295,6 +296,32 @@ mock.ObjectWithConstructorArgs.Constructor("arg1", 2).ToString().Returns("Hello!
 // and functions
 mock.GetObjectWithConstructorArgs().Constructor("arg1", 2).ToString().Returns("Hello!");
 ```
+
+###Events
+```C#
+var mock = Dx.Mock();
+
+// subscribe to the OnUserAdded event 
+mock.OnUserAdded += Dx.EventHandler<object, UserAddedEventArgs>((sender, args) =>
+{
+    // event was raised
+});
+
+// create a concrete type
+UserRepository repository = mock.As<UserRepository>();
+
+// raise event (assuming that there is an add user method and it raises the OnUserAdded event)
+repository.AddUser(new User("John"));
+
+// raise event using mock
+Dx.RaiseEvent(mock, "OnUserAdded", repository, new UserAddedEventArgs());
+
+// raise event using concrete object
+Dx.RaiseEvent(repository, "OnUserAdded", repository, new UserAddedEventArgs());
+```
+
+Events can only be raised if they are abstract, virtual or part of an interface.
+
 
 ###Structs (value types) and sealed classes
 Structs and sealed classes can be mocked in the same way as interfaces and non sealed classes, however, the implementation will be slightly different. Rather then create a proxy for the class, a mock of a sealed class or struct will be an instance of that class or struct with the mocked properties set, if possible.
