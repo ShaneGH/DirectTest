@@ -8,6 +8,7 @@ namespace Dynamox.Mocks.Info
 {
     public interface IEventHandler
     {
+        bool CanBeInvokedWitTypes(IEnumerable<Type> withArgTypes);
         bool CanBeInvoked(IEnumerable<object> withArgs);
         void Invoke(IEnumerable<object> withArgs);
     }

@@ -172,6 +172,24 @@ namespace Dynamox.Compile
             }
         }
 
+        IEnumerable<EventInfo> _AllEvents;
+        public IEnumerable<EventInfo> AllEvents
+        {
+            get
+            {
+                if (_AllEvents == null)
+                {
+                    _AllEvents = Array.AsReadOnly(InheritanceTree
+                        .SelectMany(e => e.GetEvents(AllInstanceMembers))
+                        .Concat(OverridableInterfaces.SelectMany(i => i.OverridableEvents))
+                        .Distinct()
+                        .ToArray());
+                }
+
+                return _AllEvents;
+            }
+        }
+
         IEnumerable<MethodInfo> _AllEventAccessors;
         public IEnumerable<MethodInfo> AllEventAccessors
         {
@@ -179,8 +197,7 @@ namespace Dynamox.Compile
             {
                 if (_AllEventAccessors == null)
                 {
-                    _AllEventAccessors = Array.AsReadOnly(InheritanceTree
-                        .SelectMany(e => e.GetEvents(AllInstanceMembers))
+                    _AllEventAccessors = Array.AsReadOnly(AllEvents
                         .SelectMany(e => new[] { e.AddMethod, e.RaiseMethod, e.RemoveMethod }.Union(e.GetOtherMethods(true)))
                         .Where(m => m != null)
                         .Distinct()

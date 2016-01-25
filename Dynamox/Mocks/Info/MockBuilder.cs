@@ -14,7 +14,7 @@ namespace Dynamox.Mocks.Info
     /// <summary>
     /// The core of building mocks. Should be cast as a dynamic and used to build mock information
     /// </summary>
-    internal class MockBuilder : DynamicBag, IRaiseEvent
+    internal class MockBuilder : DynamicBag, IRaiseEvent, IEventParasite
     {
         IEnumerable<object> ConstructorArgs;
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();
@@ -214,6 +214,7 @@ namespace Dynamox.Mocks.Info
         {
             get
             {
+                //TODE, no exception, but the messages need some work
                 return Values
                     // methods
                     .Where(v => v.Value is MethodGroup)
@@ -229,17 +230,33 @@ namespace Dynamox.Mocks.Info
 
         #region events
 
-        readonly List<IEventHandler> EventHandlers = new List<IEventHandler>();
+        public bool IsEvent
+        {
+            get
+            {
+                return _EventHandlers.Any();
+            }
+        }
+
+        public IEnumerable<IEventHandler> EventHandlers
+        {
+            get
+            {
+                return _EventHandlers.ToArray();
+            }
+        }
+
+        readonly List<IEventHandler> _EventHandlers = new List<IEventHandler>();
 
         void AddEventHandler(IEventHandler eventHandler)
         {
             //TODO: test args against all existing event handlers
-            EventHandlers.Add(eventHandler);
+            _EventHandlers.Add(eventHandler);
         }
 
         void RemoveEventHandler(IEventHandler eventHandler)
         {
-            EventHandlers.Remove(eventHandler);
+            _EventHandlers.Remove(eventHandler);
         }
 
         public static MockBuilder operator +(MockBuilder mb, IEventHandler eventHandler)
@@ -254,16 +271,32 @@ namespace Dynamox.Mocks.Info
             return mb;
         }
 
+        public event EventShareHandler RaiseEventCalled;
+
+        public void EventRaised(EventShareEventArgs args)
+        {
+            // this is an event property
+            foreach (var handler in _EventHandlers.Where(e => e.CanBeInvoked(args.EventArgs)))
+            {
+                args.EventHandlerFound = true;
+                handler.Invoke(args.EventArgs);
+            }
+
+            // - or -
+
+            // this has an event property
+            if (Values.ContainsKey(args.EventName) && Values[args.EventName] is MockBuilder)
+                (Values[args.EventName] as MockBuilder).EventRaised(args);
+        }
+
         public bool RaiseEvent(string eventName, object[] args)
         {
-            throw new NotImplementedException();
-            //var chainArgs = new EventChainArgs(this, eventName, args);
-            //if (EventBubble != null)
-            //    EventBubble(chainArgs);
+            if (RaiseEventCalled == null)
+                return false;
 
-            //EventTunnel(chainArgs);
-
-            //return chainArgs.EventHandlerFound;
+            var eventArgs = new EventShareEventArgs(eventName, args);
+            RaiseEventCalled(eventArgs);
+            return eventArgs.EventHandlerFound;
         }
 
         #endregion

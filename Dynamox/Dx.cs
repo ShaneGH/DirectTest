@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Builders;
+using Dynamox.Compile;
 using Dynamox.Mocks;
 using Dynamox.Mocks.Info;
 
@@ -95,6 +96,15 @@ namespace Dynamox
         }
 
         #region Events
+
+        public static bool RaiseEvent(object target, string eventName, IEnumerable<object> eventArgs)
+        {
+            var raiseEvent = target as IRaiseEvent;
+            if (raiseEvent == null)
+                return false;
+
+            return raiseEvent.RaiseEvent(eventName, eventArgs.ToArray());
+        }
 
         public static IEventHandler EventHandler(Action eventHandler)
         {

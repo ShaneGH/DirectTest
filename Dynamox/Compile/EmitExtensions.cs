@@ -74,5 +74,42 @@ namespace Dynamox.Compile
         {
             body.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { writeLineType }));
         }
+
+        static readonly MethodInfo _CheckNull = typeof(EmitExtensions).GetMethod("CheckNull");
+        public static bool CheckNull(object input)
+        {
+            return input == null;
+        }
+
+        public static void CheckForNull(this ILGenerator body, LocalBuilder variable, Label? ifNull = null, Label? ifNotNull = null)
+        {
+            body.Emit(OpCodes.Ldloc, variable);
+            body.CheckTopOfStackForNull(ifNull, ifNotNull);
+        }
+
+        public static void CheckForNull(this ILGenerator body, OpCode variableLocation, Label? ifNull = null, Label? ifNotNull = null)
+        {
+            body.Emit(variableLocation);
+            body.CheckTopOfStackForNull(ifNull, ifNotNull);
+        }
+
+        public static void CheckTopOfStackForNull(this ILGenerator body, Label? ifNull = null, Label? ifNotNull = null) 
+        {
+            if (!ifNull.HasValue && !ifNotNull.HasValue)
+                throw new InvalidOperationException("You must specify either a true or false execution path");
+
+            body.Emit(OpCodes.Call, _CheckNull);
+
+            if (ifNull.HasValue)
+            {
+                body.Emit(OpCodes.Brtrue, ifNull.Value);
+                if (ifNotNull.HasValue)
+                    body.Emit(OpCodes.Brtrue, ifNotNull.Value);
+            }
+            else if (ifNotNull.HasValue)
+            {
+                body.Emit(OpCodes.Brfalse, ifNotNull.Value);
+            }
+        }
     }
 }

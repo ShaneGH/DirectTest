@@ -36,5 +36,22 @@ namespace Dynamox.Mocks.Info
         }
 
         public abstract void Invoke(IEnumerable<object> withArgs);
+
+        public bool CanBeInvokedWitTypes(IEnumerable<Type> withArgTypes)
+        {
+            var args = withArgTypes.ToArray();
+            var argTypes = EventArgTypes.ToArray();
+
+            if (argTypes.Length > args.Length)
+                return false;
+
+            for (var i = 0; i < argTypes.Length; i++)
+            {
+                if (!argTypes[i].IsAssignableFrom(args[i]))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

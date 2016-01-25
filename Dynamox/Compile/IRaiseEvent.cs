@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Dynamox.Compile
 {
     /// <summary>
-    /// Signals that the implementing class has events to raise
+    /// Expose event raising functionality to external objects
     /// </summary>
     public interface IRaiseEvent
     {

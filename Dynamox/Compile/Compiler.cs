@@ -199,13 +199,12 @@ namespace Dynamox.Compile
             if (implementEventInterfaces)
             {
                 new RaiseEventMethodBuilder(type, objBase, eventHandlerFields).Build();
-                new EventChainMethodBuilder(type, objBase).Build();
             }
 
             // add constructors
             foreach (var constructor in typeDescriptor.Type.GetConstructors(AllMembers)
                 .Where(c => !c.IsAssembly || c.IsFamilyOrAssembly)
-                .Select(c => new ConstructorBuilder(type, objBase, c, typeDescriptor)))
+                .Select(c => new ConstructorBuilder(type, objBase, c, typeDescriptor, implementEventInterfaces)))
             {
                 constructor.Build();
             }

@@ -29,3 +29,5 @@ silverlight
 
 
 EventChainMethodBuilder class
+
+IRaiseEvent might return different values for parasite and host class, depending on which class has the subscription

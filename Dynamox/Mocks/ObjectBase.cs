@@ -14,7 +14,7 @@ namespace Dynamox.Mocks
     /// <summary>
     /// The underlying functionality behind a proxy class 
     /// </summary>
-    public class ObjectBase
+    public class ObjectBase : IEventParasite
     {
         public static readonly Meta Reflection = new Meta();
 
@@ -79,6 +79,13 @@ namespace Dynamox.Mocks
             Settings = settings;
             StrictMock = strictMock;
             MockedInfo = mockedInfo;
+
+            // pass through
+            MockedInfo.RaiseEventCalled += (args) => 
+            {
+                if (RaiseEventCalled != null)
+                    RaiseEventCalled(args);
+            };
         }
 
         #region Obsolete
@@ -432,6 +439,18 @@ namespace Dynamox.Mocks
             }
 
             throw new InvalidOperationException("Bad type");    //TODE
+        }
+
+        #endregion
+
+        #region events
+
+        public event EventShareHandler RaiseEventCalled;
+
+        public void EventRaised(EventShareEventArgs args)
+        {
+            // pass through
+            MockedInfo.EventRaised(args);
         }
 
         #endregion

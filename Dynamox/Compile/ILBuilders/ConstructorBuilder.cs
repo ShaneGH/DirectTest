@@ -14,15 +14,29 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     internal class ConstructorBuilder : NewBlockILBuilder
     {
+        readonly bool IsIEventChain;
         readonly ConstructorInfo Constructor;
         readonly TypeOverrideDescriptor Descriptor;
         ILGenerator MethodBody { get; set; }
 
-        public ConstructorBuilder(TypeBuilder toType, FieldInfo objBase, ConstructorInfo constructor, TypeOverrideDescriptor descriptor)
+        IEnumerable<EventInfo> Events
+        {
+            get
+            {
+                // there will be duplicate events if inheritance/interfaces are used
+                return Descriptor.AllEvents
+                    .GroupBy(e => new Tuple<string, Type>(e.Name, e.EventHandlerType))
+                    .Select(g => g.Count() < 2 ? g : g.Take(1))
+                    .SelectMany(g => g);
+            }
+        }
+
+        public ConstructorBuilder(TypeBuilder toType, FieldInfo objBase, ConstructorInfo constructor, TypeOverrideDescriptor descriptor, bool isIEventChain)
             : base(toType, objBase)
         {
             Constructor = constructor;
             Descriptor = descriptor;
+            IsIEventChain = isIEventChain;
         }
 
         protected override void _Build()
@@ -49,8 +63,8 @@ namespace Dynamox.Compile.ILBuilders
                 MethodBody.Emit(OpCodes.Ldarg_S, (short)(i + 1));
             MethodBody.Emit(OpCodes.Call, Constructor);
 
-            //if (IsIEventChain)
-            //    AddIEventChainFunctionality();
+            if (IsIEventChain)
+                AddIEventParasiteFunctionality();
 
             // if (ObjectBase.Settings.SetNonVirtualPropertiesOrFields != true) return;
             MethodBody.Emit(OpCodes.Ldarg_1);
@@ -67,136 +81,118 @@ namespace Dynamox.Compile.ILBuilders
             MethodBody.Emit(OpCodes.Ret);
         }
 
-        //void AddIEventChainFunctionality()
-        //{
-        //    SubscribeToBubbledEvents();
-        //    TunnelAllEvents();
-        //}
+        void AddIEventParasiteFunctionality()
+        {
+            BuildRaiseEventsFromParasiteFunctionality();
+            BuildReportEventsToParasiteFunctionality();
+        }
 
-        //void SubscribeToBubbledEvents()
-        //{
-        //    // private void __Dynamox_EVENTNAME_EventSubscription(arg1, arg2, etc...)
-        //    var method = TypeBuilder.DefineMethod("__Dynamox_IEventChain_EventBubble_EventSubscription",
-        //        MethodAttributes.HideBySig | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final,
-        //        null, new[] { typeof(EventChainArgs) });
+        static readonly MethodInfo EventHandlerFound = typeof(EventShareEventArgs).GetProperty("EventHandlerFound").SetMethod;
+        static readonly MethodInfo RaiseEvent = typeof(IRaiseEvent).GetMethod("RaiseEvent");
+        static readonly MethodInfo ToArray = typeof(Enumerable).GetMethod("ToArray").MakeGenericMethod(typeof(object));
+        static readonly FieldInfo EventName = typeof(EventShareEventArgs).GetField("EventName");
+        static readonly FieldInfo EventArgs = typeof(EventShareEventArgs).GetField("EventArgs");
+        static readonly EventInfo RaiseEventCalled = typeof(IEventParasite).GetEvent("RaiseEventCalled");
+        void BuildRaiseEventsFromParasiteFunctionality()
+        {
+            // private void __Dynamox_IEventParasite_RaiseEventCalled(EventShareEventArgs, args)
+            var method = TypeBuilder.DefineMethod("__Dynamox_IEventParasite_RaiseEventCalled",
+                MethodAttributes.HideBySig | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final,
+                null, new[] { typeof(EventShareEventArgs) });
 
-        //    var body = method.GetILGenerator();
+            var body = method.GetILGenerator();
 
-        //    foreach (var @event in
-        //        TypeBuilder.BaseType.GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-        //        .Where(b => b.AddMethod != null && !b.AddMethod.IsPrivate && !b.AddMethod.IsAssembly))
-        //    {
-        //        var parameterTypes = @event.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => p.ParameterType).ToArray();
-        //    // var eventArgs = new []{ arg_1, arg_2... };
-        //    var eventArgs = body.CreateArray(typeof(object), parameterTypes.Length);
-        //    for (var i = 0; i < parameterTypes.Length; i++)
-        //    {
-        //        body.Emit(OpCodes.Ldloc, eventArgs);
-        //        body.Emit(OpCodes.Ldc_I4, i);
-        //        body.Emit(OpCodes.Ldarg, i + 1);
-        //        if (parameterTypes[i].IsValueType)
-        //            body.Emit(OpCodes.Box, parameterTypes[i]);
+            var _return = body.DefineLabel();
 
-        //        body.Emit(OpCodes.Stelem_Ref);
-        //    }
+            // if (args == null) return;
+            body.CheckForNull(OpCodes.Ldarg_1, ifNull: _return);
 
-        //    // var input = new EventChainArgs(this, "EVENTNAME", eventArgs);
-        //    var input = body.DeclareLocal(typeof(EventChainArgs));
-        //    body.Emit(OpCodes.Ldarg_0);
-        //    body.Emit(OpCodes.Ldstr, @event.Name);
-        //    body.Emit(OpCodes.Ldloc, eventArgs);
-        //    body.Emit(OpCodes.Newobj, EventChainArgs);
-        //    body.Emit(OpCodes.Stloc, input);
+            // var eventArgs = args.EventArgs.ToArray();
+            var eventArgs = body.DeclareLocal(typeof(object[]));
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldfld, EventArgs);
+            body.Emit(OpCodes.Call, ToArray);
+            body.Emit(OpCodes.Stloc, eventArgs);
 
-        //    // this.ObjectBase.EventTunnel(input);
-        //    body.Emit(OpCodes.Ldarg_0);
-        //    body.Emit(OpCodes.Ldfld, ObjBase);
-        //    body.Emit(OpCodes.Ldloc, input);
-        //    body.Emit(OpCodes.Callvirt, EventTunnel);
+            // var result = RaiseEvent(args.EventName, eventArgs);
+            var result = body.DeclareLocal(typeof(bool));
+            body.Emit(OpCodes.Ldarg_0);
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldfld, EventName);
+            body.Emit(OpCodes.Ldloc, eventArgs);
+            body.Emit(OpCodes.Callvirt, RaiseEvent);
+            body.Emit(OpCodes.Stloc, result);
 
+            // args.EventHandlerFound = result
+            body.Emit(OpCodes.Ldarg_1);
+            body.Emit(OpCodes.Ldloc, result);
+            body.Emit(OpCodes.Call, EventHandlerFound);
 
-        //    }
+            // return
+            body.MarkLabel(_return);
+            body.Emit(OpCodes.Ret);
 
-        //    body.Emit(OpCodes.Ret);
+            // BACK TO CONSTRUCTOR
+            // arg0.RaiseEventCalled += __Dynamox_IEventParasite_RaiseEventCalled;
+            MethodBody.Emit(OpCodes.Ldarg_1);
+            MethodBody.Emit(OpCodes.Ldarg_0);
+            MethodBody.Emit(OpCodes.Ldftn, method);
+            MethodBody.Emit(OpCodes.Newobj, RaiseEventCalled.EventHandlerType.GetConstructor(new[] { typeof(object), typeof(IntPtr) }));
+            MethodBody.Emit(OpCodes.Callvirt, RaiseEventCalled.AddMethod);
+        }
 
-        //    // this.EVENTNAME += __Dynamox_EVENTNAME_EventSubscription;
-        //    MethodBody.Emit(OpCodes.Ldarg_0);
-        //    MethodBody.Emit(OpCodes.Ldarg_0);
-        //    MethodBody.Emit(OpCodes.Ldftn, method);
-        //    MethodBody.Emit(OpCodes.Newobj, @event.EventHandlerType.GetConstructor(new[] { typeof(object), typeof(IntPtr) }));
-        //    MethodBody.Emit(OpCodes.Callvirt, @event.AddMethod);
+        static readonly ConstructorInfo EventChainArgs = typeof(EventShareEventArgs).GetConstructor(new[] { typeof(string), typeof(IEnumerable<object>) });
+        static readonly MethodInfo EventRaised = typeof(ObjectBase).GetMethod("EventRaised");
+        void BuildReportEventsToParasiteFunctionality()
+        {
+            foreach (var @event in Events)
+            {
+                var parameterTypes = @event.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => p.ParameterType).ToArray();
 
-        //    ///*static readonly*/
-        //    //MethodInfo Add_EventRaised = typeof(ObjectBase).GetEvent("EventRaised").AddMethod;
+                // private void __Dynamox_EVENTNAME_EventSubscription(arg1, arg2, etc...)
+                var method = TypeBuilder.DefineMethod("__Dynamox_" + @event.Name + "_EventSubscription",
+                    MethodAttributes.HideBySig | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final,
+                    null, parameterTypes);
 
-        //    //// var asIRaiseEvent = this as IRaiseEvent;
-        //    //var asIRaiseEvent = MethodBody.DeclareLocal(typeof(IRaiseEvent));
-        //    //MethodBody.Emit(OpCodes.Ldarg_0);
-        //    //MethodBody.Emit(OpCodes.Castclass, typeof(IRaiseEvent));
-        //    //MethodBody.Emit(OpCodes.Stloc, asIRaiseEvent);
+                var body = method.GetILGenerator();
 
-        //    //// arg0.EventRaised += asIRaiseEvent.RaiseEvent;
-        //    //MethodBody.Emit(OpCodes.Ldarg_1);
-        //    //MethodBody.Emit(OpCodes.Ldloc, asIRaiseEvent);
-        //    //MethodBody.Emit(OpCodes.Ldftn, RaiseEvent);
-        //    //MethodBody.Emit(OpCodes.Newobj, _RaiseEventHandler);
-        //    //MethodBody.Emit(OpCodes.Callvirt, Add_EventRaised);
-        //}
+                // var eventArgs = new []{ arg_1, arg_2... };
+                var eventArgs = body.CreateArray(typeof(object), parameterTypes.Length);
+                for (var i = 0; i < parameterTypes.Length; i++)
+                {
+                    body.Emit(OpCodes.Ldloc, eventArgs);
+                    body.Emit(OpCodes.Ldc_I4, i);
+                    body.Emit(OpCodes.Ldarg, i + 1);
+                    if (parameterTypes[i].IsValueType)
+                        body.Emit(OpCodes.Box, parameterTypes[i]);
 
-        //static readonly ConstructorInfo EventChainArgs = typeof(EventChainArgs).GetConstructor(new[] { typeof(object), typeof(string), typeof(IEnumerable<object>) });
-        //static readonly MethodInfo EventTunnel = typeof(IEventChain).GetMethod("EventTunnel");
-        //void TunnelAllEvents()
-        //{
-        //    foreach (var @event in
-        //        TypeBuilder.BaseType.GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-        //        .Where(b => b.AddMethod != null && !b.AddMethod.IsPrivate && !b.AddMethod.IsAssembly))
-        //    {
-        //        var parameterTypes = @event.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => p.ParameterType).ToArray();
+                    body.Emit(OpCodes.Stelem_Ref);
+                }
 
-        //        // private void __Dynamox_EVENTNAME_EventSubscription(arg1, arg2, etc...)
-        //        var method = TypeBuilder.DefineMethod("__Dynamox_" + @event.Name + "_EventSubscription",
-        //            MethodAttributes.HideBySig | MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Final,
-        //            null, parameterTypes);
+                // var input = new EventChainArgs("EVENTNAME", eventArgs);
+                var input = body.DeclareLocal(typeof(EventShareEventArgs));
+                body.Emit(OpCodes.Ldstr, @event.Name);
+                body.Emit(OpCodes.Ldloc, eventArgs);
+                body.Emit(OpCodes.Newobj, EventChainArgs);
+                body.Emit(OpCodes.Stloc, input);
 
-        //        var body = method.GetILGenerator();
+                // this.ObjectBase.EventRaised(input);
+                body.Emit(OpCodes.Ldarg_0);
+                body.Emit(OpCodes.Ldfld, ObjBase);
+                body.Emit(OpCodes.Ldloc, input);
+                body.Emit(OpCodes.Callvirt, EventRaised);
 
-        //        // var eventArgs = new []{ arg_1, arg_2... };
-        //        var eventArgs = body.CreateArray(typeof(object), parameterTypes.Length);
-        //        for (var i = 0; i < parameterTypes.Length; i++)
-        //        {
-        //            body.Emit(OpCodes.Ldloc, eventArgs);
-        //            body.Emit(OpCodes.Ldc_I4, i);
-        //            body.Emit(OpCodes.Ldarg, i + 1);
-        //            if (parameterTypes[i].IsValueType)
-        //                body.Emit(OpCodes.Box, parameterTypes[i]);
+                body.Emit(OpCodes.Ret);
 
-        //            body.Emit(OpCodes.Stelem_Ref);
-        //        }
-
-        //        // var input = new EventChainArgs(this, "EVENTNAME", eventArgs);
-        //        var input = body.DeclareLocal(typeof(EventChainArgs));
-        //        body.Emit(OpCodes.Ldarg_0);
-        //        body.Emit(OpCodes.Ldstr, @event.Name);
-        //        body.Emit(OpCodes.Ldloc, eventArgs);
-        //        body.Emit(OpCodes.Newobj, EventChainArgs);
-        //        body.Emit(OpCodes.Stloc, input);
-
-        //        // this.ObjectBase.EventTunnel(input);
-        //        body.Emit(OpCodes.Ldarg_0);
-        //        body.Emit(OpCodes.Ldfld, ObjBase);
-        //        body.Emit(OpCodes.Ldloc, input);
-        //        body.Emit(OpCodes.Callvirt, EventTunnel);
-
-        //        body.Emit(OpCodes.Ret);
-
-        //        // this.EVENTNAME += __Dynamox_EVENTNAME_EventSubscription;
-        //        MethodBody.Emit(OpCodes.Ldarg_0);
-        //        MethodBody.Emit(OpCodes.Ldarg_0);
-        //        MethodBody.Emit(OpCodes.Ldftn, method);
-        //        MethodBody.Emit(OpCodes.Newobj, @event.EventHandlerType.GetConstructor(new[] { typeof(object), typeof(IntPtr) }));
-        //        MethodBody.Emit(OpCodes.Callvirt, @event.AddMethod);
-        //    }
-        //}
+                // BACK TO CONSTRUCTOR
+                // this.EVENTNAME += __Dynamox_EVENTNAME_EventSubscription;
+                MethodBody.Emit(OpCodes.Ldarg_0);
+                MethodBody.Emit(OpCodes.Ldarg_0);
+                MethodBody.Emit(OpCodes.Ldftn, method);
+                MethodBody.Emit(OpCodes.Newobj, @event.EventHandlerType.GetConstructor(new[] { typeof(object), typeof(IntPtr) }));
+                MethodBody.Emit(OpCodes.Callvirt, @event.AddMethod);
+            }
+        }
 
         void BuildSetters()
         {

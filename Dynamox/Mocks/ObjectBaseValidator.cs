@@ -20,6 +20,7 @@ namespace Dynamox.Mocks
         public readonly IReadOnlyCollection<PropertyInfo> Indexes;
         public readonly IReadOnlyCollection<FieldInfo> Fields;
         public readonly IReadOnlyCollection<MethodInfo> Methods;
+        public readonly IReadOnlyCollection<EventInfo> Events;
 
         static readonly ConcurrentDictionary<Type, ObjectBaseValidator> Cache;
         static ObjectBaseValidator()
@@ -53,6 +54,8 @@ namespace Dynamox.Mocks
                 .Union(forType.OverridableInterfaces.SelectMany(i => i.OverridableProperties))
                 .Where(p => !p.GetIndexParameters().Any()).ToArray());
 
+            Events = Array.AsReadOnly(forType.AllEvents.ToArray());
+
             Indexes = Array.AsReadOnly(forType.OverridableProperties
                 .Union(forType.SettableProperties)
                 .Union(forType.OverridableInterfaces.SelectMany(i => i.OverridableProperties))
@@ -78,6 +81,10 @@ namespace Dynamox.Mocks
                 {
                     errors.Add(ValidateMethod(item, toValidate.Members[item] as MethodGroup, Methods));
                 }
+                else if (toValidate.Members[item] is MockBuilder && (toValidate.Members[item] as MockBuilder).IsEvent)
+                {
+                    errors.Add(ValidateEvent(item, (toValidate.Members[item] as MockBuilder).EventHandlers, Events));
+                }
                 else
                 {
                     errors.Add(ValidateFieldOrProperty(item, toValidate.Members[item], Fields, Properties));
@@ -86,6 +93,21 @@ namespace Dynamox.Mocks
 
             errors.AddRange(toValidate.MockedIndexes.Select(i => ValidateIndex(Indexes, i.Key.Select(k => k == null ? null : k.GetType()), i.Value == null ? null : i.Value.GetType())));
             return errors.Where(e => e != null).Select(e => e.ErrorMessage);
+        }
+
+        static Error ValidateEvent(string name, IEnumerable<IEventHandler> eventHandlers, IEnumerable<EventInfo> events) 
+        {
+            foreach (var handler in eventHandlers)
+            {
+                if (events.Where(e => e.Name == name).All(e => !handler
+                    .CanBeInvokedWitTypes(
+                        e.EventHandlerType.GetMethod("Invoke")
+                            .GetParameters()
+                            .Select(p => p.ParameterType))))
+                    return new Error(Errors.EventHandlerDoesNotFitAnyExistingEvents, "Invalid event handler for event: " + name);
+            }
+
+            return null;
         }
 
         static Error ValidateIndex(IEnumerable<PropertyInfo> indexedProperties, IEnumerable<Type> keyTypes, Type value)
@@ -212,7 +234,8 @@ namespace Dynamox.Mocks
             CannotFindMethodToOverride,
             CannotFindPropertyOrFieldToOverride,
             PropertyTypeIsIncorrect,
-            FieldTypeIsIncorrect
+            FieldTypeIsIncorrect,
+            EventHandlerDoesNotFitAnyExistingEvents
         }
     }
 }
