@@ -54,6 +54,7 @@
     <Compile Include="Builders\TestBuilder_Runners.cs" />
     <Compile Include="Builders\TestData.cs" />
     <Compile Include="Builders\TestModule.cs" />
+    <Compile Include="Compile\CompilerException.cs" />
     <Compile Include="Compile\ICallProtected.cs" />
     <Compile Include="Compile\IEventParasite.cs" />
     <Compile Include="Compile\ILBuilders\ConstructorBuilder.cs" />
@@ -108,6 +109,8 @@
     <Compile Include="Mocks\Info\MethodMockBuilder.cs" />
     <Compile Include="Mocks\Mock.cs" />
     <Compile Include="Mocks\Info\MockBuilder.cs" />
+    <Compile Include="Mocks\InvalidMockException.cs" />
+    <Compile Include="Mocks\MockedMethodNotCalledException.cs" />
     <Compile Include="ReservedTerms.cs" />
     <Compile Include="Mocks\NonMockedConstructor.cs" />
     <Compile Include="Mocks\ObjectBaseValidator.cs" />

@@ -20,7 +20,7 @@ namespace Dynamox.Compile.ILBuilders
             : base(toType, objBase, parentProperty.GetMethod)
         {
             if (parentProperty.GetMethod == null)
-                throw new InvalidOperationException("Cannot overrided getter"); //TODE
+                throw new CompilerException(toType.BaseType, "Cannot overrided getter for property " + parentProperty.Name);
 
             PropertyName = parentProperty.Name;
         }

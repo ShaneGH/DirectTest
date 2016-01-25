@@ -26,6 +26,7 @@ namespace Dynamox.Builders
 
                     result(a, (TExpectedResult)b);
                 });
+
                 return this;
             }
 

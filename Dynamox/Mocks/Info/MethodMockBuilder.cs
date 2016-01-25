@@ -46,7 +46,7 @@ namespace Dynamox.Mocks.Info
             if (args.Count() == 1 && args.First() is IMethodAssert)
                 ArgChecker = args.First() as IMethodAssert;
             else if (args.Any(a => a is IMethodAssert))
-                throw new InvalidOperationException("Arg checker must be first and only arg");  //TODE
+                throw new InvalidMockException("An IMethodAssert from Dx.Args<>(...) must be the first and only argument");
             else
                 ArgChecker = new EqualityMethodApplicabilityChecker(args);
 
@@ -71,21 +71,21 @@ namespace Dynamox.Mocks.Info
         bool Out(object[] args)
         {
             if (args.Length != 2 || (!(args[0] is int) && !(args[0] is string)))
-                throw new InvalidOperationException("The arguments for Out are [int, object] or [string, object].");   //TODE
+                throw new InvalidMockException("The arguments for Out are [int, object] or [string, object].");
 
             if (args[0] is int)
             {
                 int index = (int)args[0];
                 if (OutParamValues.Any(o => o.Index == index))
-                    throw new InvalidOperationException("There is already an out value defined for this index [" + index + "].");   //TODE
+                    throw new InvalidMockException("There is already an out value defined for this index [" + index + "].");
 
                 OutParamValues.Add(new OutArg(index, args[1]));
             }
-            if (args[0] is string)
+            else if (args[0] is string)
             {
                 string name = (string)args[0];
                 if (OutParamValues.Any(o => o.Name == name))
-                    throw new InvalidOperationException("There is already an out value defined for this name \"" + name + "\".");   //TODE
+                    throw new InvalidMockException("There is already an out value defined for this name \"" + name + "\".");
 
                 OutParamValues.Add(new OutArg(name, args[1]));
             }
@@ -97,7 +97,7 @@ namespace Dynamox.Mocks.Info
         bool Returns(object[] args)
         {
             if (args.Length != 1)
-                throw new InvalidOperationException("You must specify a single argument to return.");   //TODE
+                throw new InvalidMockException("You must specify a single argument to return.");
 
             ReturnValue = args[0];
 
@@ -107,7 +107,7 @@ namespace Dynamox.Mocks.Info
         bool Ensure(object[] args)
         {
             if (args != null && args.Any())
-                throw new InvalidOperationException("You cannot pass any argments into ensure");   //TODE
+                throw new InvalidMockException("You cannot pass any argments into ensure");
 
             MustBeCalled = true;
             Actions.Add(new MethodCallback(() => WasCalled = true));
@@ -118,10 +118,10 @@ namespace Dynamox.Mocks.Info
         bool Do(object[] args)
         {
             if (args.Length != 1)
-                throw new InvalidOperationException("You must specify the action to do."); //TODE
+                throw new InvalidMockException("You must specify a single action to do.");
 
             if (!(args[0] is IMethodCallback))
-                throw new InvalidOperationException("The first arg must be an IMethodCallback."); //TODE
+                throw new InvalidMockException("The first arg must be an IMethodCallback from Dx.Callback<>(...).");
 
             Actions.Add(args[0] as IMethodCallback);
 

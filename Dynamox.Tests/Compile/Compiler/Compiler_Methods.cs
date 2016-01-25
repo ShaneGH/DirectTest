@@ -106,7 +106,7 @@ namespace Dynamox.Tests.Compile.Compiler
         [Test]
         public void InternalAbstractMethod()
         {
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws(typeof(CompilerException), () =>
                 COMPILER.Compile(typeof(InternalAstractMethod)));
         }
 

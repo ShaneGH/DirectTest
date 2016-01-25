@@ -15,6 +15,7 @@ namespace Dynamox.Mocks
     public class Constructors : IEnumerable<IConstructor>, IConstructor
     {
         readonly IEnumerable<IConstructor> _Constructors;
+        readonly Type ForType;
 
         public Constructors(Type forType) 
         {
@@ -26,6 +27,8 @@ namespace Dynamox.Mocks
                 .Select(c => !Compiler.IsDxCompiledType(forType) ? //TODO: forType.IsDxCompiledType
                     new NonMockedConstructor(c) :
                     new Constructor(c)).ToArray());
+
+            ForType = forType;
         }
 
         public object TryConstruct(ObjectBase objectBase, IEnumerable<object> otherArgs)
@@ -43,7 +46,8 @@ namespace Dynamox.Mocks
         {
             var result = TryConstruct(objectBase, otherArgs);
             if (result == null)
-                throw new InvalidOperationException();  //TODE
+                throw new CompilerException(ForType, "Could not find a constructor which matches args: " +
+                    otherArgs.Select(a => a == null ? "null" : a.GetType().Name));
 
             return result;
         }

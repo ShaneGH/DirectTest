@@ -59,7 +59,7 @@ namespace Dynamox.Mocks.Info
         public T Get<T>()
         {
             if (!typeof(T).IsAssignableFrom(typeof(TProperty)))
-                throw new InvalidOperationException();  //TODE
+                throw new InvalidMockException("Property");  //TODE
 
             var property = GetProperty();
             foreach (var p in OnGetActions)

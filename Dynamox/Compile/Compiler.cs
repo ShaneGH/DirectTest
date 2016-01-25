@@ -86,10 +86,10 @@ namespace Dynamox.Compile
 
             compiling.Join();
             if (compileException != null)
-                throw new InvalidOperationException("", compileException);  //TODE
+                throw new CompilerException(baseType, "See inner exception for details.", compileException);
 
             if (!Built.ContainsKey(baseType))
-                throw new InvalidOperationException("An error ocured creating proxy type for " + baseType + ". See previous exception for more details.");
+                throw new CompilerException(baseType, "See previous exception for more details.");
         }
 
         bool AreEqual<T>(IEnumerable<T> array1, IEnumerable<T> array2)
@@ -112,14 +112,15 @@ namespace Dynamox.Compile
         Type BuildType(Type baseType)
         {
             if (baseType.IsNestedPrivate)
-                throw new InvalidOperationException("You cannot mock a nested private class or interface"); //TODE
+                throw new CompilerException(baseType, "You cannot mock a nested private class or interface");
 
             if (baseType.IsNestedAssembly)
-                throw new InvalidOperationException("You cannot mock a nested internal class or interface"); //TODE
+                throw new CompilerException(baseType, "You cannot mock a nested internal class or interface");
 
             var typeDescriptor = TypeOverrideDescriptor.Create(baseType);
             if (typeDescriptor.HasAbstractInternal)
-                throw new InvalidOperationException("You cannot mock a class with an internal abstract member"); //TODE
+                throw new CompilerException(baseType, "You cannot mock a class with an internal abstract member. Method(s) found: " +
+                    string.Join(Environment.NewLine, typeDescriptor.AbstractInternalMethods.Select(m => m.Name)));
 
             // define type
             var type = Module.DefineType(
@@ -233,7 +234,7 @@ namespace Dynamox.Compile
         internal static void AddProperty(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty, TypeOverrideDescriptor typeDescriptor = null)
         {
             if (!parentProperty.IsAbstract() && !parentProperty.IsVirtual())
-                throw new InvalidOperationException();  //TODE
+                throw new CompilerException(toType.BaseType, "Cannot mock non virtual property " + parentProperty.Name);
 
             var parameterTypes = parentProperty.GetIndexParameters().Select(pt => pt.ParameterType).ToArray();
             var property = toType.DefineProperty(parentProperty.Name, PropertyAttributes.None, parentProperty.PropertyType, parameterTypes.Any() ? parameterTypes : null);

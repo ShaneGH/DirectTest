@@ -99,9 +99,9 @@ namespace Dynamox.Tests.Compile.Compiler
             Assert.False(ev.RaiseEvent("not an event", new[] { input1, input2 }));
 
             // test for invalid event args
-            Assert.Throws<InvalidOperationException>(() => ev.RaiseEvent("Event1", new object[0]));
-            Assert.Throws<InvalidOperationException>(() => ev.RaiseEvent("Event1", new[] { new object(), new object() }));
-            Assert.Throws<InvalidOperationException>(() => ev.RaiseEvent("Event2", new object[] { true, null }));
+            Assert.Throws<InvalidMockException>(() => ev.RaiseEvent("Event1", new object[0]));
+            Assert.Throws<InvalidMockException>(() => ev.RaiseEvent("Event1", new[] { new object(), new object() }));
+            Assert.Throws<InvalidMockException>(() => ev.RaiseEvent("Event2", new object[] { true, null }));
 
             // test for null event args
             Assert.True(ev.RaiseEvent("Event1", new object[] { null, null }));

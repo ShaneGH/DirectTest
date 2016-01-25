@@ -40,7 +40,7 @@ namespace Dynamox.Compile.ILBuilders
                 return;
 
             if (!ParentEvent.IsAbstract() && !ParentEvent.IsVirtual())
-                throw new InvalidOperationException();  //TODE
+                throw new CompilerException(TypeBuilder.BaseType, "Cannot mock non virtual event " + ParentEvent.Name);
 
             EventField = TypeBuilder.DefineField(ParentEvent.Name, ParentEvent.EventHandlerType, FieldAttributes.Private);
             var @event = TypeBuilder.DefineEvent(ParentEvent.Name, EventAttributes.None, ParentEvent.EventHandlerType);

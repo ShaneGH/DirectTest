@@ -144,15 +144,23 @@ namespace Dynamox.Compile
         {
             _Type = type;
         }
-        
-        bool? _HasAbstractInternal;
+
         public bool HasAbstractInternal
         {
             get
             {
-                return _HasAbstractInternal ??
-                    (_HasAbstractInternal = Type.GetMethods(AllInstanceMembers)
-                        .Any(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly)).Value;
+                return AbstractInternalMethods.Any();
+            }
+        }
+
+        IEnumerable<MethodInfo> _AbstractInternalMethods;
+        public IEnumerable<MethodInfo> AbstractInternalMethods
+        {
+            get
+            {
+                return _AbstractInternalMethods ??
+                    (_AbstractInternalMethods = Array.AsReadOnly(Type.GetMethods(AllInstanceMembers)
+                        .Where(a => a.IsAbstract && a.IsAssembly && !a.IsFamilyOrAssembly).ToArray()));
             }
         }
 

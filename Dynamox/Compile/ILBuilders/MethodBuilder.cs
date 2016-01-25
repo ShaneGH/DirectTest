@@ -174,7 +174,7 @@ namespace Dynamox.Compile.ILBuilders
         protected override sealed void _Build()
         {
             if (!ParentMethod.IsAbstract && !ParentMethod.IsVirtual)
-                throw new InvalidOperationException();  //TODE
+                throw new CompilerException(TypeBuilder.BaseType, "Cannot mock non virtual method " + ParentMethod.Name);
 
             var name = AddInterfaceMethodsExplicitly && ParentMethod.DeclaringType.IsInterface ? ParentMethod.DeclaringType.Name + "." + ParentMethod.Name : ParentMethod.Name;
             Method = TypeBuilder.DefineMethod(name, GetAttrs(ParentMethod), ParentMethod.ReturnType, ParameterTypes);

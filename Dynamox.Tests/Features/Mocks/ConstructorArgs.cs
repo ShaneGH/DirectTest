@@ -1,4 +1,5 @@
 ﻿using System;
+using Dynamox.Compile;
 using NUnit.Framework;
 
 namespace Dynamox.Tests.Features.Mocks
@@ -59,7 +60,7 @@ namespace Dynamox.Tests.Features.Mocks
 
             // Act
             // Assert
-            Assert.Throws<InvalidOperationException>(() => mock.As<C1>());
+            Assert.Throws<CompilerException>(() => mock.As<C1>());
         }
 
         [Test]
@@ -81,7 +82,7 @@ namespace Dynamox.Tests.Features.Mocks
 
             // Act
             // Assert
-            Assert.Throws<InvalidOperationException>(() => mock.As<C2>());
+            Assert.Throws<CompilerException>(() => mock.As<C2>());
         }
 
         [Test]

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks;
 using NUnit.Framework;
 
 namespace Dynamox.Tests.Features.Mocks
@@ -82,11 +83,11 @@ namespace Dynamox.Tests.Features.Mocks
             var mock2 = Dx.Mock();
             mock1.DoSomething("hello1").Ensure();
             mock2.DoSomething("hello2").Ensure();
-            Assert.Throws<InvalidOperationException>(() => Dx.Ensure(mock1, mock2));
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1, mock2));
 
             ((ICurrentTest)mock1.As<ICurrentTest>()).DoSomething("hello");
             ((ICurrentTest)mock2.As<ICurrentTest>()).DoSomething("hello");
-            Assert.Throws<InvalidOperationException>(() => Dx.Ensure(mock1, mock2));
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1, mock2));
 
             ((ICurrentTest)mock1.As<ICurrentTest>()).DoSomething("hello1");
             ((ICurrentTest)mock2.As<ICurrentTest>()).DoSomething("hello2");

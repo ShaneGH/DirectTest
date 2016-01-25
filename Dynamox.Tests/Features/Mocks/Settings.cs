@@ -15,8 +15,6 @@ namespace Dynamox.Tests.Features.Mocks
             int DoSomething(int val);
         }
 
-        static T Y<T>(object input) { return default(T); }
-
         [Test]
         public void Returns()
         {
@@ -28,8 +26,6 @@ namespace Dynamox.Tests.Features.Mocks
                 })
                 .Act(bag =>
                 {
-                    var yy = Y<int>(bag);
-
                     ICurrentTest val = bag.subject;
                     bag.v1 = val.DoSomething(22);
                     bag.v2 = val.DoSomething(44);
@@ -89,7 +85,7 @@ namespace Dynamox.Tests.Features.Mocks
         }
 
         [Test]
-        public void Clear1()
+        public void Clear()
         {
             Dx.Test("")
                 .Arrange(bag =>
@@ -101,8 +97,8 @@ namespace Dynamox.Tests.Features.Mocks
                 })
                 .Act(bag =>
                 {
-                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
-                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
+                    bag.v1 = bag.subject.As<ICurrentTest>().DoSomething(22);
+                    bag.v2 = bag.subject.As<ICurrentTest>().DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -160,6 +156,27 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // See ConstructorArgs class
             Assert.Pass();
+        }
+
+        [Test]
+        public void UnusedSettingChange()
+        {
+            Dx.Test("")
+                .Arrange(bag =>
+                {
+                    bag.subject(new { Returns = "baboon" }).DoSomething(22);
+                    bag.subject.DoSomething(44).Returns(55);
+                })
+                .Act(bag =>
+                {
+                    ICurrentTest val = bag.subject;
+                    bag.v1 = val.DoSomething(44);
+                })
+                .Assert((bag) =>
+                {
+                    Assert.AreEqual(bag.v1, 55);
+                })
+                .Run();
         }
     }
 }

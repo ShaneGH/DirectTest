@@ -214,7 +214,7 @@ namespace Dynamox.Mocks.Info
         {
             get
             {
-                //TODE, no exception, but the messages need some work
+                //TODO, messages need some work
                 return Values
                     // methods
                     .Where(v => v.Value is MethodGroup)

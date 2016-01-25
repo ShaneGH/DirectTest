@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Compile;
 using Dynamox.Mocks;
 using NUnit.Framework;
 using COMPILER = Dynamox.Compile.Compiler;
@@ -78,7 +79,7 @@ namespace Dynamox.Tests.Compile.Compiler
         [Test]
         public void InternalAbstractProperty()
         {
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws(typeof(CompilerException), () =>
                 COMPILER.Compile(typeof(InternalAstractProperty)));
         }
         public interface ILostOfProperties<T>

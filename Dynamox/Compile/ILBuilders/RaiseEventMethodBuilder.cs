@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks;
 
 namespace Dynamox.Compile.ILBuilders
 {
@@ -112,21 +113,27 @@ namespace Dynamox.Compile.ILBuilders
             TypeBuilder.DefineMethodOverride(method, RaiseEvent);
         }
 
-        //TODO: this is an exploratory temp method
         public static void CheckEventArgs(IEnumerable<object> args, Type eventHandlerType)
         {
             var arguments = args.ToArray();
             var argTypes = eventHandlerType.GetMethod("Invoke").GetParameters().Select(i => i.ParameterType).ToArray();
 
             if (arguments.Length != argTypes.Length)
-                throw new InvalidOperationException();  //TODE
+                ThrowException(eventHandlerType, arguments, argTypes);
 
             for (var i = 0; i < arguments.Length; i++)
             {
                 if ((arguments[i] == null && argTypes[i].IsValueType) ||
                     (arguments[i] != null && !argTypes[i].IsAssignableFrom(arguments[i].GetType())))
-                    throw new InvalidOperationException();  //TODE
+                    ThrowException(eventHandlerType, arguments, argTypes);
             }
+        }
+
+        static void ThrowException(Type eventHandlerType, object[] arguments, Type[] expectedArguments)
+        {
+            throw new InvalidMockException("Invalid event args for event handler: " + eventHandlerType + "." + Environment.NewLine +
+                "Expected: " + string.Join(", ", expectedArguments.Select(a => a.Name)) + Environment.NewLine +
+                "Actual: " + string.Join(", ", arguments.Select(a => a == null ? "null" : a.GetType().Name)));
         }
     }
 }

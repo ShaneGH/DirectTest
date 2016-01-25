@@ -1,33 +1,19 @@
 ﻿
 ValidateMethod, check return type if possible
 
-out vals by name rather than by index
 validate: if property is mocked with something complex (e.g. Dx.Property<>(...)) and property cannot be mocked, only set, return error
 Overhaul of ObjectBaseValidator class
 mess with IL http://www.codeproject.com/Articles/14058/Parsing-the-IL-of-a-Method-Body
-Mock events
-out parameters in mocked methods
 Abstract test. A test as part of a module which is not run, only used by other tests
-Mock settings: var mock = Dx.Mock(); mock(new {Returns = "banana"}).DoSomething(...); // what about next mock. Is "banana" still in efect
 
 Static classes, Classes with private constructors, Classes inside non public or internal classes
 Override method with generic constraints (interface and class)
 ensure event handler was called
 interfaces implementing eachother with conflicting methods
-Event ensure
 Should have been called, message structure
-
-Ensure for event handers
 
 Hubris:
 No records, no mocks vs stubs, no It<int>.Is.Anything, no endless lambdas, no Setup() and it's significantly faster than all of the leading mocking libraries
 
 Rename Clear method. To much like ICollection<>.Clear
 silverlight
-
-
-
-
-EventChainMethodBuilder class
-
-IRaiseEvent might return different values for parasite and host class, depending on which class has the subscription

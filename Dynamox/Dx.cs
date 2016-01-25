@@ -83,7 +83,7 @@ namespace Dynamox
         public static void Ensure(params dynamic[] mockBuilders)
         {
             if (!mockBuilders.Select(b => !(b is MockBuilder)).Any())
-                throw new InvalidOperationException();  //TODE
+                throw new InvalidMockException("You can only call this method on mocks created with Dx.Mock().");
 
             var errors = mockBuilders
                 .Select(b => b as MockBuilder)
@@ -92,7 +92,7 @@ namespace Dynamox
             if (!errors.Any())
                 return;
 
-            throw new InvalidOperationException(string.Join("\n", errors));  //TODE
+            throw new MockedMethodNotCalledException(errors);
         }
 
         #region Events
