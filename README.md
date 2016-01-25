@@ -323,10 +323,10 @@ UserRepository repository = mock.As<UserRepository>();
 repository.AddUser(new User("John"));
 
 // raise event 2, using mock
-Dx.RaiseEvent(mock, "OnUserAdded", repository, new UserAddedEventArgs());
+bool eventFound2 = Dx.RaiseEvent(mock, "OnUserAdded", repository, new UserAddedEventArgs());
 
 // raise event 3, using concrete object
-Dx.RaiseEvent(repository, "OnUserAdded", repository, new UserAddedEventArgs());
+bool eventFound3 = Dx.RaiseEvent(repository, "OnUserAdded", repository, new UserAddedEventArgs());
 ```
 
 Events can only be raised if they are abstract, virtual or part of an interface.
