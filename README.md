@@ -11,6 +11,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
 * [Introduction to mocking](#introduction-to-mocking)
 * [How Dynamox is different](#how-dynamox-is-different)
 * [Philosophy](#philosophy)
+* [Contribute](#contribute)
 * [Examples](#examples)
   * [Creating Mocks](#creating-mocks)
   * [Matching arguments](#matching-arguments)
@@ -28,7 +29,6 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Events](#events)
   * [Structs (value types) and sealed classes](#structs-value-types-and-sealed-classes)
   * [Reserved Terms](#reserved-terms)
-* [Contribute](#contribute)
 
 ## Introduction to mocking
 
@@ -88,6 +88,15 @@ Mocking like this will allow us to write far more complex mocks far faster than 
 * Dynamox is expressive. You have complete power over mocks and functions.
 * Dynamox is fast. Dynamox has a new proxy generation engine which is tuned for mocking only.
 
+## Contribute
+
+Contribute in any way you would like
+
+1. Fork it.
+2. Submit pull requests.
+3. Ask questions by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "help wanted" tag.
+4. Request features by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "enhancement" tag.
+5. Log bugs by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "bug" tag.
 
 ## Examples
 
@@ -358,12 +367,3 @@ You can also permanently change these terms.
 ```C#
 ReservedTerms.Default.Returns = "Returns_New";
 ```
-## Contribute
-
-Contribute in (almost) any way you would like
-
-1. Fork it.
-2. Ask questions by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "help wanted" tag.
-3. Request features by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "enhancement" tag.
-4. Log bugs by [logging an issue](https://github.com/ShaneGH/Dynamox/issues/new) using the "bug" tag.
-5. Coming soon: code contributions and pull requests. Once we get an alpha release out we can begin to accept pull requests
