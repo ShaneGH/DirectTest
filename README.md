@@ -203,7 +203,7 @@ You can combine fields and propertes with method calls to chain anything you wan
 ```C#
 var userContextMock = Dx.Mock();
 
-// mock the CurrentUser property, the Logout method with a return value of true
+// mock the CurrentUser property and the Logout() method with a return value of true
 userContextMock.CurrentUser.Logout().DxReturns(true);
 ```
 
