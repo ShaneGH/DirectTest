@@ -41,9 +41,9 @@ var user = new User();
 
 // mock the GetEntityById method, so that it returns a user
 // when the id is 123
-userRepositoryMock.GetEntityById(123).Returns(user);
+userRepositoryMock.GetEntityById(123).DxReturns(user);
 
-var testSubject = new UserService(userRepositoryMock.As<IUserRepository>());
+var testSubject = new UserService(userRepositoryMock.DxAs<IUserRepository>());
 
 // Act
 testSubject.SetUserName(123, "John");
@@ -67,13 +67,13 @@ var userRepositoryMock = Dx.Mock();
 var user = new User();
 
 // calling a method on a dynamic mock will start to build
-// it's dynamic functionality. Calling the Returns(...) method
+// it's dynamic functionality. Calling the DxReturns(...) method
 // specifies what to return if the method is called
-userRepositoryMock.GetUserById(123).Returns(user);
+userRepositoryMock.GetUserById(123).DxReturns(user);
 
-// the actual mocking is done using the As<T>() method.
+// the actual mocking is done using the DxAs<T>() method.
 // this creates a proxy type which includes the mocked functionalty
-var testSubject = new UserService(userRepositoryMock.As<IUserRepository>());
+var testSubject = new UserService(userRepositoryMock.DxAs<IUserRepository>());
 
 ...
 ```
@@ -109,18 +109,18 @@ Creating mocks is a two step process
 var mock = Dx.Mock();
 
 // second, you create a mock from the builder.
-// with the As<T>() method
-IUserService userService = mock.As<IUserService>();
+// with the DxAs<T>() method
+IUserService userService = mock.DxAs<IUserService>();
 
 // you can use a mockbuilder for as may mock types
 // as you need, although 1 mock builder per mock is
 // generally advisable
-IDataService dataService = mock.As<IDataService>();
+IDataService dataService = mock.DxAs<IDataService>();
 
 // Created mocks are cached. This means that if you attempt
 // to create a second mock of a given type, from a single builder,
 // those objects will have the same object reference
-IDataService userService2 = mock.As<IUserService>();
+IDataService userService2 = mock.DxAs<IUserService>();
 
 Assert.AreEqual(userService, userService2);	// true
 Assert.AreNotEqual(userService, dataService);	// true
@@ -152,9 +152,9 @@ mock.SetUserName(Dx.Args<int, string>((id, name) =>
 var mock = Dx.Mock();
 var user = new User();
 
-// To return values, simply call the Returns(...) method 
+// To return values, simply call the DxReturns(...) method
 // and pass in the return value
-mock.GetUser(123).Returns(user);
+mock.GetUser(123).DxReturns(user);
 ```
 
 ### Chaining mocks
@@ -175,7 +175,7 @@ var userServiceMock = Dx.Mock();
 userServiceMock.SetUserName(123, "John");
 
 var factoryMock = Dx.Mock();
-factoryMock.GetUserService().Returns(userServiceMock);
+factoryMock.GetUserService().DxReturns(userServiceMock);
 ```
 
 ### Mocking fields and properties
@@ -197,23 +197,23 @@ If a property is `abstract`, `virtual` or belongs to an `interface`, it will be 
 `internal` and `private` values cannot be mocked.
 
 ### Ensure methods are called
-If you want to ensure that a specific method was called during a test, use the Ensure(...) method
+If you want to ensure that a specific method was called during a test, use the DxEnsure(...) method
 ```C#
 var databaseMock = Dx.Mock();
 
 // mock the PersistAll method and ensure that it is called
-databaseMock.PersistAll().Ensure();
+databaseMock.PersistAll().DxEnsure();
 
 // Test that the PersistAll method was called
 Dx.Ensure(databaseMock);
 ```
 
 ### Method Callbacks
-In order to run some code when a method is called, use the Do(...) method
+In order to run some code when a method is called, use the DxDo(...) method
 ```C#
 var mock = Dx.Mock();
 var user = new User();
-mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Callback<int, string>((id, userName) =>
+mock.SetUserName(Dx.Any, Dx.Any).DxDo(Dx.Callback<int, string>((id, userName) =>
 {
     user.UserName = userName;
 }));
@@ -222,7 +222,7 @@ Alternatively, you do not need to include all of the arguments of the function i
 ```C#
 var mock = Dx.Mock();
 var user = new User();
-mock.SetUserName(Dx.Any, Dx.Any).Do(Dx.Callback<int>((id) =>
+mock.SetUserName(Dx.Any, Dx.Any).DxDo(Dx.Callback<int>((id) =>
 {
     Console.WriteLine("Edit username for user " + id);
 }));
@@ -256,22 +256,22 @@ var mock = Dx.Mock();
 mock["Val1"] = 123;
 mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
 
-IDictionary<string, int> dictionary = mock.As<IDictionary<string, int>>();
+IDictionary<string, int> dictionary = mock.DxAs<IDictionary<string, int>>();
 ```
 
 ###Out and Ref values
-Specify `out` and `ref` values with the `Out(...)` method.
+Specify `out` and `ref` values with the `DxOut(...)` method.
 ```C#
 var mock = Dx.Mock();
 
 // the first parameter is the index of the out parameter, the second parameter is the value
-mock.GetUserName(123, Dx.Any).Out(1, "John");
+mock.GetUserName(123, Dx.Any).DxOut(1, "John");
 
 // -OR - the first parameter is the name of the out parameter, the second parameter is the value
-mock.GetUserName(123, Dx.Any).Out("name", "John");
+mock.GetUserName(123, Dx.Any).DxOut("name", "John");
 
 string name;
-mock.As<IUserService>().GetUserName(123, out name);
+mock.DxAs<IUserService>().GetUserName(123, out name);
 
 Assert.AreEqual("John", name);
 ```
@@ -281,9 +281,9 @@ Assert.AreEqual("John", name);
 Partial mocks are mocked exactly the same as interfaces.
 ```C#
 var mock = Dx.Mock();
-mock.GetUserFirstName(123).Returns("John");
+mock.GetUserFirstName(123).DxReturns("John");
 
-UserService service = mock.As<UserService>();
+UserService service = mock.DxAs<UserService>();
 var userName = service.GetFullUserName(123);
 ```
 
@@ -292,32 +292,32 @@ var userName = service.GetFullUserName(123);
 // specify constructor args when defining the mock builder
 var mock = Dx.Mock(new object[] { "arg1", 2 });
 
-var objectWithConstructorArgs = mock.As<ObjectWithConstructorArgs>();
+var objectWithConstructorArgs = mock.DxAs<ObjectWithConstructorArgs>();
 ```
 
 ###Constructor args in chained mocks
-Specify constructor args with the `Constructor(..)` function
+Specify constructor args with the `DxConstructor(..)` function
 ```C#
 var mock = Dx.Mock();
 
 // for properties
-mock.ObjectWithConstructorArgs.Constructor("arg1", 2).ToString().Returns("Hello!");
+mock.ObjectWithConstructorArgs.DxConstructor("arg1", 2).ToString().DxReturns("Hello!");
 // and functions
-mock.GetObjectWithConstructorArgs().Constructor("arg1", 2).ToString().Returns("Hello!");
+mock.GetObjectWithConstructorArgs().DxConstructor("arg1", 2).ToString().DxReturns("Hello!");
 ```
 
 ###Events
 ```C#
 var mock = Dx.Mock();
 
-// subscribe to the OnUserAdded event 
+// subscribe to the OnUserAdded event
 mock.OnUserAdded += Dx.EventHandler<object, UserAddedEventArgs>((sender, args) =>
 {
     // event was raised
 });
 
 // create a concrete type
-UserRepository repository = mock.As<UserRepository>();
+UserRepository repository = mock.DxAs<UserRepository>();
 
 // raise event 1, (assuming that there is an add user method and it raises the OnUserAdded event)
 repository.AddUser(new User("John"));
@@ -337,13 +337,13 @@ Structs and sealed classes can be mocked in the same way as interfaces and non s
 
 ### Reserved Terms
 There are several terms used by Dynamox for mocking functionality. These are:
-* Returns(...)
-* Ensure(...)
-* Clear(...)
-* Do(...)
-* As(...)
-* Constructor(...)
-* Out(...)
+* DxReturns(...)
+* DxEnsure(...)
+* DxClear(...)
+* DxDo(...)
+* DxAs(...)
+* DxConstructor(...)
+* DxOut(...)
 
 These function names may clash with the function names of the class you are mocking. If this occurs you can temporarily change the name of the mocked function.
 
@@ -352,18 +352,18 @@ var mock = Dx.Mock();
 var user = new User();
 
 // Example 1: do not change mock function name
-mock.GetUser(123).Returns(user);
+mock.GetUser(123).DxReturns(user);
 
 // Example 2: alter the name of the returns method
-mock(new { Returns = "Returns_New" }).GetUser(123).Returns_New(user);
+mock(new { DxReturns = "Returns_New" }).GetUser(123).Returns_New(user);
 
 // Example 3: alter the name of the returns method (strongly typed)
-mock(new ReservedTerms { Returns = "Returns_New" }).GetUser(123).Returns_New(user);
+mock(new ReservedTerms { DxReturns = "Returns_New" }).GetUser(123).Returns_New(user);
 ```
 
 Note, if two terms clash (1 from Dynamox and one from your mocked class), the Dynamox term will take precendence.
 
 You can also permanently change these terms.
 ```C#
-ReservedTerms.Default.Returns = "Returns_New";
+ReservedTerms.Default.DxReturns = "Returns_New";
 ```
