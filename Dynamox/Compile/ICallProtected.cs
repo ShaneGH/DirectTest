@@ -12,12 +12,12 @@ namespace Dynamox.Compile
         /// <summary>
         /// Call a protected method
         /// </summary>
-        void CallProtectedMethod(string methodName, params object[] ags);
+        void CallProtectedMethod(string methodName, Type[] genericTypeArgs, object[] ags);
 
         /// <summary>
         /// Call a protected method with a return value
         /// </summary>
         /// <typeparam name="T">The return value type</typeparam>
-        T CallProtectedMethod<T>(string methodName, params object[] ags);
+        T CallProtectedMethod<T>(string methodName, Type[] genericTypeArgs, object[] ags);
     }
 }

@@ -101,7 +101,7 @@ namespace Dynamox
         {
             var raiseEvent = target as IRaiseEvent;
             if (raiseEvent == null)
-                return false;
+                throw new InvalidMockException("Object " + target + " is not a Dynamox object and it's events cannot be raised by this method.");
 
             return raiseEvent.RaiseEvent(eventName, eventArgs);
         }
