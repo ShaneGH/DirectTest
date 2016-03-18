@@ -166,18 +166,16 @@ var factoryMock = Dx.Mock();
 
 // To chain mocks, simply call the methods expected in the chain
 factoryMock.GetUserService().SetUserName(123, "John");
-
-// this code will create 2 mocks, one for the factory and one for the user service.
-// it will then set the GetUserService() method of the factory mock to return the user service mock.
 ```
-Alternatively you can write the above code like so
+The above code is equivalent to:
 ```C#
 var userServiceMock = Dx.Mock();
-userServiceMock.SetUserName(123, "John");
 
 var factoryMock = Dx.Mock();
+userServiceMock.SetUserName(123, "John");
 factoryMock.GetUserService().DxReturns(userServiceMock);
 ```
+And like magic, Dynamox has turned 3 lines of code into 1 
 
 ### Mocking fields and properties
 
