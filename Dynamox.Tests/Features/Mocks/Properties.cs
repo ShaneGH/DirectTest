@@ -24,10 +24,10 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag => bag.subject.BeSomething = Dx.Property<int>(() => v++))
                 .Act(bag =>
                 {
-                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
-                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
-                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething = 99;
-                    bag.v3 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
+                    bag.v1 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething;
+                    bag.v2 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething;
+                    ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething = 99;
+                    bag.v3 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething;
                 })
                 .Assert((bag) =>
                 {
@@ -46,10 +46,10 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag => bag.subject.BeSomething = Dx.Property<int>(() => v++, true))
                 .Act(bag =>
                 {
-                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
-                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
-                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething = 99;
-                    bag.v3 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
+                    bag.v1 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething;
+                    bag.v2 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething;
+                    ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething = 99;
+                    bag.v3 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething;
                 })
                 .Assert((bag) =>
                 {
@@ -79,8 +79,8 @@ namespace Dynamox.Tests.Features.Mocks
                         }))
                 .Act(bag =>
                 {
-                    var x = ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething;
-                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).BeSomething = 44;
+                    var x = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething;
+                    ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).BeSomething = 44;
                 })
                 .Assert((bag) =>
                 {

@@ -71,14 +71,14 @@ namespace Dynamox.Tests.SmokeTests
                     bag.id = 55;
                     bag.repo
                         .GetEntity(Dx.Args<int>(a => a == bag.id))
-                        .Returns(new Add.Entity { Id = bag.id, Number = bag.entityNumber });
+                        .DxReturns(new Add.Entity { Id = bag.id, Number = bag.entityNumber });
                 })
 
                 .UseParentAct()
                 .Act(bag =>
                 {
                     bag.add = 55;
-                    var subject = new Add(bag.repo.As<IRepo1>());
+                    var subject = new Add(bag.repo.DxAs<IRepo1>());
                     return subject.Execute1((int)bag.id, (int)bag.add);
                 })
 
@@ -103,14 +103,14 @@ namespace Dynamox.Tests.SmokeTests
                     bag.factory
                         .GetRepo(true)
                         .GetEntity(Dx.Args<int>(a => a == bag.commandId))
-                        .Returns(new Add.Entity { Number = bag.entityNumber });
+                        .DxReturns(new Add.Entity { Number = bag.entityNumber });
                 })
 
                 .UseParentAct()
                 .Act(bag =>
                 {
                     bag.add = 55;
-                    var subject = new Add(bag.factory.As<IRepoFactory>());
+                    var subject = new Add(bag.factory.DxAs<IRepoFactory>());
                     return subject.Execute2(bag.commandId, bag.add);
                 })
 
@@ -136,7 +136,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
-                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .DxReturns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()
@@ -163,7 +163,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
-                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .DxReturns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()
@@ -187,7 +187,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
-                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .DxReturns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()
@@ -214,7 +214,7 @@ namespace Dynamox.Tests.SmokeTests
                     bag.Args.id = 55;
                     bag.CArgs.repo1
                         .GetEntity(Dx.Args<int>(a => a == bag.Args.id))
-                        .Returns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
+                        .DxReturns(new Add.Entity { Id = bag.Args.id, Number = bag.Args.id });
                 })
 
                 .SkipParentAssert()

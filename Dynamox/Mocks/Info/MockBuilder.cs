@@ -88,16 +88,16 @@ namespace Dynamox.Mocks.Info
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder.Name == MockSettings.Use_Unsafe(s => s.Clear))
+            if (binder.Name == MockSettings.Use_Unsafe(s => s.DxClear))
             {
                 Clear();
                 result = this;
             }
-            else if (binder.Name == MockSettings.Use_Unsafe(s => s.Constructor))
+            else if (binder.Name == MockSettings.Use_Unsafe(s => s.DxConstructor))
             {
                 result = _Constructor(args);
             }
-            else if (binder.Name == MockSettings.Use_Unsafe(s => s.As))
+            else if (binder.Name == MockSettings.Use_Unsafe(s => s.DxAs))
             {
                 result = _As(binder, args);
             }
@@ -126,7 +126,7 @@ namespace Dynamox.Mocks.Info
             {
                 var typeArgs = GenericArguments(binder);
                 if (typeArgs == null || typeArgs.Count != 1)
-                    throw new InvalidOperationException("A call to " + MockSettings.Use_Unsafe(s => s.As) + " must have 1 generic type argument or 1 argument for return type.");
+                    throw new InvalidOperationException("A call to " + MockSettings.Use_Unsafe(s => s.DxAs) + " must have 1 generic type argument or 1 argument for return type.");
 
                 convert = typeArgs[0];
             }

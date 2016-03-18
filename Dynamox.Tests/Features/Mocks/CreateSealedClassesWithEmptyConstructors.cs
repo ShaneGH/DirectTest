@@ -19,7 +19,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("")
                 .Arrange(bag => bag.subject.Prop.Prop = "Hello")
-                .Act(bag => (string)bag.subject.As<C2>().Prop.Prop)
+                .Act(bag => (string)bag.subject.DxAs<C2>().Prop.Prop)
                 .Assert((a, b) => Assert.AreEqual("Hello", b))
                 .Run();
         }
@@ -29,7 +29,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             Dx.Test("", new DxSettings { CreateSealedClasses = false })
                 .Arrange(bag => bag.subject.Prop.Prop = "Hello")
-                .Act(bag => (string)bag.subject.As<C2>().Prop.Prop)
+                .Act(bag => (string)bag.subject.DxAs<C2>().Prop.Prop)
                 .Throws<Exception>()
                 .Run();
         }

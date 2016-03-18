@@ -33,11 +33,11 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock(new[] { "nothing" });
-            mock.Chained.Constructor("tada").ToString();
+            mock.Chained.DxConstructor("tada").ToString();
 
             // Act
             // Assert
-            Assert.AreEqual(mock.As<C2>().Chained.Arg, "tada");
+            Assert.AreEqual(mock.DxAs<C2>().Chained.Arg, "tada");
         }
 
         [Test]
@@ -45,11 +45,11 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock(new[] { "nothing" });
-            mock.GetChained().Constructor("tada").ToString();
+            mock.GetChained().DxConstructor("tada").ToString();
 
             // Act
             // Assert
-            Assert.AreEqual(mock.As<C2>().GetChained().Arg, "tada");
+            Assert.AreEqual(mock.DxAs<C2>().GetChained().Arg, "tada");
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace Dynamox.Tests.Features.Mocks
 
             // Act
             // Assert
-            Assert.Throws<CompilerException>(() => mock.As<C1>());
+            Assert.Throws<CompilerException>(() => mock.DxAs<C1>());
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace Dynamox.Tests.Features.Mocks
 
             // Act
             // Assert
-            Assert.AreEqual(mock.As<C1>().Arg, "Hi");
+            Assert.AreEqual(mock.DxAs<C1>().Arg, "Hi");
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Dynamox.Tests.Features.Mocks
 
             // Act
             // Assert
-            Assert.Throws<CompilerException>(() => mock.As<C2>());
+            Assert.Throws<CompilerException>(() => mock.DxAs<C2>());
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Dynamox.Tests.Features.Mocks
 
             // Act
             // Assert
-            Assert.AreEqual(mock.As<C2>().Arg, "Hi");
+            Assert.AreEqual(mock.DxAs<C2>().Arg, "Hi");
         }
     }
 }

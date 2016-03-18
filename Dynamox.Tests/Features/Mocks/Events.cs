@@ -87,7 +87,7 @@ namespace Dynamox.Tests.Features.Mocks
                 raised1++;
             });
 
-            T test = mock.As<T>();
+            T test = mock.DxAs<T>();
 
             test.SomethingDid += (sender, e) =>
             {

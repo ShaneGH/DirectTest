@@ -45,7 +45,7 @@ namespace Dynamox.Tests.Compile.Compiler
             Func<int, IEnumerable<Type>, MethodGroup> mock2 = (val, generic) =>
             {
                 dynamic builder = new MethodMockBuilder(null, generic, new object[] { val });
-                builder.Returns("M-" + val);
+                builder.DxReturns("M-" + val);
 
                 return new MethodGroup(builder);
             };
@@ -123,7 +123,7 @@ namespace Dynamox.Tests.Compile.Compiler
             Func<int, IEnumerable<Type>, MethodGroup> mock2 = (val, generic) =>
             {
                 dynamic builder = new MethodMockBuilder(null, generic, new object[] { val });
-                builder.Returns("M-" + val);
+                builder.DxReturns("M-" + val);
 
                 return new MethodGroup(builder);
             };
@@ -154,10 +154,10 @@ namespace Dynamox.Tests.Compile.Compiler
         {
             // arrange
             var mock = Dx.Mock();
-            mock.M1(44).Returns("Hi");
+            mock.M1(44).DxReturns("Hi");
 
             // act
-            var result = mock.As<ILostOfMethods<object>>().M1(44);
+            var result = mock.DxAs<ILostOfMethods<object>>().M1(44);
 
             // assert 
             Assert.AreEqual("Hi", result);

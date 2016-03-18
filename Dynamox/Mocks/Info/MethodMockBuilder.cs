@@ -61,10 +61,10 @@ namespace Dynamox.Mocks.Info
             // register special actions based on the input terms
             SpecialActions = new ReadOnlyDictionary<string, Func<object[], bool>>(new Dictionary<string, Func<object[], bool>> 
             {
-                { terms.Out, Out },
-                { terms.Returns, Returns },
-                { terms.Ensure, Ensure },
-                { terms.Do, Do }
+                { terms.DxOut, Out },
+                { terms.DxReturns, Returns },
+                { terms.DxEnsure, Ensure },
+                { terms.DxDo, Do }
             });
         }
 

@@ -440,7 +440,7 @@ namespace Dynamox.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Returns(returnVal);
+            (method as dynamic).DxReturns(returnVal);
 
             var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
@@ -471,7 +471,7 @@ namespace Dynamox.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Returns(returnVal);
+            (method as dynamic).DxReturns(returnVal);
 
             var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
@@ -502,7 +502,7 @@ namespace Dynamox.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Returns(returnVal);
+            (method as dynamic).DxReturns(returnVal);
 
             var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {
@@ -533,7 +533,7 @@ namespace Dynamox.Tests.Mocks
                     return a == arg;
                 }) 
             });
-            (method as dynamic).Returns(returnVal);
+            (method as dynamic).DxReturns(returnVal);
 
             var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
             {

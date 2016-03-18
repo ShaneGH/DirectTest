@@ -15,35 +15,35 @@ namespace Dynamox
     {
         public static readonly ReservedTerms Default = new ReservedTerms 
         {
-            Returns = "Returns",
-            Ensure = "Ensure",
-            Clear = "Clear",
-            Do = "Do",
-            As = "As",
-            Constructor = "Constructor",
-            Out = "Out"
+            DxReturns = "DxReturns",
+            DxEnsure = "DxEnsure",
+            DxClear = "DxClear",
+            DxDo = "DxDo",
+            DxAs = "DxAs",
+            DxConstructor = "DxConstructor",
+            DxOut = "DxOut"
         };
 
-        public string Returns { get; set; }
-        public string Ensure { get; set; }
-        public string Clear { get; set; }
-        public string Do { get; set; }
-        public string As { get; set; }
-        public string Constructor { get; set; }
-        public string Out { get; set; }
+        public string DxReturns { get; set; }
+        public string DxEnsure { get; set; }
+        public string DxClear { get; set; }
+        public string DxDo { get; set; }
+        public string DxAs { get; set; }
+        public string DxConstructor { get; set; }
+        public string DxOut { get; set; }
 
         public ReservedTerms()
         {
             if (Default == null)
                 return;
 
-            Returns = Default.Returns;
-            Ensure = Default.Ensure;
-            Clear = Default.Clear;
-            Do = Default.Do;
-            As = Default.As;
-            Constructor = Default.Constructor;
-            Out = Default.Out;
+            DxReturns = Default.DxReturns;
+            DxEnsure = Default.DxEnsure;
+            DxClear = Default.DxClear;
+            DxDo = Default.DxDo;
+            DxAs = Default.DxAs;
+            DxConstructor = Default.DxConstructor;
+            DxOut = Default.DxOut;
         }
 
         public ReservedTerms(object settings)
@@ -66,13 +66,13 @@ namespace Dynamox
                     b((f.GetValue(settings) ?? a).ToString());
             };
 
-            set("Returns", a => Returns = a);
-            set("Ensure", a => Ensure = a);
-            set("Clear", a => Clear = a);
-            set("Do", a => Do = a);
-            set("As", a => As = a);
-            set("Constructor", a => Constructor = a);
-            set("Out", a => Out = a);
+            set("DxReturns", a => DxReturns = a);
+            set("DxEnsure", a => DxEnsure = a);
+            set("DxClear", a => DxClear = a);
+            set("DxDo", a => DxDo = a);
+            set("DxAs", a => DxAs = a);
+            set("DxConstructor", a => DxConstructor = a);
+            set("DxOut", a => DxOut = a);
         }
     }
 }

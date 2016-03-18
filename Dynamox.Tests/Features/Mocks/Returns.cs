@@ -21,8 +21,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Returns_CorrectInput()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(33).Returns("hello"))
-                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(33))
+                .Arrange(bag => bag.subject.DoSomething(33).DxReturns("hello"))
+                .Act(bag => ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(33))
                 .Assert((bag, val) => Assert.AreEqual(val, "hello"))
                 .Run();
         }
@@ -31,8 +31,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Returns_Null()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(33).Returns(null))
-                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(33))
+                .Arrange(bag => bag.subject.DoSomething(33).DxReturns(null))
+                .Act(bag => ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(33))
                 .Assert((bag, val) => Assert.IsNull(val))
                 .Run();
         }
@@ -41,8 +41,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Returns_IncorrectInput()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(33).Returns("hello"))
-                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44))
+                .Arrange(bag => bag.subject.DoSomething(33).DxReturns("hello"))
+                .Act(bag => ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(44))
                 .Assert((bag, val) => Assert.AreEqual(val, null))
                 .Run();
         }
@@ -51,8 +51,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Returns_IncorrectReturnType()
         {
             var test = Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(33).Returns(new object()))
-                .Act(bag => ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(33))
+                .Arrange(bag => bag.subject.DoSomething(33).DxReturns(new object()))
+                .Act(bag => ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(33))
                 .Assert((bag, val) => Assert.Fail());
 
             Assert.Throws<InvalidMockException>(() => test.Run());

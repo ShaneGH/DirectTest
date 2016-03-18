@@ -63,7 +63,7 @@ namespace Dynamox.Tests.Compile.Compiler
             var input3 = true;
             var input4 = 345435;
 
-            T mock = Dx.Mock().As<T>();
+            T mock = Dx.Mock().DxAs<T>();
             int total1 = 0, total2 = 0;
 
             ByRefEventHandler h1 = null;

@@ -20,12 +20,12 @@ namespace Dynamox.Tests.Features.Mocks
         public void CorrectInput()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Callback<string>(a =>
+                .Arrange(bag => bag.subject.DoSomething("Hello").DxDo(Dx.Callback<string>(a =>
                 {
                     Assert.AreEqual("Hello", a);
                     bag.ok = true;
                 })))
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething("Hello"); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -34,12 +34,12 @@ namespace Dynamox.Tests.Features.Mocks
         public void NullInput()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(null).Do(Dx.Callback<string>(a =>
+                .Arrange(bag => bag.subject.DoSomething(null).DxDo(Dx.Callback<string>(a =>
                 {
                     Assert.IsNull(a);
                     bag.ok = true;
                 })))
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(null); })
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(null); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -48,8 +48,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void NoInput()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Callback(() => bag.ok = true)))
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
+                .Arrange(bag => bag.subject.DoSomething("Hello").DxDo(Dx.Callback(() => bag.ok = true)))
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething("Hello"); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -58,12 +58,12 @@ namespace Dynamox.Tests.Features.Mocks
         public void ParentTypeArg()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Callback<object>(a =>
+                .Arrange(bag => bag.subject.DoSomething("Hello").DxDo(Dx.Callback<object>(a =>
                 {
                     Assert.AreEqual("Hello", a);
                     bag.ok = true;
                 })))
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething("Hello"); })
                 .Assert(bag => Assert.IsTrue(bag.ok))
                 .Run();
         }
@@ -72,8 +72,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void InvalidTypeArg()
         {
             var test = Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Do(Dx.Callback<int>(a => { })))
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); });
+                .Arrange(bag => bag.subject.DoSomething("Hello").DxDo(Dx.Callback<int>(a => { })))
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething("Hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }

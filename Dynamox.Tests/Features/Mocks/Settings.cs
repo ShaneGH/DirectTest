@@ -21,8 +21,8 @@ namespace Dynamox.Tests.Features.Mocks
             Dx.Test("")
                 .Arrange(bag =>
                 {
-                    bag.subject(new ReservedTerms { Returns = "baboon" }).DoSomething(22).baboon(33);
-                    bag.subject(new { Returns = "baboon" }).DoSomething(44).baboon(55);
+                    bag.subject(new ReservedTerms { DxReturns = "baboon" }).DoSomething(22).baboon(33);
+                    bag.subject(new { DxReturns = "baboon" }).DoSomething(44).baboon(55);
                 })
                 .Act(bag =>
                 {
@@ -45,13 +45,13 @@ namespace Dynamox.Tests.Features.Mocks
             module.Add("pass")
                 .Arrange(bag =>
                 {
-                    bag.subject(new ReservedTerms { Ensure = "baboon" }).DoSomething(22).Returns(33).baboon();
-                    bag.subject(new { Ensure = "baboon" }).DoSomething(44).Returns(55).baboon();
+                    bag.subject(new ReservedTerms { DxEnsure = "baboon" }).DoSomething(22).DxReturns(33).baboon();
+                    bag.subject(new { DxEnsure = "baboon" }).DoSomething(44).DxReturns(55).baboon();
                 })
                 .Act(bag =>
                 {
-                    bag.v1 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
-                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
+                    bag.v1 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(22);
+                    bag.v2 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -65,7 +65,7 @@ namespace Dynamox.Tests.Features.Mocks
                 .UseParentAct(false)
                 .Act(bag =>
                 {
-                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
+                    bag.v2 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(44);
                 })
                 .SkipParentAssert();
 
@@ -75,7 +75,7 @@ namespace Dynamox.Tests.Features.Mocks
                 .UseParentAct(false)
                 .Act(bag =>
                 {
-                    bag.v2 = ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
+                    bag.v2 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(22);
                 })
                 .SkipParentAssert(false);
 
@@ -90,15 +90,15 @@ namespace Dynamox.Tests.Features.Mocks
             Dx.Test("")
                 .Arrange(bag =>
                 {
-                    bag.subject.DoSomething(22).Returns(33);
-                    bag.subject(new ReservedTerms { Clear = "gorilla" }).gorilla();
-                    bag.subject.DoSomething(44).Returns(55);
-                    bag.subject(new { Clear = "gorilla" }).gorilla();
+                    bag.subject.DoSomething(22).DxReturns(33);
+                    bag.subject(new ReservedTerms { DxClear = "gorilla" }).gorilla();
+                    bag.subject.DoSomething(44).DxReturns(55);
+                    bag.subject(new { DxClear = "gorilla" }).gorilla();
                 })
                 .Act(bag =>
                 {
-                    bag.v1 = bag.subject.As<ICurrentTest>().DoSomething(22);
-                    bag.v2 = bag.subject.As<ICurrentTest>().DoSomething(44);
+                    bag.v1 = bag.subject.DxAs<ICurrentTest>().DoSomething(22);
+                    bag.v2 = bag.subject.DxAs<ICurrentTest>().DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -115,14 +115,14 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag =>
                 {
                     bag.v3 = false;
-                    bag.subject(new ReservedTerms { Do = "baboon" }).DoSomething(22).baboon(Dx.Callback(() => bag.v1 = true)).Returns(33);
-                    bag.subject(new { Do = "baboon" }).DoSomething(44).baboon(Dx.Callback(() => bag.v2 = true)).Returns(55);
-                    bag.subject(new { Do = "baboon" }).DoSomething(66).baboon(Dx.Callback(() => bag.v3 = true)).Returns(77);
+                    bag.subject(new ReservedTerms { DxDo = "baboon" }).DoSomething(22).baboon(Dx.Callback(() => bag.v1 = true)).DxReturns(33);
+                    bag.subject(new { DxDo = "baboon" }).DoSomething(44).baboon(Dx.Callback(() => bag.v2 = true)).DxReturns(55);
+                    bag.subject(new { DxDo = "baboon" }).DoSomething(66).baboon(Dx.Callback(() => bag.v3 = true)).DxReturns(77);
                 })
                 .Act(bag =>
                 {
-                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(22);
-                    ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething(44);
+                    ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(22);
+                    ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(44);
                 })
                 .Assert((bag) =>
                 {
@@ -137,11 +137,11 @@ namespace Dynamox.Tests.Features.Mocks
         public void As()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(22).Returns(44))
+                .Arrange(bag => bag.subject.DoSomething(22).DxReturns(44))
                 .Act(bag =>
                 {
-                    bag.v1 = ((ICurrentTest)bag.subject(new ReservedTerms { As = "baboon" }).baboon<ICurrentTest>()).DoSomething(22);
-                    bag.v2 = ((ICurrentTest)bag.subject(new { As = "baboon" }).baboon<ICurrentTest>()).DoSomething(22);
+                    bag.v1 = ((ICurrentTest)bag.subject(new ReservedTerms { DxAs = "baboon" }).baboon<ICurrentTest>()).DoSomething(22);
+                    bag.v2 = ((ICurrentTest)bag.subject(new { DxAs = "baboon" }).baboon<ICurrentTest>()).DoSomething(22);
                 })
                 .Assert((bag) =>
                 {
@@ -165,7 +165,7 @@ namespace Dynamox.Tests.Features.Mocks
                 .Arrange(bag =>
                 {
                     bag.subject(new { Returns = "baboon" }).DoSomething(22);
-                    bag.subject.DoSomething(44).Returns(55);
+                    bag.subject.DoSomething(44).DxReturns(55);
                 })
                 .Act(bag =>
                 {

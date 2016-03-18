@@ -23,8 +23,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Method_Ok()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Hello"); })
+                .Arrange(bag => bag.subject.DoSomething("Hello").DxEnsure())
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething("Hello"); })
                 .Run();
         }
 
@@ -32,8 +32,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Method_NotOk()
         {
             var test = Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething("Hello").Ensure())
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).DoSomething("Not hello"); });
+                .Arrange(bag => bag.subject.DoSomething("Hello").DxEnsure())
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething("Not hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
@@ -42,8 +42,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Method_Ok_Deep()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.GetAnother().Ensure().DoSomething("Hello").Ensure())
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).GetAnother().DoSomething("Hello"); })
+                .Arrange(bag => bag.subject.GetAnother().DxEnsure().DoSomething("Hello").DxEnsure())
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).GetAnother().DoSomething("Hello"); })
                 .Run();
         }
 
@@ -51,8 +51,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Method_NotOk_Deep()
         {
             var test = Dx.Test("")
-                .Arrange(bag => bag.subject.GetAnother().DoSomething("Hello").Ensure())
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).GetAnother().DoSomething("Not hello"); });
+                .Arrange(bag => bag.subject.GetAnother().DoSomething("Hello").DxEnsure())
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).GetAnother().DoSomething("Not hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
@@ -61,8 +61,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Method_Ok_AfterProperty()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).Another.DoSomething("Hello"); })
+                .Arrange(bag => bag.subject.Another.DoSomething("Hello").DxEnsure())
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).Another.DoSomething("Hello"); })
                 .Run();
         }
 
@@ -70,8 +70,8 @@ namespace Dynamox.Tests.Features.Mocks
         public void Method_NotOk_AfterProperty()
         {
             var test = Dx.Test("")
-                .Arrange(bag => bag.subject.Another.DoSomething("Hello").Ensure())
-                .Act(bag => { ((ICurrentTest)bag.subject.As<ICurrentTest>()).Another.DoSomething("Not hello"); });
+                .Arrange(bag => bag.subject.Another.DoSomething("Hello").DxEnsure())
+                .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).Another.DoSomething("Not hello"); });
 
             Assert.Throws<InvalidOperationException>(() => test.Run());
         }
@@ -81,16 +81,16 @@ namespace Dynamox.Tests.Features.Mocks
         {
             var mock1 = Dx.Mock();
             var mock2 = Dx.Mock();
-            mock1.DoSomething("hello1").Ensure();
-            mock2.DoSomething("hello2").Ensure();
+            mock1.DoSomething("hello1").DxEnsure();
+            mock2.DoSomething("hello2").DxEnsure();
             Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1, mock2));
 
-            ((ICurrentTest)mock1.As<ICurrentTest>()).DoSomething("hello");
-            ((ICurrentTest)mock2.As<ICurrentTest>()).DoSomething("hello");
+            ((ICurrentTest)mock1.DxAs<ICurrentTest>()).DoSomething("hello");
+            ((ICurrentTest)mock2.DxAs<ICurrentTest>()).DoSomething("hello");
             Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1, mock2));
 
-            ((ICurrentTest)mock1.As<ICurrentTest>()).DoSomething("hello1");
-            ((ICurrentTest)mock2.As<ICurrentTest>()).DoSomething("hello2");
+            ((ICurrentTest)mock1.DxAs<ICurrentTest>()).DoSomething("hello1");
+            ((ICurrentTest)mock2.DxAs<ICurrentTest>()).DoSomething("hello2");
             Dx.Ensure(mock1, mock2);
         }
     }

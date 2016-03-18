@@ -123,7 +123,7 @@ namespace Dynamox.Tests.Compile.Compiler
             mock.Prop2 = 100;
 
             // act
-            var result = mock.As<ILostOfProperties<object>>().Prop2;
+            var result = mock.DxAs<ILostOfProperties<object>>().Prop2;
 
             // assert 
             Assert.AreEqual(100, result);

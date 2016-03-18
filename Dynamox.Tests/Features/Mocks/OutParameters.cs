@@ -22,7 +22,7 @@ namespace Dynamox.Tests.Features.Mocks
             // Arrange
             var mock = Dx.Mock();
             mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
-                .Returns("44");
+                .DxReturns("44");
 
             int x;
             object y;
@@ -30,7 +30,7 @@ namespace Dynamox.Tests.Features.Mocks
             object b = new object();
 
             // Act
-            I1 obj = mock.As<I1>();
+            I1 obj = mock.DxAs<I1>();
             var result = obj.DoSomething(3, new object(), ref a, ref b, out x, out y);
 
             // Assert
@@ -43,8 +43,8 @@ namespace Dynamox.Tests.Features.Mocks
             // Arrange
             var mock = Dx.Mock();
             mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
-                .Returns("44")
-                .Out(2, new object());
+                .DxReturns("44")
+                .DxOut(2, new object());
 
             int x;
             object y;
@@ -52,7 +52,7 @@ namespace Dynamox.Tests.Features.Mocks
             object b = new object();
 
             // Act
-            I1 obj = mock.As<I1>();
+            I1 obj = mock.DxAs<I1>();
             var result = obj.DoSomething(3, new object(), ref a, ref b, out x, out y);
 
             // Assert
@@ -67,11 +67,11 @@ namespace Dynamox.Tests.Features.Mocks
             var out2 = "rwerewrwrew";
             var mock = Dx.Mock();
             mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
-                .Returns("44")
-                .Out("val2", 77)
-                .Out("ref2", out1)
-                .Out("val3", 88)
-                .Out("ref3", out2);
+                .DxReturns("44")
+                .DxOut("val2", 77)
+                .DxOut("ref2", out1)
+                .DxOut("val3", 88)
+                .DxOut("ref3", out2);
 
             int x;
             object y;
@@ -79,7 +79,7 @@ namespace Dynamox.Tests.Features.Mocks
             object b = new object();
 
             // Act
-            I1 obj = mock.As<I1>();
+            I1 obj = mock.DxAs<I1>();
             var result = obj.DoSomething(3, new object(), ref a, ref b, out x, out y);
 
             // Assert
@@ -98,11 +98,11 @@ namespace Dynamox.Tests.Features.Mocks
             var out2 = "rwerewrwrew";
             var mock = Dx.Mock();
             mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
-                .Returns("44")
-                .Out(2, 77)
-                .Out(3, out1)
-                .Out(4, 88)
-                .Out(5, out2);
+                .DxReturns("44")
+                .DxOut(2, 77)
+                .DxOut(3, out1)
+                .DxOut(4, 88)
+                .DxOut(5, out2);
 
             int x;
             object y;
@@ -110,7 +110,7 @@ namespace Dynamox.Tests.Features.Mocks
             object b = new object();
 
             // Act
-            I1 obj = mock.As<I1>();
+            I1 obj = mock.DxAs<I1>();
             var result = obj.DoSomething(3, new object(), ref a, ref b, out x, out y);
 
             // Assert
@@ -127,7 +127,7 @@ namespace Dynamox.Tests.Features.Mocks
             // Arrange
             var mock = Dx.Mock();
             mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
-                .Returns("44");
+                .DxReturns("44");
 
             int x;
             object y;
@@ -136,7 +136,7 @@ namespace Dynamox.Tests.Features.Mocks
             object b1 = b;
 
             // Act
-            I1 obj = mock.As<I1>();
+            I1 obj = mock.DxAs<I1>();
             var result = obj.DoSomething(3, new object(), ref a, ref b, out x, out y);
 
             // Assert
@@ -152,14 +152,14 @@ namespace Dynamox.Tests.Features.Mocks
             object x1, x2 = new object(), y1 = new object(), y2 = new object(), output = new object();
             var mock = Dx.Mock();
             mock.Generic<object>(Dx.Any, Dx.Any)
-                .Returns(output)
-                .Out(0, x2)
-                .Out(1, y2);
+                .DxReturns(output)
+                .DxOut(0, x2)
+                .DxOut(1, y2);
 
             int y = 9;
 
             // Act
-            I1 obj = mock.As<I1>();
+            I1 obj = mock.DxAs<I1>();
             var result = obj.Generic<object>(out x1, ref y1);
 
             // Assert
@@ -174,15 +174,15 @@ namespace Dynamox.Tests.Features.Mocks
             // Arrange
             var mock = Dx.Mock();
             mock.Generic<int>(Dx.Any, Dx.Any)
-                .Returns(44)
-                .Out(0, 55)
-                .Out(1, 77);
+                .DxReturns(44)
+                .DxOut(0, 55)
+                .DxOut(1, 77);
 
             int x;
             int y = 9;
 
             // Act
-            I1 obj = mock.As<I1>();
+            I1 obj = mock.DxAs<I1>();
             var result = obj.Generic<int>(out x, ref y);
 
             // Assert

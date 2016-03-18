@@ -51,7 +51,7 @@ namespace Dynamox.Tests.Compile.Compiler
         {
             dynamic builder = new MockBuilder(Dx.Settings);
             builder.Prop = 77;
-            builder.Method().Returns(88);
+            builder.Method().DxReturns(88);
 
             var subject = (InterfaceAndClass2)COMPILER.Compile(typeof(InterfaceAndClass2))
                     .GetConstructors()[0]
@@ -109,7 +109,7 @@ namespace Dynamox.Tests.Compile.Compiler
         {
             dynamic builder = new MockBuilder(Dx.Settings);
             builder.Prop = 77;
-            builder.Method().Returns(88);
+            builder.Method().DxReturns(88);
 
             var subject = (ExplicitInterface)COMPILER.Compile(typeof(ExplicitInterface))
                     .GetConstructors()[0]

@@ -11,12 +11,12 @@ namespace Dynamox.Mocks.Info
     /// </summary>
     public interface IReservedTerms
     {
-        string Returns { get; }
-        string Ensure { get; }
-        string Clear { get; }
-        string Do { get; }
-        string As { get; }
-        string Constructor { get; }
-        string Out { get; }
+        string DxReturns { get; }
+        string DxEnsure { get; }
+        string DxClear { get; }
+        string DxDo { get; }
+        string DxAs { get; }
+        string DxConstructor { get; }
+        string DxOut { get; }
     }
 }
