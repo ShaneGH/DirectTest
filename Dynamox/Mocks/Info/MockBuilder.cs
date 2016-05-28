@@ -185,7 +185,7 @@ namespace Dynamox.Mocks.Info
             }
         }
 
-        protected MethodMockBuilder MockMethod(string name, IEnumerable<Type> genericArgs, object[] args)
+        protected internal MethodMockBuilder MockMethod(string name, IEnumerable<Type> genericArgs, IEnumerable<object> args)
         {
             object existingMock;
             if (TryGetMember(name, out existingMock) && !(existingMock is MethodGroup))

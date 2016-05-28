@@ -127,6 +127,8 @@ namespace Dynamox.Mocks
                     if (b.IsValueType)
                         return false;
                 }
+                else if (typeof(MockBuilder).IsAssignableFrom(a)) ; //Do nothing
+                else if (typeof(AnyValue).IsAssignableFrom(a)) ; //Do nothing
                 else if (!b.IsAssignableFrom(a))
                 {
                     return false;
@@ -163,7 +165,7 @@ namespace Dynamox.Mocks
             return new Error(Errors.PropertyTypeIsIncorrect,
                 "Cannot find an indexed property with indexes: " +
                 string.Join(", ", keyTypes.Select(k => k == null ? "null" : k.ToString()).ToArray()) +
-                " and value " + value == null ? "null" : value.ToString());
+                " and value " + (value == null ? "null" : value.ToString()));
         }
 
         static Error ValidateMethod(string name, MethodGroup value, IEnumerable<MethodInfo> methods)

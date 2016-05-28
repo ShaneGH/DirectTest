@@ -307,7 +307,11 @@ namespace Dynamox.Mocks
                 var values = indexValues.Select(v => v.Arg).ToArray();
                 value = Indexes.FirstOrDefault(idx =>
                     idx.Key.Count() == values.Length &&
-                    idx.Key.Select((k, i) =>  (k == null && values[i] == null) || (k != null && k.Equals(values[i]))).All(a => a));
+                    idx.Key.Select((k, i) => 
+                        (k == null && values[i] == null) || 
+                        (k != null && k.Equals(values[i])) ||
+                        (k is AnyValue && (k as AnyValue).IsAnyValueType(values[i]))
+                    ).All(a => a));
             }
 
             if (value.Equals(default(KeyValuePair<IEnumerable<object>, object>)))

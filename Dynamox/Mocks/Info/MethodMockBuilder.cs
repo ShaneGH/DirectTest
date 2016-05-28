@@ -15,7 +15,7 @@ namespace Dynamox.Mocks.Info
     internal class MethodMockBuilder : DynamicObject
     {
         public readonly IMethodAssert ArgChecker;
-        public object ReturnValue { get; private set; }
+        public object ReturnValue { get; internal set; }
         public readonly List<OutArg> OutParamValues = new List<OutArg>();
         public bool MustBeCalled { get; private set; }
         public bool WasCalled { get; private set; }

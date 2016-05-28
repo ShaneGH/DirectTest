@@ -120,6 +120,7 @@
     <Compile Include="Builders\TestArranger.cs" />
     <Compile Include="Builders\TestBuilder.cs" />
     <Compile Include="Dynamic\DynamicBag.cs" />
+    <Compile Include="StronglyTyped\MockBuilder.cs" />
     <Compile Include="Utils\IEnumerableUtils.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>

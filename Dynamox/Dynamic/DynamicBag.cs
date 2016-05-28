@@ -30,17 +30,17 @@ namespace Dynamox.Dynamic
             IndexedValues = new ReadOnlyDictionary<IEnumerable<object>, object>(_IndexedValues);
         }
 
-        protected void SetMember(string name, object value)
+        protected internal void SetMember(string name, object value)
         {
             _Values.AddOrUpdate(name, value, (a, b) => value);
         }
 
-        protected void SetIndex(IEnumerable<object> key, object value)
+        protected internal void SetIndex(IEnumerable<object> key, object value)
         {
             _IndexedValues.AddOrUpdate(key, value, (a, b) => value);
         }
 
-        protected bool TryGetMember(string name, out object result)
+        protected internal bool TryGetMember(string name, out object result)
         {
             return _Values.TryGetValue(name, out result);
         }

@@ -22,7 +22,7 @@ namespace Dynamox
             }
         }
 
-        public static object AnyT<T>()
+        public static AnyValue<T> AnyT<T>()
         {
             return MethodApplicabilityChecker.AnyT<T>();
         }

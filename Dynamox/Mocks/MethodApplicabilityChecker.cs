@@ -16,9 +16,9 @@ namespace Dynamox.Mocks
         public static readonly object Any = new AnyValue(typeof(AnyValue));
         public List<OutArg> OutParamValues { get; set; }
 
-        public static object AnyT<T>()
+        public static AnyValue<T> AnyT<T>()
         {
-            return new AnyValue(typeof(T));
+            return new AnyValue<T>();
         }
 
         public virtual IEnumerable<Type> ArgTypes
@@ -50,7 +50,7 @@ namespace Dynamox.Mocks
             object param;
             for (var i = 0; i < methodArgTypes.Length; i++)
             {
-                if (methodArgTypes[i] == typeof(AnyValue)) ;
+                if (typeof(AnyValue).IsAssignableFrom(methodArgTypes[i])) ;
                 else if (!methodArgTypes[i].IsAssignableFrom(inputArgTypes[i]))
                 {
                     return false;
@@ -91,7 +91,7 @@ namespace Dynamox.Mocks
 
             for (var i = 0; i < mockArgTypes.Length; i++)
             {
-                if (mockArgTypes[i] == typeof(AnyValue)) ;
+                if (typeof(AnyValue).IsAssignableFrom(mockArgTypes[i])) ;
                 else if (methodArgTypes[i].IsGenericParameter)
                 {
                     var genericConstraints = methodArgTypes[i].GetGenericParameterConstraints();
@@ -131,7 +131,7 @@ namespace Dynamox.Mocks
 
             for (var i = 0; i < methodArgs.Length; i++)
             {
-                if (methodArgs[i] == typeof(AnyValue)) ;
+                if (typeof(AnyValue).IsAssignableFrom(methodArgs[i])) ;
                 else if (inputArgs[i] == null)
                 {
                     if (methodArgs[i].IsValueType)
@@ -150,8 +150,9 @@ namespace Dynamox.Mocks
         {
             return !args.Any();
         }
+    }
 
-        protected sealed class AnyValue
+        public class AnyValue
         {
             public readonly Type OfType;
 
@@ -159,6 +160,25 @@ namespace Dynamox.Mocks
             {
                 OfType = ofType;
             }
+
+            public bool IsAnyValueType(object input) 
+            {
+                return OfType == typeof(AnyValue) || 
+                    (input == null && !OfType.IsValueType) ||
+                    (input != null && OfType.IsAssignableFrom(input.GetType()));
+            }
         }
-    }
+
+        public sealed class AnyValue<T> : AnyValue
+        {
+            public AnyValue()
+                : base (typeof(T))
+            {
+            }
+
+            public static implicit operator T(AnyValue<T> b) 
+            {
+                return default(T);
+            }
+        }
 }

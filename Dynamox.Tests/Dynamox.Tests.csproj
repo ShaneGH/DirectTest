@@ -65,6 +65,7 @@
     <Compile Include="Features\Mocks\MethodsAndProperties.cs" />
     <Compile Include="Features\Mocks\Returns.cs" />
     <Compile Include="Features\Mocks\Settings.cs" />
+    <Compile Include="Features\StronglyTyped\MockBuilderTests.cs" />
     <Compile Include="Features\TestSetup.cs" />
     <Compile Include="Mocks\Constructors.cs" />
     <Compile Include="Mocks\GenericMethodApplicabilityCheckersTests.cs" />
