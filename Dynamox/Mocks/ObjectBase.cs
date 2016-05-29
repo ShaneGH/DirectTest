@@ -22,7 +22,7 @@ namespace Dynamox.Mocks
         public readonly DxSettings Settings;
         readonly MockBuilder MockedInfo;
         readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string, object>();
-        readonly Dictionary<IEnumerable<object>, object> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, object>(DynamicBag.ArrayComparer);
+        readonly Dictionary<IEnumerable<object>, IndexedIndexedValue> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, IndexedIndexedValue>(DynamicBag.ArrayComparer);
 
         readonly ReadOnlyDictionary<string, object> _Members;
         public ReadOnlyDictionary<string, object> Members 
@@ -33,16 +33,15 @@ namespace Dynamox.Mocks
             }
         }
 
-        readonly ReadOnlyDictionary<IEnumerable<object>, object> _MockedIndexes;
-        public ReadOnlyDictionary<IEnumerable<object>, object> MockedIndexes
+        public ReadOnlyDictionary<IEnumerable<object>, IndexedIndexedValue> MockedIndexes
         {
             get
             {
-                return _MockedIndexes ?? MockedInfo.IndexedValues;
+                return MockedInfo.IndexedValues;
             }
         }
 
-        IEnumerable<KeyValuePair<IEnumerable<object>, object>> Indexes
+        IEnumerable<KeyValuePair<IEnumerable<object>, IndexedIndexedValue>> Indexes
         {
             get
             {
@@ -87,33 +86,6 @@ namespace Dynamox.Mocks
                     RaiseEventCalled(args);
             };
         }
-
-        #region Obsolete
-
-        //[Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
-        //public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, bool strictMock = false)
-        //    : this(settings, members, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object>()), strictMock)
-        //{
-        //}
-
-        //[Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
-        //public ObjectBase(DxSettings settings, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
-        //    : this(settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), indexes, strictMock)
-        //{
-        //}
-
-        //[Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
-        //public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
-        //{
-        //    Settings = settings;
-        //    StrictMock = strictMock;
-
-        //    //TODO: remove these properties and obsolete constructors
-        //    _MockedIndexes = indexes;
-        //    _Members = members;
-        //}
-
-        #endregion
 
         static TValue ConvertAndReturn<TValue>(object input, string methodOrPropertyDescription)
         {
@@ -238,7 +210,7 @@ namespace Dynamox.Mocks
         public IEnumerable<IEnumerable<MethodArg>> GetMockedIndexKeys<TProperty>(IEnumerable<Type> keys)
         {
             var ks = keys.ToArray();
-            return MockedIndexes.Where(m => m.Key.Count() == keys.Count() && Is<TProperty>(m.Value))
+            return MockedIndexes.Where(m => m.Key.Count() == keys.Count() && Is<TProperty>(m.Value.Value))
                 .Select(m => new
                 {
                     result = m.Key.Select((k, i) =>
@@ -280,19 +252,20 @@ namespace Dynamox.Mocks
 
             lock (ExtraAddedIndexes)
             {
-                if (MockedIndexes.ContainsKey(values) && MockedIndexes[values] is IPropertyMockAccessor)
+                if (MockedIndexes.ContainsKey(values) && MockedIndexes[values].Value is IPropertyMockAccessor)
                 {
-                    (MockedIndexes[values] as IPropertyMockAccessor).Set(value);
+                    (MockedIndexes[values].Value as IPropertyMockAccessor).Set(value);
                     return true;
                 }
 
+                var indexedValue = new IndexedIndexedValue(value, Indexes.Any() ? Indexes.Max(i => i.Value.Index) : 0);
                 if (ExtraAddedIndexes.ContainsKey(values))
                 {
-                    ExtraAddedIndexes[values] = value;
+                    ExtraAddedIndexes[values] = indexedValue;
                 }
                 else
                 {
-                    ExtraAddedIndexes.Add(values, value);
+                    ExtraAddedIndexes.Add(values, indexedValue);
                 }
 
                 return true;
@@ -301,20 +274,22 @@ namespace Dynamox.Mocks
 
         public bool TryGetIndex<TIndexed>(IEnumerable<MethodArg> indexValues, out TIndexed result)
         {
-            KeyValuePair<IEnumerable<object>, object> value;
+            KeyValuePair<IEnumerable<object>, IndexedIndexedValue> value;
             lock (ExtraAddedProperties)
             {
                 var values = indexValues.Select(v => v.Arg).ToArray();
-                value = Indexes.FirstOrDefault(idx =>
+                value = Indexes.Where(idx =>
                     idx.Key.Count() == values.Length &&
                     idx.Key.Select((k, i) => 
                         (k == null && values[i] == null) || 
                         (k != null && k.Equals(values[i])) ||
                         (k is AnyValue && (k as AnyValue).IsAnyValueType(values[i]))
-                    ).All(a => a));
+                    ).All(a => a))
+                    .OrderByDescending(i => i.Value.Index)
+                    .FirstOrDefault();
             }
 
-            if (value.Equals(default(KeyValuePair<IEnumerable<object>, object>)))
+            if (value.Equals(default(KeyValuePair<IEnumerable<object>, IndexedIndexedValue>)))
             {
                 if (StrictMock)
                 {
@@ -328,7 +303,7 @@ namespace Dynamox.Mocks
                 }
             }
 
-            result = ConvertAndReturn<TIndexed>(value.Value, "index");
+            result = ConvertAndReturn<TIndexed>(value.Value.Value, "index");
             return true;
         }
 

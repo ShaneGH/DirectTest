@@ -9,25 +9,37 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Dynamic
 {
+    public class IndexedIndexedValue
+    {
+        public readonly object Value;
+        public readonly int Index;
+
+        public IndexedIndexedValue(object value, int index)
+        {
+            Value = value;
+            Index = index;
+        }
+    }
+
     public class DynamicBag : DynamicObject
     {
         public static readonly IEqualityComparer<IEnumerable<object>> ArrayComparer = Compare.Instance;
 
-        readonly ConcurrentDictionary<IEnumerable<object>, object> _IndexedValues;
+        readonly ConcurrentDictionary<IEnumerable<object>, IndexedIndexedValue> _IndexedValues;
         readonly ConcurrentDictionary<string, object> _Values;
         public readonly ReadOnlyDictionary<string, object> Values;
-        public readonly ReadOnlyDictionary<IEnumerable<object>, object> IndexedValues; 
+        public readonly ReadOnlyDictionary<IEnumerable<object>, IndexedIndexedValue> IndexedValues; 
 
         public DynamicBag()
-            : this(new Dictionary<string, object>(), new Dictionary<IEnumerable<object>, object>())
+            : this(new Dictionary<string, object>(), new Dictionary<IEnumerable<object>, IndexedIndexedValue>())
         { }
 
-        DynamicBag(IDictionary<string, object> initialialValues, IDictionary<IEnumerable<object>, object> indexedValues)
+        DynamicBag(IDictionary<string, object> initialialValues, IDictionary<IEnumerable<object>, IndexedIndexedValue> indexedValues)
         {
             _Values = new ConcurrentDictionary<string, object>(initialialValues);
-            _IndexedValues = new ConcurrentDictionary<IEnumerable<object>, object>(indexedValues, ArrayComparer);
+            _IndexedValues = new ConcurrentDictionary<IEnumerable<object>, IndexedIndexedValue>(indexedValues, ArrayComparer);
             Values = new ReadOnlyDictionary<string, object>(_Values);
-            IndexedValues = new ReadOnlyDictionary<IEnumerable<object>, object>(_IndexedValues);
+            IndexedValues = new ReadOnlyDictionary<IEnumerable<object>, IndexedIndexedValue>(_IndexedValues);
         }
 
         protected internal void SetMember(string name, object value)
@@ -37,7 +49,11 @@ namespace Dynamox.Dynamic
 
         protected internal void SetIndex(IEnumerable<object> key, object value)
         {
-            _IndexedValues.AddOrUpdate(key, value, (a, b) => value);
+            var val = new IndexedIndexedValue(value, _IndexedValues.Any() ?
+                _IndexedValues.Max(v => v.Value.Index) + 1 :
+                0);
+
+            _IndexedValues.AddOrUpdate(key, val, (a, b) => val);
         }
 
         protected internal bool TryGetMember(string name, out object result)
@@ -64,7 +80,11 @@ namespace Dynamox.Dynamic
 
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
         {
-            return _IndexedValues.TryGetValue(indexes, out result);
+            IndexedIndexedValue tmp;
+            var output = _IndexedValues.TryGetValue(indexes, out tmp);
+
+            result = !output || tmp == null ? null : tmp.Value;
+            return output;
         }
 
         protected void Clear() 
