@@ -270,6 +270,8 @@ var mock = Dx.Mock();
 
 mock["Val1"] = 123;
 mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
+mock[Dx.Any] = 456; // return 456 for any request for an indexed property
+mock[Dx.AnyT<string>()] = 456; // return 456 for any request for an indexed property with an index of type string
 
 IDictionary<string, int> dictionary = mock.DxAs<IDictionary<string, int>>();
 ```
