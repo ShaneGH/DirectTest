@@ -39,7 +39,7 @@ namespace Dynamox.Tests.Compile.Compiler
 
             var subject = (SetFields)
                 COMPILER.Compile(typeof(SetFields)).GetConstructors()[0]
-                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks.Values) });
+                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks) });
 
             Assert.AreEqual(subject.GetF1(), "Hi");
             Assert.AreEqual(subject.GetF2(), 0);
@@ -74,7 +74,7 @@ namespace Dynamox.Tests.Compile.Compiler
 
             var subject = (SetProperties)
                 COMPILER.Compile(typeof(SetProperties)).GetConstructors()[0]
-                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks.Values) });
+                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks) });
 
             Assert.AreEqual(subject.GetP1(), "Hi");
             Assert.AreEqual(subject.GetP2(), 0);
@@ -125,7 +125,7 @@ namespace Dynamox.Tests.Compile.Compiler
             var copiled = COMPILER.Compile(typeof(SetIndexes));
             var subject = (SetIndexes)
                 COMPILER.Compile(typeof(SetIndexes)).GetConstructors()[0]
-                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks.IndexedValues) });
+                    .Invoke(new object[] { new ObjectBase(new DxSettings { TestForInvalidMocks = false }, mocks) });
 
             Assert.AreEqual(subject.Get1(key1, 33), val1);
             Assert.AreEqual(subject.Get1(key2, 55), val2);

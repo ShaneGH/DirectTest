@@ -17,6 +17,7 @@ namespace Dynamox.Tests.Features.Mocks
         }
 
         [Test]
+        [Ignore]
         public void StaticPropertyVal_CanSet()
         {
             Dx.Test("")

@@ -64,7 +64,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)));
+            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)));
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)));
+            Assert.IsEmpty(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values, input.IndexedValues)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -136,7 +136,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -164,7 +164,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -192,7 +192,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -220,7 +220,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -234,7 +234,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -248,7 +248,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -262,7 +262,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -276,7 +276,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -290,7 +290,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
 
         [Test]
@@ -304,7 +304,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input.Values)).Count(), 1);
+            Assert.AreEqual(subject.ValidateAgainstType(new ObjectBase(Dx.Settings, input)).Count(), 1);
         }
     }
 }

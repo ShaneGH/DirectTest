@@ -90,28 +90,28 @@ namespace Dynamox.Mocks
 
         #region Obsolete
 
-        [Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
-        public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, bool strictMock = false)
-            : this(settings, members, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object>()), strictMock)
-        {
-        }
+        //[Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
+        //public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, bool strictMock = false)
+        //    : this(settings, members, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object>()), strictMock)
+        //{
+        //}
 
-        [Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
-        public ObjectBase(DxSettings settings, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
-            : this(settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), indexes, strictMock)
-        {
-        }
+        //[Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
+        //public ObjectBase(DxSettings settings, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
+        //    : this(settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), indexes, strictMock)
+        //{
+        //}
 
-        [Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
-        public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
-        {
-            Settings = settings;
-            StrictMock = strictMock;
+        //[Obsolete("For test only. Using this constructor in production will cause exceptions later in the process")]
+        //public ObjectBase(DxSettings settings, ReadOnlyDictionary<string, object> members, ReadOnlyDictionary<IEnumerable<object>, object> indexes, bool strictMock = false)
+        //{
+        //    Settings = settings;
+        //    StrictMock = strictMock;
 
-            //TODO: remove these properties and obsolete constructors
-            _MockedIndexes = indexes;
-            _Members = members;
-        }
+        //    //TODO: remove these properties and obsolete constructors
+        //    _MockedIndexes = indexes;
+        //    _Members = members;
+        //}
 
         #endregion
 

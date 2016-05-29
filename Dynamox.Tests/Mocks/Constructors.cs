@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Compile;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 using NUnit.Framework;
 
 namespace Dynamox.Tests.Mocks
@@ -53,7 +54,11 @@ namespace Dynamox.Tests.Mocks
             // Arrange
             var subject = new Constructors(Compiler.Compile(typeof(C1)));
             var objBase1 = new ObjectBase(Dx.Settings);
-            var objBase2 = Build("Prop", "bye");
+
+            var values = new MockBuilder();
+            ((dynamic)values).Prop = "bye";
+
+            var objBase2 = new ObjectBase(Dx.Settings, values);
 
             // Act
             // Assert
@@ -72,7 +77,11 @@ namespace Dynamox.Tests.Mocks
             // Arrange
             var subject = new Constructors(typeof(C2));
             var objBase1 = new ObjectBase(Dx.Settings);
-            var objBase2 = Build("Prop", "bye");
+
+            var values = new MockBuilder();
+            ((dynamic)values).Prop = "bye";
+
+            var objBase2 = new ObjectBase(Dx.Settings, values);
 
             // Act
             // Assert
@@ -85,12 +94,15 @@ namespace Dynamox.Tests.Mocks
             Assert.AreEqual("bye", ((C2)subject.Construct(objBase2, new[] { 55 as object })).Prop);
         }
 
-        static ObjectBase Build(string prop, object value)
-        {
-            return new ObjectBase(Dx.Settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object> 
-            {
-                {prop, value}
-            }));
-        }
+        //static ObjectBase Build(string prop, object value)
+        //{
+        //    var values = new MockBuilder();
+        //    ((dynamic)values).M1 = mock1(2);
+
+        //    return new ObjectBase(Dx.Settings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object> 
+        //    {
+        //        {prop, value}
+        //    }));
+        //}
     }
 }

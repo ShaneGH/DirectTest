@@ -51,25 +51,24 @@ namespace Dynamox.Tests.Compile.Compiler
             };
 
             Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
+            
+            var values = new MockBuilder();
+            ((dynamic)values).M1 = mock1(2);
+            ((dynamic)values).M4 = mock1(2);
+            ((dynamic)values).M5 = mock1(2);
+
+            ((dynamic)values).VM1 = mock1(2);
+            ((dynamic)values).VM4 = mock1(2);
+            ((dynamic)values).VM5 = mock1(2);
+
+            ((dynamic)values).AM1 = mock1(2);
+            ((dynamic)values).AM5 = mock1(2);
+
+            ((dynamic)values).GM1 = mock1(2);
+            ((dynamic)values).GM2 = mock2(2, new[] { typeof(string) });
 
             var subject = (LostOfMethods<string>)
-                COMPILER.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-                {
-                    {"M1", mock1(2)},
-                    {"M4", mock1(2)},
-                    {"M5", mock1(2)},
-                    
-                    {"VM1", mock1(2)},
-                    {"VM4", mock1(2)},
-                    {"VM5", mock1(2)},
-                    
-                    {"AM1", mock1(2)},
-                    {"AM5", mock1(2)},
-                    
-                    {"GM1", mock1(2)},
-                    {"GM2", mock2(2, new[]{typeof(string)})}
-                })) 
-                });
+                COMPILER.Compile(typeof(LostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, values) });
 
             Assert.AreEqual(subject.M1(1), "O-1");
             Assert.AreEqual(subject.M1(2), "O-2");
@@ -130,14 +129,14 @@ namespace Dynamox.Tests.Compile.Compiler
 
             Func<int, MethodGroup> mock1 = val => mock2(val, Enumerable.Empty<Type>());
 
+
+            var values = new MockBuilder();
+            ((dynamic)values).M1 = mock1(2);
+            ((dynamic)values).GM1 = mock1(2);
+            ((dynamic)values).GM2 = mock2(2, new[] { typeof(string) });
+
             var subject = (ILostOfMethods<string>)
-                COMPILER.Compile(typeof(ILostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-                {
-                    {"M1", mock1(2)},                    
-                    {"GM1", mock1(2)},
-                    {"GM2", mock2(2, new[]{typeof(string)})}
-                })) 
-                });
+                COMPILER.Compile(typeof(ILostOfMethods<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, values) });
 
             Assert.AreEqual(subject.M1(1), default(string));
             Assert.AreEqual(subject.M1(2), "M-2");

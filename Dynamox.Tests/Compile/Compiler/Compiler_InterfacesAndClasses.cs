@@ -55,7 +55,7 @@ namespace Dynamox.Tests.Compile.Compiler
 
             var subject = (InterfaceAndClass2)COMPILER.Compile(typeof(InterfaceAndClass2))
                     .GetConstructors()[0]
-                        .Invoke(new object[] { new ObjectBase(Dx.Settings, builder.Values) });
+                        .Invoke(new object[] { new ObjectBase(Dx.Settings, builder) });
 
             Assert.AreEqual(subject.Prop, 77);
             Assert.AreEqual(subject.Method(), 88);
@@ -113,7 +113,7 @@ namespace Dynamox.Tests.Compile.Compiler
 
             var subject = (ExplicitInterface)COMPILER.Compile(typeof(ExplicitInterface))
                     .GetConstructors()[0]
-                        .Invoke(new object[] { new ObjectBase(Dx.Settings, builder.Values) });
+                        .Invoke(new object[] { new ObjectBase(Dx.Settings, builder) });
 
             Assert.AreEqual(subject.Prop, 77);
             Assert.AreEqual(subject.Method(), 88);

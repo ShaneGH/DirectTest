@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Compile;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 using NUnit.Framework;
-
 using COMPILER = Dynamox.Compile.Compiler;
 
 namespace Dynamox.Tests.Compile.Compiler
@@ -25,14 +25,15 @@ namespace Dynamox.Tests.Compile.Compiler
         [Test]
         public void IndexesTests()
         {
+            var values = new MockBuilder();
+            ((dynamic)values)["hello"] = 22;
+            ((dynamic)values)[true] = 44;
+
             var subject = (Indexes)
-                COMPILER.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(Dx.Settings,
-                    new ReadOnlyDictionary<IEnumerable<object>, object>(
-                        new Dictionary<IEnumerable<object>, object>
-                        {
-                            {new object[]{"hello"}, 22},
-                            {new object[]{true}, 44}
-                        })) });
+                COMPILER.Compile(typeof(Indexes)).GetConstructors()[0].Invoke(new object[]
+                { 
+                    new ObjectBase(Dx.Settings, values) 
+                });
 
             Assert.AreEqual(subject["hello"], 22);
             subject["hello"] = 33;

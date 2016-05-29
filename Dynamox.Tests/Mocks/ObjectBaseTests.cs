@@ -28,7 +28,7 @@ namespace Dynamox.Tests.Mocks
             mock.Prop2 = Dx.Property(new C1());
             mock.Prop3.Prop = 7;
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, mock.Values);
+            var subject = new ObjectBase(DxSettings.GlobalSettings, mock);
 
             // act
             //assert
@@ -57,7 +57,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, bag.key] = new C1();
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .Act(bag =>
                     (IEnumerable<IEnumerable<MethodArg>>)bag.subject.GetMockedIndexKeys<C1>(new[] { typeof(int), typeof(C1) }))
@@ -80,7 +80,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, bag.key] = new C1();
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .UseParentAct(true)
                 .SkipParentAssert(false);
@@ -94,7 +94,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, bag.key] = new C2();
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .UseParentAct(true)
                 .SkipParentAssert(false);
@@ -108,7 +108,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, bag.key] = new C1();
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .UseParentAct<IEnumerable<IEnumerable<MethodArg>>>(true)
                 .Assert((bag, result) => Assert.IsEmpty(result));
@@ -122,7 +122,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, bag.key] = new object();
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .UseParentAct<IEnumerable<IEnumerable<MethodArg>>>(true)
                 .Assert((bag, result) => Assert.IsEmpty(result));
@@ -136,7 +136,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, bag.key] = new C1();
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .UseParentAct(true)
                 .SkipParentAssert(false);
@@ -150,7 +150,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, bag.key] = null;
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .UseParentAct(true)
                 .SkipParentAssert(false);
@@ -164,7 +164,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[null, bag.key] = new C1();
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .UseParentAct<IEnumerable<IEnumerable<MethodArg>>>(true)
                 .Assert((bag, result) => Assert.IsEmpty(result));
@@ -175,7 +175,7 @@ namespace Dynamox.Tests.Mocks
                     dynamic mock = new MockBuilder();
                     mock[4, new C1()] = null;
 
-                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock.IndexedValues);
+                    bag.subject = new ObjectBase(DxSettings.GlobalSettings, mock);
                 })
                 .Act(bag =>
                     (IEnumerable<IEnumerable<MethodArg>>)bag.subject.GetMockedIndexKeys<int>(new[] { typeof(int), typeof(C1) }))
@@ -191,7 +191,9 @@ namespace Dynamox.Tests.Mocks
             var prop1 = new object();
             var prop2 = new object();
             var prop3 = new object();
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object> { { "abc", prop1 } }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = prop1;
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // 
@@ -206,7 +208,7 @@ namespace Dynamox.Tests.Mocks
         public void GetPropertyDoesntExistNonStrict()
         {
             // arrange
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), false);
+            var subject = new ObjectBase(DxSettings.GlobalSettings, false);
 
             // act
             // assert
@@ -218,7 +220,7 @@ namespace Dynamox.Tests.Mocks
         public void GetPropertyDoesntExistStrict()
         {
             // arrange
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>()), true);
+            var subject = new ObjectBase(DxSettings.GlobalSettings, true);
 
             // act
             // assert
@@ -229,7 +231,9 @@ namespace Dynamox.Tests.Mocks
         public void GetInvalidPropertyType()
         {
             // arrange
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object> { { "abc", new object() } }));
+            var vaues = new MockBuilder();
+            ((dynamic)vaues).abc = new object();
+            var subject = new ObjectBase(DxSettings.GlobalSettings, vaues);
 
             // act
             // assert
@@ -249,10 +253,9 @@ namespace Dynamox.Tests.Mocks
             var val1 = new object();
             var val2 = new object();
             var val3 = new object();
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> 
-                {
-                    { key1.Select(k => k.Arg), val1 } 
-                }));
+            var values = new MockBuilder();
+            ((dynamic)values)[key1[0].Arg, key1[1].Arg] = val1;
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             Assert.AreEqual(val1, subject.GetIndex<object>(key1));
@@ -291,7 +294,9 @@ namespace Dynamox.Tests.Mocks
             var key = new[] { new MethodArg<string>("asdsadas", string.Empty) };
 
             // arrange
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<IEnumerable<object>, object>(new Dictionary<IEnumerable<object>, object> { { key.Select(k => k.Arg), new object() } }));
+            var values = new MockBuilder();
+            ((dynamic)values)[key[0].Arg] = new object();
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -316,11 +321,10 @@ namespace Dynamox.Tests.Mocks
                     return a == arg;
                 }) 
             });
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -333,11 +337,10 @@ namespace Dynamox.Tests.Mocks
         {
             // arrange
             var arg = new object();
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup();
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup() }
-            }));
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -351,11 +354,10 @@ namespace Dynamox.Tests.Mocks
 
             // arrange
             var arg = new object();
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup();
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup() }
-            }), true);
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values, true);
 
             // act
             // assert
@@ -381,10 +383,10 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -408,10 +410,10 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }), true);
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values, true);
 
             // act
             // assert
@@ -442,10 +444,10 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).DxReturns(returnVal);
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -473,10 +475,10 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).DxReturns(returnVal);
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -504,10 +506,10 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).DxReturns(returnVal);
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -535,10 +537,10 @@ namespace Dynamox.Tests.Mocks
             });
             (method as dynamic).DxReturns(returnVal);
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -564,10 +566,10 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -593,10 +595,10 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -608,15 +610,13 @@ namespace Dynamox.Tests.Mocks
         [Test]
         public void Invoke_NonVoid_NoMock_NonStrict()
         {
-            
-
             // arrange
             var arg = new object();
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup() }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup();
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -632,10 +632,10 @@ namespace Dynamox.Tests.Mocks
             // arrange
             var arg = new object();
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup() }
-            }), true);
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup();
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values, true);
 
             // act
             // assert
@@ -661,10 +661,10 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }));
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
             // assert
@@ -687,10 +687,10 @@ namespace Dynamox.Tests.Mocks
                 }) 
             });
 
-            var subject = new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-            {
-                { "abc", new MethodGroup(method) }
-            }), true);
+            var values = new MockBuilder();
+            ((dynamic)values).abc = new MethodGroup(method);
+
+            var subject = new ObjectBase(DxSettings.GlobalSettings, values, true);
 
             // act
             // assert

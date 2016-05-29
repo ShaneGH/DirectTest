@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Compile;
 using Dynamox.Mocks;
+using Dynamox.Mocks.Info;
 using NUnit.Framework;
 using COMPILER = Dynamox.Compile.Compiler;
 
@@ -40,17 +41,17 @@ namespace Dynamox.Tests.Compile.Compiler
         [Test]
         public void LotsOfProperties()
         {
+            var values = new MockBuilder();
+            ((dynamic)values).Prop1 = 22;
+            ((dynamic)values).Prop6 = 33;
+            ((dynamic)values).Prop7 = 44;
+            ((dynamic)values).Prop8 = 55;
+            ((dynamic)values).Prop9 = 66;
+            ((dynamic)values).Prop11 = 88;
+            ((dynamic)values).Prop12 = "hello";
+
             var subject = (LostOfProperties<string>)
-                COMPILER.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-                {
-                    {"Prop1", 22},
-                    {"Prop6", 33},
-                    {"Prop7", 44},
-                    {"Prop8", 55},
-                    {"Prop9", 66},
-                    {"Prop11", 88},
-                    {"Prop12", "hello"}
-                })) });
+                COMPILER.Compile(typeof(LostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, values) });
 
             Assert.AreEqual(subject.Prop0, 1);
             Assert.AreEqual(subject.Prop1, 22);
@@ -94,14 +95,14 @@ namespace Dynamox.Tests.Compile.Compiler
         [Test]
         public void ILotsOfProperties()
         {
+            var values = new MockBuilder();
+            ((dynamic)values).Prop0 = 22;
+            ((dynamic)values).Prop1 = 33;
+            ((dynamic)values).Prop2 = 44;
+            ((dynamic)values).Prop3 = "hello";
+
             var subject = (ILostOfProperties<string>)
-                COMPILER.Compile(typeof(ILostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-                {
-                    {"Prop0", 22},
-                    {"Prop1", 33},
-                    {"Prop2", 44},
-                    {"Prop3", "hello"}
-                })) });
+                COMPILER.Compile(typeof(ILostOfProperties<string>)).GetConstructors()[0].Invoke(new object[] { new ObjectBase(DxSettings.GlobalSettings, values) });
 
             Assert.AreEqual(subject.Prop0, 22);
             Assert.AreEqual(subject.Prop2, 44);
