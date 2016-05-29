@@ -7,6 +7,7 @@ using Dynamox.Builders;
 using Dynamox.Compile;
 using Dynamox.Mocks;
 using Dynamox.Mocks.Info;
+using Dynamox.StronglyTyped;
 
 namespace Dynamox
 {
@@ -41,6 +42,43 @@ namespace Dynamox
         {
             return new TestModule(moduleName, settings ?? new DxSettings());
         }
+
+        #region strong
+
+        /// <summary>
+        /// Create a strongly typed mock builder
+        /// </summary>
+        public static MockBuilder<T> Strong<T>()
+        {
+            return new MockBuilder<T>();
+        }
+
+        /// <summary>
+        /// Create a mocked object using a strongly typed mock builder
+        /// </summary>
+        /// <param name="builder">The mock logic</param>
+        /// <returns>A mocked objet</returns>
+        public static T Strong<T>(Action<MockBuilder<T>> builder)
+        {
+            return Hybrid<T>((a, b) => builder(a));
+        }
+
+        /// <summary>
+        /// Create a mocked object using the combination of a strongly and weakly typed mock builder
+        /// </summary>
+        /// <param name="builder">The mock logic. 
+        /// The first paramater is a strongly typed mock builder. 
+        /// The second paramater is a weakly typed mock builder. 
+        /// You can use both interchangably to add mocked logic and parameters</param>
+        /// <returns>A mocked objet</returns>
+        public static T Hybrid<T>(Action<MockBuilder<T>, dynamic> builder)
+        {
+            var mock = new MockBuilder<T>();
+            builder(mock, mock._mock);
+            return mock.Build();
+        }
+
+        #endregion
 
         #region mock
 
@@ -88,7 +126,8 @@ namespace Dynamox
         public static void Ensure(params dynamic[] mockBuilders)
         {
             if (!mockBuilders.Select(b => !(b is MockBuilder)).Any())
-                throw new InvalidMockException("You can only call this method on mocks created with Dx.Mock().");
+                throw new InvalidMockException("You can only call this method on mocks created with Dx.Mock(). " + 
+                    "If you are calling on a mocked object, the mocked object must be a referece type (not a struct) and not sealed.");
 
             var errors = mockBuilders
                 .Select(b => b as MockBuilder)

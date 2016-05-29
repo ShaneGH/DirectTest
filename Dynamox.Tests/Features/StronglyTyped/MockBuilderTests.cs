@@ -43,20 +43,18 @@ namespace Dynamox.Tests.Features.StronglyTyped
         public void SmokeTests()
         {
             // Arrange
-            var builder = new MockBuilder<TestClass>();
-
-            builder.Mock(x => x.Property1).DxReturns("val1");
-            builder.Mock(x => x.Method1(Dx.AnyT<int>())).DxReturns("val3");
-            builder.Mock(x => x.Method1(5)).DxReturns("val2");
-            builder.Mock(x => x.Property2.Property1).DxReturns("val4");
-            builder.Mock(x => x.Property2.Method1(Dx.AnyT<int>())).DxReturns("val5");
-            builder.Mock(x => x["val6"]).DxReturns("val7");
-            builder.Mock(x => x[Dx.AnyT<int>()].Property1).DxReturns("val8");
-            builder.Mock(x => x[4].Property1).DxReturns("val9");
-            builder.Mock(x => x.Method2().Property1).DxReturns("val10");
-
             // Act
-            var mock = builder.Build();
+            var mock = Dx.Strong<TestClass>()
+                .Mock(x => x.Property1).DxReturns("val1")
+                .Mock(x => x.Method1(Dx.AnyT<int>())).DxReturns("val3")
+                .Mock(x => x.Method1(5)).DxReturns("val2")
+                .Mock(x => x.Property2.Property1).DxReturns("val4")
+                .Mock(x => x.Property2.Method1(Dx.AnyT<int>())).DxReturns("val5")
+                .Mock(x => x["val6"]).DxReturns("val7")
+                .Mock(x => x[Dx.AnyT<int>()].Property1).DxReturns("val8")
+                .Mock(x => x[4].Property1).DxReturns("val9")
+                .Mock(x => x.Method2().Property1).DxReturns("val10")
+                .Build();
 
             // Assert
             Assert.AreEqual(mock.Property1, "val1");
@@ -68,6 +66,33 @@ namespace Dynamox.Tests.Features.StronglyTyped
             Assert.AreEqual(mock[99].Property1, "val8");
             Assert.AreEqual(mock[4].Property1, "val9");
             Assert.AreEqual(mock.Method2().Property1, "val10");
+        }
+
+        [Test]
+        public void StrongBuilder()
+        {
+            // Arrange
+            // Act
+            var mock = Dx.Strong<TestClass>(a => a.Mock(x => x.Property1).DxReturns("val1"));
+
+            // Assert
+            Assert.AreEqual(mock.Property1, "val1");
+        }
+
+        [Test]
+        public void HybridBuilder()
+        {
+            // Arrange
+            // Act
+            var mock = Dx.Hybrid<TestClass>((strong, weak) =>
+            {
+                strong.Mock(x => x.Property1).DxReturns("val1");
+                weak.Method1(5).DxReturns("val2");
+            });
+
+            // Assert
+            Assert.AreEqual(mock.Property1, "val1");
+            Assert.AreEqual(mock.Method1(5), "val2");
         }
     }
 }
