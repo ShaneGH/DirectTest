@@ -91,7 +91,7 @@ namespace Dynamox.Mocks
                 }
             }
 
-            errors.AddRange(toValidate.MockedIndexes.Select(i => ValidateIndex(Indexes, i.Key.Select(k => k == null ? null : k.GetType()), i.Value.Value == null ? null : i.Value.Value.GetType())));
+            errors.AddRange(toValidate.MockedIndexes.Select(i => ValidateIndex(Indexes, i.Keys.Select(k => k == null ? null : k.GetType()), i.Value == null ? null : i.Value.GetType())));
             return errors.Where(e => e != null).Select(e => e.ErrorMessage);
         }
 

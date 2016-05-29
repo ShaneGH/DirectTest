@@ -27,6 +27,11 @@ namespace Dynamox
             return MethodApplicabilityChecker.AnyT<T>();
         }
 
+        public static AnyValue AnyT(Type t)
+        {
+            return MethodApplicabilityChecker.AnyT(t);
+        }
+
         public static IArrange Test(string testName, DxSettings settings = null)
         {
             return new TestBuilder(testName, settings ?? new DxSettings());

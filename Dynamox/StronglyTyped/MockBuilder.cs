@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks;
 using Dynamox.Mocks.Info;
 
 namespace Dynamox.StronglyTyped
@@ -187,6 +188,7 @@ namespace Dynamox.StronglyTyped
                 }
             }
 
+            _mock.MockSettings.Set(ReservedTerms);
             object c = _mock, val;
             while (getters.Any())
             {
@@ -228,9 +230,11 @@ namespace Dynamox.StronglyTyped
                         if (a is ConstantExpression)
                             return (a as ConstantExpression).Value;
 
-                        if ((a is MethodCallExpression && IsDxAny((a as MethodCallExpression).Method)) ||
-                            (a is MemberExpression && IsDxAny((a as MemberExpression).Member)))
+                        if (a is MemberExpression && IsDxAny((a as MemberExpression).Member))
                             return Dx.Any;
+
+                        if (a is MethodCallExpression && IsDxAny((a as MethodCallExpression).Method))
+                            return new AnyValue((a as MethodCallExpression).Method.GetGenericArguments()[0]);
 
                         throw new InvalidOperationException("Invalid mock expression");
                     });

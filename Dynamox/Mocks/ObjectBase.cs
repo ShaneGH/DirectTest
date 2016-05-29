@@ -22,7 +22,7 @@ namespace Dynamox.Mocks
         public readonly DxSettings Settings;
         readonly MockBuilder MockedInfo;
         readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string, object>();
-        readonly Dictionary<IEnumerable<object>, IndexedIndexedValue> ExtraAddedIndexes = new Dictionary<IEnumerable<object>, IndexedIndexedValue>(DynamicBag.ArrayComparer);
+        readonly List<IndexedProperty> ExtraAddedIndexes = new List<IndexedProperty>();
 
         readonly ReadOnlyDictionary<string, object> _Members;
         public ReadOnlyDictionary<string, object> Members 
@@ -33,7 +33,7 @@ namespace Dynamox.Mocks
             }
         }
 
-        public ReadOnlyDictionary<IEnumerable<object>, IndexedIndexedValue> MockedIndexes
+        public IEnumerable<IndexedProperty> MockedIndexes
         {
             get
             {
@@ -41,7 +41,7 @@ namespace Dynamox.Mocks
             }
         }
 
-        IEnumerable<KeyValuePair<IEnumerable<object>, IndexedIndexedValue>> Indexes
+        IEnumerable<IndexedProperty> Indexes
         {
             get
             {
@@ -210,14 +210,14 @@ namespace Dynamox.Mocks
         public IEnumerable<IEnumerable<MethodArg>> GetMockedIndexKeys<TProperty>(IEnumerable<Type> keys)
         {
             var ks = keys.ToArray();
-            return MockedIndexes.Where(m => m.Key.Count() == keys.Count() && Is<TProperty>(m.Value.Value))
+            return MockedIndexes.Where(m => m.Keys.Count() == keys.Count() && Is<TProperty>(m.Value))
                 .Select(m => new
                 {
-                    result = m.Key.Select((k, i) =>
+                    result = m.Keys.Select((k, i) =>
                         (k == null && !ks[i].IsValueType) ||
                         (k != null && ks[i].IsAssignableFrom(k.GetType()))
                     ).All(x => x),
-                    keys = m.Key
+                    keys = m.Keys
                 })
                 .Where(m => m.result)
                 .Select(m => m.keys.Select((k, i) => new MethodArg(k, ks[i], i.ToString())).ToArray())
@@ -245,55 +245,39 @@ namespace Dynamox.Mocks
 
         bool _SetIndex(IEnumerable<MethodArg> indexValues, object value, bool forceSet)
         {
-            var values = indexValues.Select(v => v.Arg).ToArray();
+            var keys = indexValues.Select(v => v.Arg).ToArray();
 
-            if (!forceSet && !MockedIndexes.ContainsKey(values))
+            var existing = MockedIndexes.FirstOrDefault(i => i.CompareKeys(keys, false));
+            if (!forceSet && existing != null)
                 return false;
 
             lock (ExtraAddedIndexes)
             {
-                if (MockedIndexes.ContainsKey(values) && MockedIndexes[values].Value is IPropertyMockAccessor)
+                if (existing != null && existing.Value is IPropertyMockAccessor)
                 {
-                    (MockedIndexes[values].Value as IPropertyMockAccessor).Set(value);
+                    (existing.Value as IPropertyMockAccessor).Set(value);
                     return true;
                 }
 
-                var indexedValue = new IndexedIndexedValue(value, Indexes.Any() ? Indexes.Max(i => i.Value.Index) : 0);
-                if (ExtraAddedIndexes.ContainsKey(values))
-                {
-                    ExtraAddedIndexes[values] = indexedValue;
-                }
-                else
-                {
-                    ExtraAddedIndexes.Add(values, indexedValue);
-                }
-
+                ExtraAddedIndexes.Insert(0, new IndexedProperty(keys, value));
                 return true;
             }
         }
 
         public bool TryGetIndex<TIndexed>(IEnumerable<MethodArg> indexValues, out TIndexed result)
         {
-            KeyValuePair<IEnumerable<object>, IndexedIndexedValue> value;
+            IndexedProperty value;
+            var keys = indexValues.Select(v => v.Arg).ToArray();
             lock (ExtraAddedProperties)
             {
-                var values = indexValues.Select(v => v.Arg).ToArray();
-                value = Indexes.Where(idx =>
-                    idx.Key.Count() == values.Length &&
-                    idx.Key.Select((k, i) => 
-                        (k == null && values[i] == null) || 
-                        (k != null && k.Equals(values[i])) ||
-                        (k is AnyValue && (k as AnyValue).IsAnyValueType(values[i]))
-                    ).All(a => a))
-                    .OrderByDescending(i => i.Value.Index)
-                    .FirstOrDefault();
+                value = Indexes.FirstOrDefault(i => i.CompareKeys(keys));
             }
 
-            if (value.Equals(default(KeyValuePair<IEnumerable<object>, IndexedIndexedValue>)))
+            if (value == null)
             {
                 if (StrictMock)
                 {
-                    throw new InvalidMockException("Indexed property for values " + string.Join(", ", indexValues.Select(v => v.ArgType)) + 
+                    throw new InvalidMockException("Indexed property for values " + string.Join(", ", indexValues.Select(v => v.ArgType)) +
                         " of type " + typeof(TIndexed) + " has not been mocked");
                 }
                 else
@@ -303,7 +287,7 @@ namespace Dynamox.Mocks
                 }
             }
 
-            result = ConvertAndReturn<TIndexed>(value.Value.Value, "index");
+            result = ConvertAndReturn<TIndexed>(value.Value, "index");
             return true;
         }
 

@@ -17,28 +17,26 @@ namespace Dynamox.Tests.Features.Mocks
         }
 
         [Test]
-        [Ignore]
         public void StaticPropertyVal_CanSet()
         {
             Dx.Test("")
                 .Arrange(bag =>
                 {
-                    bag.subject[Dx.Any, Dx.Any] = 44;
+                    bag.subject[Dx.Any, Dx.Any] = 11;
                     bag.subject[6, "6"] = 22;
                     bag.subject[7, "7"] = 33;
-                //    bag.subject[7, "7"] = 123;
                 })
                 .Act(bag =>
                 {
-                    bag.v1 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>())[6, "6"];
-                    bag.v2 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>())[7, "7"];
-                    bag.v3 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>())[8, "8"];
+                    bag.v1 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>())[5, "5"];
+                    bag.v2 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>())[6, "6"];
+                    bag.v3 = ((ICurrentTest)bag.subject.DxAs<ICurrentTest>())[7, "7"];
                 })
                 .Assert((bag) =>
                 {
-                    Assert.AreEqual(bag.v1, 22);
-                    Assert.AreEqual(bag.v2, 33);
-                    Assert.AreEqual(bag.v3, 44);
+                    Assert.AreEqual(bag.v1, 11);
+                    Assert.AreEqual(bag.v2, 22);
+                    Assert.AreEqual(bag.v3, 33);
                 })
                 .Run();
         }

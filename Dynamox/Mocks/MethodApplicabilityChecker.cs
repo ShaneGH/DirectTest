@@ -21,6 +21,11 @@ namespace Dynamox.Mocks
             return new AnyValue<T>();
         }
 
+        public static AnyValue AnyT(Type t)
+        {
+            return new AnyValue(t);
+        }
+
         public virtual IEnumerable<Type> ArgTypes
         {
             get
@@ -29,7 +34,7 @@ namespace Dynamox.Mocks
             }
         }
 
-        public MethodApplicabilityChecker() 
+        public MethodApplicabilityChecker()
         {
             OutParamValues = new List<OutArg>();
         }
@@ -151,34 +156,4 @@ namespace Dynamox.Mocks
             return !args.Any();
         }
     }
-
-        public class AnyValue
-        {
-            public readonly Type OfType;
-
-            public AnyValue(Type ofType)
-            {
-                OfType = ofType;
-            }
-
-            public bool IsAnyValueType(object input) 
-            {
-                return OfType == typeof(AnyValue) || 
-                    (input == null && !OfType.IsValueType) ||
-                    (input != null && OfType.IsAssignableFrom(input.GetType()));
-            }
-        }
-
-        public sealed class AnyValue<T> : AnyValue
-        {
-            public AnyValue()
-                : base (typeof(T))
-            {
-            }
-
-            public static implicit operator T(AnyValue<T> b) 
-            {
-                return default(T);
-            }
-        }
 }
