@@ -217,6 +217,10 @@ databaseMock.PersistAll().DxEnsure();
 
 // Test that the PersistAll method was called
 Dx.Ensure(databaseMock);
+
+// you can also test the PersistAll method on the mocked object instance
+var database = databaseMock.DxAs<IDatabase>();
+Dx.Ensure(database);
 ```
 
 ### Method Callbacks
