@@ -14,7 +14,7 @@ namespace Dynamox.Mocks.Info
     /// <summary>
     /// The core of building mocks. Should be cast as a dynamic and used to build mock information
     /// </summary>
-    internal class MockBuilder : DynamicBag, IRaiseEvent, IEventParasite
+    internal class MockBuilder : DynamicBag, IRaiseEvent, IEventParasite, IEnsure
     {
         IEnumerable<object> ConstructorArgs;
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();

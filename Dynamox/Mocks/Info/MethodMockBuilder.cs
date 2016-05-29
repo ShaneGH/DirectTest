@@ -63,8 +63,13 @@ namespace Dynamox.Mocks.Info
             {
                 { terms.DxOut, Out },
                 { terms.DxReturns, Returns },
-                { terms.DxEnsure, Ensure },
-                { terms.DxDo, Do }
+                { terms.DxDo, Do },
+                { terms.DxEnsure, a => {
+                    if (a != null && a.Any())
+                        throw new InvalidMockException("You cannot pass any argments into ensure");
+                    return Ensure();
+                } 
+                }
             });
         }
 
@@ -104,11 +109,8 @@ namespace Dynamox.Mocks.Info
             return true;
         }
 
-        bool Ensure(object[] args)
+        public bool Ensure()
         {
-            if (args != null && args.Any())
-                throw new InvalidMockException("You cannot pass any argments into ensure");
-
             MustBeCalled = true;
             Actions.Add(new MethodCallback(() => WasCalled = true));
 

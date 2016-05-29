@@ -93,5 +93,26 @@ namespace Dynamox.Tests.Features.Mocks
             ((ICurrentTest)mock2.DxAs<ICurrentTest>()).DoSomething("hello2");
             Dx.Ensure(mock1, mock2);
         }
+
+        [Test]
+        public void DxDotEnsure_Strong()
+        {
+            var mock1 = Dx.Strong<ICurrentTest>();
+            mock1.Mock(m => m.DoSomething("hello1")).DxEnsure();
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1));
+
+            mock1.DxAs().DoSomething("hello1");
+            Dx.Ensure(mock1);
+        }
+
+        [Test]
+        public void DxDotEnsure_Object()
+        {
+            var mock1 = Dx.Strong<ICurrentTest>(m => m.Mock(x => x.DoSomething("hello1")).DxEnsure());
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1));
+
+            mock1.DoSomething("hello1");
+            Dx.Ensure(mock1);
+        }
     }
 }

@@ -54,7 +54,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
                 .Mock(x => x[Dx.AnyT<int>()].Property1).DxReturns("val8")
                 .Mock(x => x[4].Property1).DxReturns("val9")
                 .Mock(x => x.Method2().Property1).DxReturns("val10")
-                .Build();
+                .DxAs();
 
             // Assert
             Assert.AreEqual(mock.Property1, "val1");

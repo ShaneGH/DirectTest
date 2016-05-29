@@ -14,7 +14,7 @@ namespace Dynamox.Mocks
     /// <summary>
     /// The underlying functionality behind a proxy class 
     /// </summary>
-    public class ObjectBase : IEventParasite
+    public class ObjectBase : IEventParasite, IEnsure
     {
         public static readonly Meta Reflection = new Meta();
 
@@ -24,12 +24,11 @@ namespace Dynamox.Mocks
         readonly Dictionary<string, object> ExtraAddedProperties = new Dictionary<string, object>();
         readonly List<IndexedProperty> ExtraAddedIndexes = new List<IndexedProperty>();
 
-        readonly ReadOnlyDictionary<string, object> _Members;
         public ReadOnlyDictionary<string, object> Members 
         {
             get
             {
-                return _Members ?? MockedInfo.Values;
+                return MockedInfo.Values;
             }
         }
 
@@ -505,6 +504,15 @@ namespace Dynamox.Mocks
                 TrySetIndex = methods.Single(m => m.name == "TrySetIndex").raw;
                 SetIndex = methods.Single(m => m.name == "SetIndex").raw;
             }
+        }
+
+        #endregion
+
+        #region Ensure
+
+        public IEnumerable<string> ShouldHaveBeenCalled
+        {
+            get { return MockedInfo.ShouldHaveBeenCalled; }
         }
 
         #endregion

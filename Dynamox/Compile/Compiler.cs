@@ -13,6 +13,7 @@ using AssemblyBuilder = System.Reflection.Emit.AssemblyBuilder;
 using ModuleBuilder = System.Reflection.Emit.ModuleBuilder;
 using AssemblyBuilderAccess = System.Reflection.Emit.AssemblyBuilderAccess;
 using TypeBuilder = System.Reflection.Emit.TypeBuilder;
+using Dynamox.Mocks.Info;
 
 namespace Dynamox.Compile
 {
@@ -122,12 +123,16 @@ namespace Dynamox.Compile
                 throw new CompilerException(baseType, "You cannot mock a class with an internal abstract member. Method(s) found: " +
                     string.Join(Environment.NewLine, typeDescriptor.AbstractInternalMethods.Select(m => m.Name)));
 
+            var interfaces = typeDescriptor.OverridableInterfaces
+                .Select(i => i.Interface)
+                .Union(new[] { typeof(IEnsure) });
+
             // define type
             var type = Module.DefineType(
                 "Dynamox.Proxy." + baseType.Namespace + "." + baseType.Name + "_" + (++TypeIncrement),
                 TypeAttributes.Public | TypeAttributes.Class,
                 typeDescriptor.Type,
-                typeDescriptor.OverridableInterfaces.Select(i => i.Interface).ToArray());
+                interfaces.ToArray());
 
             var allMembers = baseType.GetMembers(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Select(m => m.Name).ToArray();
@@ -174,6 +179,12 @@ namespace Dynamox.Compile
                 //TODO: if property signature is available
 
                 AddProperty(type, objBase, property, typeDescriptor);
+            }
+
+            // add IEnsure.ShouldHaveBeenCalled property
+            if (!typeDescriptor.OverridableInterfaces.Any(i => typeof(IEnsure).IsAssignableFrom(i.Interface)))
+            {
+                AddIEnsureShouldHaveBeenCalled(type, objBase);
             }
 
             // add interface methods
@@ -229,6 +240,14 @@ namespace Dynamox.Compile
                 output = nameBase + number;
 
             return output;
+        }
+
+        internal static void AddIEnsureShouldHaveBeenCalled(TypeBuilder toType, FieldInfo objBase)
+        {
+            var property = toType.DefineProperty(IEnsureShouldHaveBeenCalledGetterBuilder.Name, PropertyAttributes.None, IEnsureShouldHaveBeenCalledGetterBuilder.PropertyType, null);
+            var builder = new IEnsureShouldHaveBeenCalledGetterBuilder(toType, objBase);
+            builder.Build();
+            property.SetGetMethod(builder.Method);
         }
 
         internal static void AddProperty(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty, TypeOverrideDescriptor typeDescriptor = null)

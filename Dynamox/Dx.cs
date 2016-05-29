@@ -75,7 +75,7 @@ namespace Dynamox
         {
             var mock = new MockBuilder<T>();
             builder(mock, mock._mock);
-            return mock.Build();
+            return mock.DxAs();
         }
 
         #endregion
@@ -122,15 +122,15 @@ namespace Dynamox
         /// <summary>
         /// Ensure that all methods mocked by a mock builder and marked with Ensure(...) were called
         /// </summary>
-        /// <param name="mockBuilders">The mock builders</param>
-        public static void Ensure(params dynamic[] mockBuilders)
+        /// <param name="mocks">The mocked objects or mock builders</param>
+        public static void Ensure(params object[] mocks)
         {
-            if (!mockBuilders.Select(b => !(b is MockBuilder)).Any())
+            if (mocks.Any(m => !(m is IEnsure)))
                 throw new InvalidMockException("You can only call this method on mocks created with Dx.Mock(). " + 
                     "If you are calling on a mocked object, the mocked object must be a referece type (not a struct) and not sealed.");
 
-            var errors = mockBuilders
-                .Select(b => b as MockBuilder)
+            var errors = mocks
+                .Cast<IEnsure>()
                 .SelectMany(b => b.ShouldHaveBeenCalled);
 
             if (!errors.Any())

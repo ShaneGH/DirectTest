@@ -10,7 +10,7 @@ using Dynamox.Mocks.Info;
 
 namespace Dynamox.StronglyTyped
 {
-    public class MockBuilder<T>
+    public class MockBuilder<T> : IEnsure
     {
         internal readonly Mocks.Info.MockBuilder _mock;
         readonly List<Expression<Func<T, bool>>> MockExpressions = new List<Expression<Func<T, bool>>>();
@@ -86,6 +86,7 @@ namespace Dynamox.StronglyTyped
                 _mock.MockSettings.Set(DefaultReservedTerms);
                 Expression current = null;
                 Action<object, object> setter = null;
+                Action<object> ensurer = null;
 
                 var property = mockExpression as MemberExpression;
                 var method = mockExpression as MethodCallExpression;
@@ -149,17 +150,29 @@ namespace Dynamox.StronglyTyped
                     }
                     else
                     {
-                        setter = (setValueOf, value) =>
+                        var _lock = new object();
+                        MethodMockBuilder methodMock = null;
+                        Func<object, MethodMockBuilder> creator = mockBuilder =>
                         {
-                            if (!(setValueOf is MockBuilder))
+                            if (!(mockBuilder is MockBuilder))
                             {
                                 throw new InvalidOperationException("Invalid mock expression");
                             }
 
-                            (setValueOf as MockBuilder)
-                                .MockMethod(method.Method.Name, method.Method.GetGenericArguments(), args)
-                                .ReturnValue = value;
+                            lock (_lock)
+                            {
+                                if (methodMock == null)
+                                {
+                                    methodMock = (mockBuilder as MockBuilder)
+                                        .MockMethod(method.Method.Name, method.Method.GetGenericArguments(), args);
+                                }
+                            }
+
+                            return methodMock;
                         };
+
+                        setter = (setValueOf, value) => creator(setValueOf).ReturnValue = value;
+                        ensurer = ensureValueOf => creator(ensureValueOf).Ensure();
                     }
 
                     current = method.Object;
@@ -270,7 +283,9 @@ namespace Dynamox.StronglyTyped
                     }
                 }
 
-                return new Returns<T, TReturnType>(this, a => setter(c, a));
+                Action _ensurer = null;
+                if (ensurer != null) _ensurer = () => ensurer(c);
+                return new Returns<T, TReturnType>(this, a => setter(c, a), _ensurer);
             }
             finally
             {
@@ -283,7 +298,7 @@ namespace Dynamox.StronglyTyped
             return new MockBuilder(reservedTerms ?? ReservedTerms.Default, DxSettings.GlobalSettings, constructorArgs);
         }
 
-        public T Build() 
+        public T DxAs() 
         {
             return (T)_mock.Mock(typeof(T));
         }
@@ -291,19 +306,35 @@ namespace Dynamox.StronglyTyped
         public class Returns<TMockType, TReturnType>
         {
             Action<TReturnType> Setter;
+            Action Ensurer;
             MockBuilder<TMockType> Builder;
 
-            public Returns(MockBuilder<TMockType> builder, Action<TReturnType> setter)
+            public Returns(MockBuilder<TMockType> builder, Action<TReturnType> setter, Action ensurer)
             {
                 Setter = setter;
+                Ensurer = ensurer;
                 Builder = builder;
             }
 
-            public MockBuilder<TMockType> DxReturns(TReturnType value) 
+            public MockBuilder<TMockType> DxReturns(TReturnType value)
             {
                 Setter(value);
                 return Builder;
             }
+
+            public MockBuilder<TMockType> DxEnsure()
+            {
+                if (Ensurer == null)
+                    throw new InvalidOperationException("You cannot ensure this mocked item");
+
+                Ensurer();
+                return Builder;
+            }
+        }
+
+        public IEnumerable<string> ShouldHaveBeenCalled
+        {
+            get { return _mock.ShouldHaveBeenCalled; }
         }
     }
 }
