@@ -57,7 +57,7 @@
     <Compile Include="Compile\CompilerException.cs" />
     <Compile Include="Compile\ICallProtected.cs" />
     <Compile Include="Compile\IEventParasite.cs" />
-    <Compile Include="Compile\ILBuilders\IEnsureShouldHaveBeenCalledBuilder.cs" />
+    <Compile Include="Compile\ILBuilders\IEnsureShouldHaveBeenCalledGetterBuilder.cs" />
     <Compile Include="Compile\ILBuilders\ConstructorBuilder.cs" />
     <Compile Include="Compile\EmitExtensions.cs" />
     <Compile Include="Compile\ILBuilders\EventBuilder.cs" />
