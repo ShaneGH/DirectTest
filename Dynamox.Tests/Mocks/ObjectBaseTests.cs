@@ -197,11 +197,11 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // 
-            Assert.AreEqual(prop1, subject.GetProperty<object>("abc"));
+            Assert.AreEqual(prop1, subject.GetProperty<object>("abc", false));
             subject.SetProperty("abc", prop2);
-            Assert.AreEqual(prop2, subject.GetProperty<object>("abc"));
+            Assert.AreEqual(prop2, subject.GetProperty<object>("abc", false));
             subject.SetProperty("cde", prop3);
-            Assert.AreEqual(prop3, subject.GetProperty<object>("cde"));
+            Assert.AreEqual(prop3, subject.GetProperty<object>("cde", false));
         }
 
         [Test]
@@ -212,8 +212,8 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(null, subject.GetProperty<object>("abc"));
-            Assert.AreEqual(0, subject.GetProperty<int>("abc"));
+            Assert.AreEqual(null, subject.GetProperty<object>("abc", false));
+            Assert.AreEqual(0, subject.GetProperty<int>("abc", false));
         }
 
         [Test]
@@ -224,7 +224,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidMockException), () => subject.GetProperty<object>("abc"));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetProperty<object>("abc", false));
         }
 
         [Test]
@@ -237,7 +237,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidMockException), () => subject.GetProperty<string>("abc"));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetProperty<string>("abc", false));
         }
 
         #endregion

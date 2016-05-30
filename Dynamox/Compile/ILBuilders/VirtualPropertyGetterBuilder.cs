@@ -29,10 +29,11 @@ namespace Dynamox.Compile.ILBuilders
         {
             var ifResult = Body.DeclareLocal(typeof(bool));
 
-            // this.ObjectBase.TryGetProperty<TProperty>("PropertyName", out methodOut)
+            // this.ObjectBase.TryGetProperty<TProperty>("PropertyName", true, out methodOut)
             Body.Emit(OpCodes.Ldarg_0);
             Body.Emit(OpCodes.Ldfld, ObjBase);
             Body.Emit(OpCodes.Ldstr, PropertyName);
+            Body.Emit(OpCodes.Ldc_I4_1);
             Body.Emit(OpCodes.Ldloca, methodOut);
             Body.Emit(OpCodes.Call, ObjectBase.Reflection.TryGetProperty.MakeGenericMethod(ParentMethod.ReturnType));
 

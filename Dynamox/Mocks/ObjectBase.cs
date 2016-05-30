@@ -168,16 +168,16 @@ namespace Dynamox.Mocks
             return true;
         }
 
-        public TProperty GetProperty<TProperty>(string propertyName)
+        public TProperty GetProperty<TProperty>(string propertyName, bool recordAccess)
         {
             TProperty result;
-            if (!TryGetProperty(propertyName, out result))
+            if (!TryGetProperty(propertyName, recordAccess, out result))
                 result = default(TProperty);
 
             return result;
         }
 
-        public bool TryGetProperty<TProperty>(string propertyName, out TProperty result)
+        public bool TryGetProperty<TProperty>(string propertyName, bool recordAccess, out TProperty result)
         {
             KeyValuePair<string, object> property;
             lock (ExtraAddedProperties)
@@ -199,6 +199,7 @@ namespace Dynamox.Mocks
             }
 
             result = ConvertAndReturn<TProperty>(property.Value, "property " + propertyName);
+            MockedInfo.AccessedProperty(propertyName);
             return true;
         }
 
@@ -446,6 +447,8 @@ namespace Dynamox.Mocks
             public readonly MethodInfo SetIndex;
             public readonly MethodInfo TryGetIndex;
             public readonly MethodInfo TrySetIndex;
+
+            public readonly MethodInfo HasMockedFieldOrProperty;
             
             public Meta() 
             {
@@ -503,6 +506,8 @@ namespace Dynamox.Mocks
                 GetIndex = methods.Single(m => m.name == "GetIndex").raw;
                 TrySetIndex = methods.Single(m => m.name == "TrySetIndex").raw;
                 SetIndex = methods.Single(m => m.name == "SetIndex").raw;
+
+                HasMockedFieldOrProperty = methods.Single(m => m.name == "HasMockedFieldOrProperty").raw;
             }
         }
 

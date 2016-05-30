@@ -13,10 +13,7 @@ namespace Dynamox.Compile.ILBuilders
     /// Base class to set a property or field
     /// </summary>
     public abstract class SetterBuilder : ILBuilder
-    {
-        static readonly MethodInfo HasMockedFieldOrProperty = typeof(ObjectBase).GetMethod("HasMockedFieldOrProperty");
-        static readonly MethodInfo GetProperty = typeof(ObjectBase).GetMethod("GetProperty");
-        
+    {        
         protected readonly ILGenerator MethodBody;
         readonly string FieldOrPropertyName;
         readonly Type FieldOrPropertyType;
@@ -36,16 +33,17 @@ namespace Dynamox.Compile.ILBuilders
             // if (!ObjectBase.HasFieldOrProperty<T>("Name")) GO TO: next property
             MethodBody.Emit(OpCodes.Ldarg_1);
             MethodBody.Emit(OpCodes.Ldstr, FieldOrPropertyName);
-            MethodBody.Emit(OpCodes.Call, HasMockedFieldOrProperty.MakeGenericMethod(types));
+            MethodBody.Emit(OpCodes.Call, ObjectBase.Reflection.HasMockedFieldOrProperty.MakeGenericMethod(types));
             MethodBody.Emit(OpCodes.Ldc_I4_0);
             MethodBody.Emit(OpCodes.Ceq);
             MethodBody.Emit(OpCodes.Brtrue, endFieldSetting);
 
-            // this.Prop = ObjectBase.GetProperty<TProp>("Prop")
+            // this.Prop = ObjectBase.GetProperty<TProp>("Prop", true)
             MethodBody.Emit(OpCodes.Ldarg_0);
             MethodBody.Emit(OpCodes.Ldarg_1);
             MethodBody.Emit(OpCodes.Ldstr, FieldOrPropertyName);
-            MethodBody.Emit(OpCodes.Call, GetProperty.MakeGenericMethod(types));
+            MethodBody.Emit(OpCodes.Ldc_I4_1);
+            MethodBody.Emit(OpCodes.Call, ObjectBase.Reflection.GetProperty.MakeGenericMethod(types));
 
             DoSet();
 

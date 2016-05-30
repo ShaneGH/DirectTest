@@ -97,6 +97,7 @@
     <Compile Include="Mocks\IMethodAssert.cs" />
     <Compile Include="Mocks\Info\DynamoxEventHandler.cs" />
     <Compile Include="Mocks\Info\DynamoxEventHandlerBase.cs" />
+    <Compile Include="Mocks\Info\EnsuredProperty.cs" />
     <Compile Include="Mocks\Info\IEnsure.cs" />
     <Compile Include="Mocks\Info\IEventHandler.cs" />
     <Compile Include="Mocks\Info\IPropertyMockAccessor.cs" />

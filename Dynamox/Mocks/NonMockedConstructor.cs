@@ -35,8 +35,8 @@ namespace Dynamox.Mocks
                 .Select(p => Expression.IfThen(
                     // if (values.HasMockedFieldOrProperty<T>(name))
                     Expression.Call(values, HasMockedFieldOrProperty.MakeGenericMethod(new[] { p.type }), Expression.Constant(p.Name)),
-                    // mock.name = values.GetProperty<T>(name);
-                    Expression.Assign(Expression.PropertyOrField(mock, p.Name), Expression.Call(values, GetProperty.MakeGenericMethod(new[] { p.type }), Expression.Constant(p.Name)))));
+                    // mock.name = values.GetProperty<T>(name, false);
+                    Expression.Assign(Expression.PropertyOrField(mock, p.Name), Expression.Call(values, GetProperty.MakeGenericMethod(new[] { p.type }), Expression.Constant(p.Name), Expression.Constant(false)))));
 
             Setter = Expression.Lambda<Action<object, ObjectBase>>(
                 Expression.Block(new[] { mock }, cast.Concat(setters)), input, values).Compile();

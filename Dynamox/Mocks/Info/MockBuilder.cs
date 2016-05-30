@@ -18,6 +18,8 @@ namespace Dynamox.Mocks.Info
     {
         IEnumerable<object> ConstructorArgs;
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();
+        private readonly HashSet<string> EnsuredMembers = new HashSet<string>();
+        private readonly HashSet<string> AccessedMembers = new HashSet<string>();
 
         public readonly DxSettings TestSettings;
 
@@ -57,6 +59,13 @@ namespace Dynamox.Mocks.Info
             object existingMock;
             if (TryGetMember(binder.Name, out existingMock) && existingMock is MethodGroup)
                 throw new InvalidOperationException("The member \"" + binder.Name + "\" has already been mocked as a function, and cannot be set as a property");    //TODM
+
+            if (value is EnsuredProperty)
+            {
+                value = (value as EnsuredProperty).Value;
+                if (!EnsuredMembers.Contains(binder.Name))
+                    EnsuredMembers.Add(binder.Name);
+            }
 
             return base.TrySetMember(binder, value);
         }
@@ -185,6 +194,16 @@ namespace Dynamox.Mocks.Info
             }
         }
 
+        /// <summary>
+        /// Tell the mock builder that the following property has been retrieved
+        /// </summary>
+        /// <param name="memberName"></param>
+        public void AccessedProperty(string memberName) 
+        {
+            if (!AccessedMembers.Contains(memberName))
+                AccessedMembers.Add(memberName);
+        }
+
         protected internal MethodMockBuilder MockMethod(string name, IEnumerable<Type> genericArgs, IEnumerable<object> args)
         {
             object existingMock;
@@ -215,16 +234,25 @@ namespace Dynamox.Mocks.Info
             get
             {
                 //TODO, messages need some work
-                return Values
-                    // methods
+                var methods = Values
                     .Where(v => v.Value is MethodGroup)
                     .Select(v => new { name = v.Key, args = (v.Value as MethodGroup).ShouldHaveBeenCalled })
-                    .SelectMany(v => v.args.Select(a => v.name + a))
-                    .Concat(Values
-                        // properties
-                        .Where(v => v.Value is MockBuilder)
-                        .Select(v => new { name = v.Key, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
-                        .SelectMany(v => v.args.Select(a => v.name + (a.Any() ? "." + a : string.Empty))));
+                    .SelectMany(v => v.args.Select(a => v.name + a));
+
+                // nested properties
+                var nestedProperties = Values
+                    .Where(v => v.Value is MockBuilder)
+                    .Select(v => new { name = v.Key, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
+                    .SelectMany(v => v.args.Select(a => v.name + (a.Any() ? "." + a : string.Empty)));
+
+                //propeties
+                var properties = Values
+                    .Where(v => !(v.Value is MockBuilder) && !(v.Value is MethodGroup))
+                    .Where(v => EnsuredMembers.Contains(v.Key))
+                    .Where(v => !AccessedMembers.Contains(v.Key))
+                    .Select(v => v.Key);
+
+                return methods.Concat(nestedProperties).Concat(properties);
             }
         }
 
