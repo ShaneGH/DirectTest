@@ -1,5 +1,7 @@
 # Dynamox
 
+[![Build status](https://ci.appveyor.com/api/projects/status/4u4q28v9cd9qgw18?svg=true)](https://ci.appveyor.com/project/ShaneGH/dynamox)
+
 Write logic, not lambdas
 
 ## Introduction
@@ -215,6 +217,10 @@ databaseMock.PersistAll().DxEnsure();
 
 // Test that the PersistAll method was called
 Dx.Ensure(databaseMock);
+
+// you can also test the PersistAll method on the mocked object instance
+var database = databaseMock.DxAs<IDatabase>();
+Dx.Ensure(database);
 ```
 
 ### Method Callbacks
@@ -264,6 +270,8 @@ var mock = Dx.Mock();
 
 mock["Val1"] = 123;
 mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
+mock[Dx.Any] = 456; // return 456 for any request for an indexed property
+mock[Dx.AnyT<string>()] = 456; // return 456 for any request for an indexed property with an index of type string
 
 IDictionary<string, int> dictionary = mock.DxAs<IDictionary<string, int>>();
 ```
