@@ -215,12 +215,15 @@ var databaseMock = Dx.Mock();
 // mock the PersistAll method and ensure that it is called
 databaseMock.PersistAll().DxEnsure();
 
-// Test that the PersistAll method was called
-Dx.Ensure(databaseMock);
-
-// you can also test the PersistAll method on the mocked object instance
+// Create the mocked object and invoke the PersistAll method
 var database = databaseMock.DxAs<IDatabase>();
+database.PersistAll();
+
+// Test that the PersistAll method was called
 Dx.Ensure(database);
+
+// you can also test the PersistAll method on the mock object instance
+Dx.Ensure(databaseMock);
 ```
 
 You can also ensure that properties and indexed properties are accessed.
@@ -229,13 +232,18 @@ You can also ensure that properties and indexed properties are accessed.
 var userContextMock = Dx.Mock();
 
 // mock the CurrentUser property and ensure that it is accessed
-databaseMock.CurrentUser = Dx.Property(new User()).DxEnsure();
+userContextMock.CurrentUser = Dx.Property(new User()).DxEnsure();
 
-// mock the CurrentUser property and ensure that it is accessed
-databaseMock.Permissions["Read"] = Dx.Property(true).DxEnsure();
+// mock the Permissions["Read"] indexed property and ensure that it is accessed
+userContextMock.Permissions["Read"] = Dx.Property(true).DxEnsure();
+
+// create the mock and access it's properties
+var userContext = userContextMock.DxAs<IUserContext>();
+var currentUser = userContextMock.CurrentUser;
+var canRead = userContextMock.Permissions["Read"];
 
 // Test that the CurrentUser and Permissions["Read"] properties were accessed
-Dx.Ensure(userContextMock);
+Dx.Ensure(userContext);
 ```
 
 ### Method Callbacks
