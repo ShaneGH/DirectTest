@@ -39,6 +39,7 @@ namespace Dynamox.Compile.ILBuilders
             IsIEventChain = isIEventChain;
         }
 
+        static readonly MethodInfo SetNonVirtualPropertiesOrFields = TypeUtils.GetProperty<DxSettings, object>(a => a.SetNonVirtualPropertiesOrFields).GetMethod;
         protected override void _Build()
         {
             var args = new[] { typeof(ObjectBase) }
@@ -68,8 +69,8 @@ namespace Dynamox.Compile.ILBuilders
 
             // if (ObjectBase.Settings.SetNonVirtualPropertiesOrFields != true) return;
             MethodBody.Emit(OpCodes.Ldarg_1);
-            MethodBody.Emit(OpCodes.Ldfld, typeof(ObjectBase).GetField("Settings"));
-            MethodBody.Emit(OpCodes.Call, typeof(DxSettings).GetProperty("SetNonVirtualPropertiesOrFields").GetMethod);
+            MethodBody.Emit(OpCodes.Ldfld, ObjectBase.Reflection.Settings);
+            MethodBody.Emit(OpCodes.Call, SetNonVirtualPropertiesOrFields);
             MethodBody.Emit(OpCodes.Ldc_I4_1);
             MethodBody.Emit(OpCodes.Ceq);
             MethodBody.Emit(OpCodes.Brfalse, ret);
@@ -87,11 +88,11 @@ namespace Dynamox.Compile.ILBuilders
             BuildReportEventsToParasiteFunctionality();
         }
 
-        static readonly MethodInfo EventHandlerFound = typeof(EventShareEventArgs).GetProperty("EventHandlerFound").SetMethod;
-        static readonly MethodInfo RaiseEvent = typeof(IRaiseEvent).GetMethod("RaiseEvent");
-        static readonly MethodInfo ToArray = typeof(Enumerable).GetMethod("ToArray").MakeGenericMethod(typeof(object));
-        static readonly FieldInfo EventName = typeof(EventShareEventArgs).GetField("EventName");
-        static readonly FieldInfo EventArgs = typeof(EventShareEventArgs).GetField("EventArgs");
+        static readonly MethodInfo EventHandlerFound = TypeUtils.GetProperty<EventShareEventArgs, bool>(a => a.EventHandlerFound).SetMethod;
+        static readonly MethodInfo RaiseEvent = TypeUtils.GetMethod<IRaiseEvent>(a => a.RaiseEvent(default(string), default(object[])));
+        static readonly MethodInfo ToArray = TypeUtils.GetMethod(() => Enumerable.ToArray<object>(default(IEnumerable<object>)), true);
+        static readonly FieldInfo EventName = TypeUtils.GetField<EventShareEventArgs, string>(a => a.EventName);
+        static readonly FieldInfo EventArgs = TypeUtils.GetField<EventShareEventArgs, IEnumerable<object>>(a => a.EventArgs);
         static readonly EventInfo RaiseEventCalled = typeof(IEventParasite).GetEvent("RaiseEventCalled");
         void BuildRaiseEventsFromParasiteFunctionality()
         {
@@ -142,7 +143,7 @@ namespace Dynamox.Compile.ILBuilders
         }
 
         static readonly ConstructorInfo EventChainArgs = typeof(EventShareEventArgs).GetConstructor(new[] { typeof(string), typeof(IEnumerable<object>) });
-        static readonly MethodInfo EventRaised = typeof(ObjectBase).GetMethod("EventRaised");
+        static readonly MethodInfo EventRaised = TypeUtils.GetMethod<ObjectBase>(a => a.EventRaised(default(EventShareEventArgs)));
         void BuildReportEventsToParasiteFunctionality()
         {
             foreach (var @event in Events)

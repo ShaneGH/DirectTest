@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,76 @@ namespace System
 {
     public static class TypeUtils
     {
+        static MethodInfo GetMethod(Expression expression, bool useConstructedGeneric = false)
+        {
+            // remove implicit casts
+            while (expression is UnaryExpression)
+                expression = (expression as UnaryExpression).Operand;
+
+            var method = expression is MethodCallExpression ?
+                (expression as MethodCallExpression).Method : null;
+
+            return method != null && !useConstructedGeneric && method.IsGenericMethod ?
+                method.GetGenericMethodDefinition() :
+                method;
+        }
+
+        public static MethodInfo GetMethod<TType>(Expression<Action<TType>> expression, bool useConstructedGeneric = false)
+        {
+            return GetMethod(expression.Body, useConstructedGeneric);
+        }
+
+        public static MethodInfo GetMethod(Expression<Action> expression, bool useConstructedGeneric = false)
+        {
+            return GetMethod(expression.Body, useConstructedGeneric);
+        }
+
+        public static T GetFieldOrProperty<T>(Expression expression)
+            where T  : MemberInfo
+        {
+            if (expression.NodeType == ExpressionType.ArrayLength)
+            {
+                return (expression as UnaryExpression).Operand.Type.MakeArrayType().GetProperty("Length") as T;
+            }
+
+            // remove implicit casts
+            while (expression is UnaryExpression)
+                expression = (expression as UnaryExpression).Operand;
+
+            return expression is MemberExpression ?
+                (expression as MemberExpression).Member as T : null;
+        }
+
+        public static PropertyInfo GetProperty<TType, TReturn>(Expression<Func<TType, TReturn>> expression)
+        {
+            return GetFieldOrProperty<PropertyInfo>(expression.Body);
+        }
+
+        public static PropertyInfo GetProperty<TReturn>(Expression<Func<TReturn>> expression)
+        {
+            return GetFieldOrProperty<PropertyInfo>(expression.Body);
+        }
+
+        public static FieldInfo GetField<TType, TReturn>(Expression<Func<TType, TReturn>> expression)
+        {
+            return GetFieldOrProperty<FieldInfo>(expression.Body);
+        }
+
+        public static FieldInfo GetField<TReturn>(Expression<Func<TReturn>> expression)
+        {
+            return GetFieldOrProperty<FieldInfo>(expression.Body);
+        }
+
+        public static FieldInfo GetField<TType>(Expression<Action<TType>> expression)
+        {
+            return GetFieldOrProperty<FieldInfo>(expression.Body);
+        }
+
+        public static FieldInfo GetField(Expression<Action> expression)
+        {
+            return GetFieldOrProperty<FieldInfo>(expression.Body);
+        }
+
         public static IEnumerable<Type> AllClassesAndInterfaces(this Type type)
         {
             var output = new List<Type>();

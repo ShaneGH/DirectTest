@@ -47,7 +47,7 @@ namespace Dynamox.Compile
             body.Emit(OpCodes.Stelem_Ref);
         }
 
-        static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
+        static readonly MethodInfo GetTypeFromHandle = TypeUtils.GetMethod(() => Type.GetTypeFromHandle(default(RuntimeTypeHandle)));
         public static void TypeOf(this ILGenerator body, Type type)
         {
             body.Emit(OpCodes.Ldtoken, type);
@@ -64,7 +64,7 @@ namespace Dynamox.Compile
             return array;
         }
 
-        static readonly MethodInfo Console_WriteLine = typeof(Console).GetMethod("WriteLine", new[] { typeof(object) });
+        static readonly MethodInfo Console_WriteLine = TypeUtils.GetMethod(() => Console.WriteLine(default(object)));
         public static void ConsoleWriteLine(this ILGenerator body)
         {
             body.Emit(OpCodes.Call, Console_WriteLine);
@@ -75,7 +75,7 @@ namespace Dynamox.Compile
             body.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { writeLineType }));
         }
 
-        static readonly MethodInfo _CheckNull = typeof(EmitExtensions).GetMethod("CheckNull");
+        static readonly MethodInfo _CheckNull = TypeUtils.GetMethod(() => EmitExtensions.CheckNull(default(object)));
         public static bool CheckNull(object input)
         {
             return input == null;

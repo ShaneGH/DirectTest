@@ -428,87 +428,49 @@ namespace Dynamox.Mocks
 
         public class Meta
         {
-            public readonly MethodInfo Invoke;
-            public readonly MethodInfo InvokeReturnValue;
-            public readonly MethodInfo InvokeGeneric;
-            public readonly MethodInfo InvokeGenericReturnValue;
+            public readonly MethodInfo Invoke = 
+                TypeUtils.GetMethod<ObjectBase>(a => a.Invoke(default(string), default(IEnumerable<MethodArg>)));
+            public readonly MethodInfo InvokeReturnValue =
+                TypeUtils.GetMethod<ObjectBase>(a => a.Invoke<string>(default(string), default(IEnumerable<MethodArg>)));
+            public readonly MethodInfo InvokeGeneric =
+                TypeUtils.GetMethod<ObjectBase>(a => a.Invoke(default(string), default(IEnumerable<Type>), default(IEnumerable<MethodArg>)));
+            public readonly MethodInfo InvokeGenericReturnValue =
+                TypeUtils.GetMethod<ObjectBase>(a => a.Invoke<string>(default(string), default(IEnumerable<Type>), default(IEnumerable<MethodArg>)));
 
-            public readonly MethodInfo TryInvoke;
-            public readonly MethodInfo TryInvokeReturnValue;
-            public readonly MethodInfo TryInvokeGeneric;
-            public readonly MethodInfo TryInvokeGenericReturnValue;
+            static string _dummy;
+            public readonly MethodInfo TryInvoke =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TryInvoke(default(string), default(IEnumerable<MethodArg>)));
+            public readonly MethodInfo TryInvokeReturnValue =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TryInvoke<string>(default(string), default(IEnumerable<MethodArg>), out _dummy));
+            public readonly MethodInfo TryInvokeGeneric =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TryInvoke(default(string), default(IEnumerable<Type>), default(IEnumerable<MethodArg>)));
+            public readonly MethodInfo TryInvokeGenericReturnValue =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TryInvoke<string>(default(string), default(IEnumerable<Type>), default(IEnumerable<MethodArg>), out _dummy));
 
-            public readonly MethodInfo TryGetProperty;
-            public readonly MethodInfo GetProperty;
-            public readonly MethodInfo TrySetProperty;
-            public readonly MethodInfo SetProperty;
+            public readonly MethodInfo TryGetProperty =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TryGetProperty<string>(default(string), default(bool), out _dummy));
+            public readonly MethodInfo GetProperty =
+                TypeUtils.GetMethod<ObjectBase>(a => a.GetProperty<string>(default(string), default(bool)));
+            public readonly MethodInfo TrySetProperty =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TrySetProperty(default(string), default(object)));
+            public readonly MethodInfo SetProperty =
+                TypeUtils.GetMethod<ObjectBase>(a => a.SetProperty(default(string), default(object)));
 
-            public readonly MethodInfo GetIndex;
-            public readonly MethodInfo SetIndex;
-            public readonly MethodInfo TryGetIndex;
-            public readonly MethodInfo TrySetIndex;
+            public readonly MethodInfo TryGetIndex =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TryGetIndex<string>(default(IEnumerable<MethodArg>), out _dummy));
+            public readonly MethodInfo GetIndex =
+                TypeUtils.GetMethod<ObjectBase>(a => a.GetIndex<string>(default(IEnumerable<MethodArg>)));
+            public readonly MethodInfo TrySetIndex =
+                TypeUtils.GetMethod<ObjectBase>(a => a.TrySetIndex(default(IEnumerable<MethodArg>), default(object)));
+            public readonly MethodInfo SetIndex =
+                TypeUtils.GetMethod<ObjectBase>(a => a.SetIndex(default(IEnumerable<MethodArg>), default(object)));
+            public readonly MethodInfo GetMockedIndexKeys =
+                TypeUtils.GetMethod<ObjectBase>(a => a.GetMockedIndexKeys<object>(default(IEnumerable<Type>)));
 
-            public readonly MethodInfo HasMockedFieldOrProperty;
-            
-            public Meta() 
-            {
-                Type str = typeof(string), args = typeof(IEnumerable<MethodArg>),
-                    gens = typeof(IEnumerable<Type>), vd = typeof(void), bl = typeof(bool);
+            public readonly MethodInfo HasMockedFieldOrProperty =
+                TypeUtils.GetMethod<ObjectBase>(a => a.HasMockedFieldOrProperty<string>(default(string)));
 
-                var methods = typeof(ObjectBase)
-                    .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .Select(m =>new
-                    {
-                        raw = m,
-                        name = m.Name,
-                        paramaters = m.GetParameters(),
-                        returns = m.ReturnType,
-                        genericArgs = m.IsGenericMethodDefinition ? m.GetGenericArguments() : new Type [0]
-                    }).ToArray();
-
-                Invoke = methods.Single(m => m.name == "Invoke" && m.paramaters.Length == 2 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == args &&
-                    m.genericArgs.Length == 0 && m.returns == vd).raw;
-                InvokeReturnValue = methods.Single(m => m.name == "Invoke" && m.paramaters.Length == 2 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == args &&
-                    m.genericArgs.Length == 1 && m.returns == m.genericArgs[0]).raw;
-                InvokeGeneric = methods.Single(m => m.name == "Invoke" && m.paramaters.Length == 3 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == gens &&
-                    m.paramaters[2].ParameterType == args &&
-                    m.genericArgs.Length == 0 && m.returns == vd).raw;
-                InvokeGenericReturnValue = methods.Single(m => m.name == "Invoke" && m.paramaters.Length == 3 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == gens &&
-                    m.paramaters[2].ParameterType == args &&
-                    m.genericArgs.Length == 1 && m.returns == m.genericArgs[0]).raw;
-
-                TryInvoke = methods.Single(m => m.name == "TryInvoke" && m.paramaters.Length == 2 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == args &&
-                    m.genericArgs.Length == 0 && m.returns == bl).raw;
-                TryInvokeReturnValue = methods.Single(m => m.name == "TryInvoke" && m.paramaters.Length == 3 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == args &&
-                   // m.paramaters[2].ParameterType == m.genericArgs[0] &&  //TODO
-                    m.genericArgs.Length == 1 && m.returns == bl).raw;
-                TryInvokeGeneric = methods.Single(m => m.name == "TryInvoke" && m.paramaters.Length == 3 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == gens &&
-                    m.paramaters[2].ParameterType == args &&
-                    m.genericArgs.Length == 0 && m.returns == bl).raw;
-                TryInvokeGenericReturnValue = methods.Single(m => m.name == "TryInvoke" && m.paramaters.Length == 4 &&
-                    m.paramaters[0].ParameterType == str && m.paramaters[1].ParameterType == gens &&
-                    //m.paramaters[2].ParameterType == args && m.paramaters[3].ParameterType == m.genericArgs[0] && //TODO
-                    m.genericArgs.Length == 1 && m.returns == bl).raw;
-
-                TryGetProperty = methods.Single(m => m.name == "TryGetProperty").raw;
-                GetProperty = methods.Single(m => m.name == "GetProperty").raw;
-                TrySetProperty = methods.Single(m => m.name == "TrySetProperty").raw;
-                SetProperty = methods.Single(m => m.name == "SetProperty").raw;
-
-                TryGetIndex = methods.Single(m => m.name == "TryGetIndex").raw;
-                GetIndex = methods.Single(m => m.name == "GetIndex").raw;
-                TrySetIndex = methods.Single(m => m.name == "TrySetIndex").raw;
-                SetIndex = methods.Single(m => m.name == "SetIndex").raw;
-
-                HasMockedFieldOrProperty = methods.Single(m => m.name == "HasMockedFieldOrProperty").raw;
-            }
+            public readonly FieldInfo Settings = TypeUtils.GetField<ObjectBase, DxSettings>(a => a.Settings);
         }
 
         #endregion

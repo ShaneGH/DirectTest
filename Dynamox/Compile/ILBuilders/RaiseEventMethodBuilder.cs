@@ -14,9 +14,9 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     public class RaiseEventMethodBuilder : NewBlockILBuilder
     {
-        static readonly MethodInfo RaiseEvent = typeof(IRaiseEvent).GetMethod("RaiseEvent");
-        static readonly MethodInfo _CheckEventArgs = typeof(RaiseEventMethodBuilder).GetMethod("CheckEventArgs", new[] { typeof(IEnumerable<object>), typeof(Type) });
-        static readonly MethodInfo StringEquals = typeof(string).GetMethod("Equals", new[] { typeof(string) });
+        static readonly MethodInfo RaiseEvent = TypeUtils.GetMethod<IRaiseEvent>(a => a.RaiseEvent(default(string), default(object[])));
+        static readonly MethodInfo _CheckEventArgs = TypeUtils.GetMethod(() => RaiseEventMethodBuilder.CheckEventArgs(default(IEnumerable<object>), default(Type)));
+        static readonly MethodInfo StringEquals = TypeUtils.GetMethod<string>(a => a.Equals(typeof(object)));
         readonly IEnumerable<FieldInfo> Events;
 
         public RaiseEventMethodBuilder(TypeBuilder toType, FieldInfo objBase, IEnumerable<FieldInfo> events)

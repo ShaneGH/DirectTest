@@ -65,8 +65,8 @@ namespace Dynamox.Mocks
                     Expression.Convert(Expression.New(compiled.GetConstructor(new[] { typeof(ObjectBase) }), param), mockType), param).Compile();
         }
 
-        static readonly MethodInfo HasMockedFieldOrProperty = typeof(ObjectBase).GetMethod("HasMockedFieldOrProperty");
-        static readonly MethodInfo GetProperty = typeof(ObjectBase).GetMethod("GetProperty");
+        static readonly MethodInfo HasMockedFieldOrProperty = ObjectBase.Reflection.HasMockedFieldOrProperty;
+        static readonly MethodInfo GetProperty = ObjectBase.Reflection.GetProperty;
         static Func<ObjectBase, object> BuildConstructorForNonMock(Type mockType)
         {
             var type = TypeOverrideDescriptor.Create(mockType);

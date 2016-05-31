@@ -15,7 +15,7 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     public class IEnsureShouldHaveBeenCalledGetterBuilder : PropertyBuilder
     {
-        static readonly PropertyInfo IEnsureShouldHaveBeenCalled = typeof(IEnsure).GetProperty("ShouldHaveBeenCalled");
+        static readonly PropertyInfo IEnsureShouldHaveBeenCalled = TypeUtils.GetProperty<IEnsure, IEnumerable<string>>(a => a.ShouldHaveBeenCalled);
 
         /// <summary>
         /// The type of the IEnsure.ShouldHaveBeenCalled property

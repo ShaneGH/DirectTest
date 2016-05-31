@@ -15,8 +15,8 @@ namespace Dynamox.Mocks
     /// </summary>
     public class NonMockedConstructor : Constructor
     {
-        static readonly MethodInfo HasMockedFieldOrProperty = typeof(ObjectBase).GetMethod("HasMockedFieldOrProperty");
-        static readonly MethodInfo GetProperty = typeof(ObjectBase).GetMethod("GetProperty");
+        static readonly MethodInfo HasMockedFieldOrProperty = ObjectBase.Reflection.HasMockedFieldOrProperty;
+        static readonly MethodInfo GetProperty = ObjectBase.Reflection.GetProperty;
 
         readonly Action<object, ObjectBase> Setter;
 

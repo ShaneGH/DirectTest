@@ -15,13 +15,13 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     public class IndexedPropertySetterBuilder : ILBuilder
     {
-        static readonly FieldInfo Arg = typeof(MethodArg).GetField("Arg");
-        static readonly MethodInfo ElementAt = typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(new[] { typeof(MethodArg) });
-        static readonly MethodInfo Current = typeof(IEnumerator<IEnumerable<MethodArg>>).GetProperty("Current").GetMethod;
-        static readonly MethodInfo GetEnumerator = typeof(IEnumerable<IEnumerable<MethodArg>>).GetMethod("GetEnumerator");
-        static readonly MethodInfo GetIndex = typeof(ObjectBase).GetMethod("GetIndex");
-        static readonly MethodInfo MoveNext = typeof(IEnumerator).GetMethod("MoveNext");
-        static readonly MethodInfo GetMockedIndexKeys = typeof(ObjectBase).GetMethod("GetMockedIndexKeys");
+        static readonly FieldInfo Arg = TypeUtils.GetField<MethodArg, object>(a => a.Arg);
+        static readonly MethodInfo ElementAt = TypeUtils.GetMethod(() => Enumerable.ElementAt<MethodArg>(default(IEnumerable<MethodArg>), default(int)), true);
+        static readonly MethodInfo Current = TypeUtils.GetProperty<IEnumerator<IEnumerable<MethodArg>>, IEnumerable<MethodArg>>(a => a.Current).GetMethod;
+        static readonly MethodInfo GetEnumerator = TypeUtils.GetMethod<IEnumerable<IEnumerable<MethodArg>>>(a => a.GetEnumerator());
+        static readonly MethodInfo MoveNext = TypeUtils.GetMethod<IEnumerator>(a => a.MoveNext());
+        static readonly MethodInfo GetIndex = ObjectBase.Reflection.GetIndex;
+        static readonly MethodInfo GetMockedIndexKeys = ObjectBase.Reflection.GetMockedIndexKeys;
 
         readonly ILGenerator MethodBody;
         readonly PropertyInfo Property;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dynamox.Compile.ILBuilders
@@ -16,10 +17,10 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     public class EventBuilder : NewBlockILBuilder
     {
+        static string _dummy;
         static readonly ConcurrentDictionary<Type, MethodInfo> CompareExchange = new ConcurrentDictionary<Type, MethodInfo>();
-        private static readonly MethodInfo _CompareExchange = typeof(System.Threading.Interlocked)
-                .GetMethods(BindingFlags.Static | BindingFlags.Public)
-                .First(m => m.Name == "CompareExchange" && m.GetGenericArguments().Any());
+        private static readonly MethodInfo _CompareExchange = 
+            TypeUtils.GetMethod(() => Interlocked.CompareExchange<string>(ref _dummy, default(string), default(string)));
 
         readonly EventInfo ParentEvent;
         public FieldInfo EventField { get; private set; }
@@ -59,6 +60,8 @@ namespace Dynamox.Compile.ILBuilders
 
             return attrs;
         }
+
+        static readonly MethodInfo DelegateCombine = TypeUtils.GetMethod(() => Delegate.Combine(default(Delegate), default(Delegate)));
 
         System.Reflection.Emit.MethodBuilder BuildAddMethod()
         {
@@ -101,7 +104,7 @@ namespace Dynamox.Compile.ILBuilders
             //  IL_000b:  call       class [mscorlib]System.Delegate [mscorlib]System.Delegate::Combine(class [mscorlib]System.Delegate,
             //                                                                                          class [mscorlib]System.Delegate)
 
-            body.Emit(OpCodes.Call, typeof(Delegate).GetMethod("Combine", new[] { typeof(Delegate), typeof(Delegate) }));
+            body.Emit(OpCodes.Call, DelegateCombine);
             //  IL_0010:  castclass  [mscorlib]System.EventHandler
             body.Emit(OpCodes.Castclass, ParentEvent.EventHandlerType);
             //  IL_0015:  stloc.2
@@ -143,6 +146,8 @@ namespace Dynamox.Compile.ILBuilders
             return addEvent;
         }
 
+        static readonly MethodInfo DelegateRemove = TypeUtils.GetMethod(() => Delegate.Remove(default(Delegate), default(Delegate)));
+
         System.Reflection.Emit.MethodBuilder BuildRemoveMethod()
         {
             //            .method public hidebysig newslot specialname virtual 
@@ -182,7 +187,7 @@ namespace Dynamox.Compile.ILBuilders
             body.Emit(OpCodes.Ldarg_1);
             //  IL_000b:  call       class [mscorlib]System.Delegate [mscorlib]System.Delegate::Remove(class [mscorlib]System.Delegate,
             //                                                                                         class [mscorlib]System.Delegate)
-            body.Emit(OpCodes.Call, typeof(Delegate).GetMethod("Remove", new[] { typeof(Delegate), typeof(Delegate) }));
+            body.Emit(OpCodes.Call, DelegateRemove);
             //  IL_0010:  castclass  [mscorlib]System.EventHandler
             body.Emit(OpCodes.Castclass, ParentEvent.EventHandlerType);
             //  IL_0015:  stloc.2

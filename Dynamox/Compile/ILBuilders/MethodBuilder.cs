@@ -14,7 +14,7 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     public abstract class MethodBuilder : NewBlockILBuilder
     {
-        protected static readonly FieldInfo MethodArg_Arg = typeof(MethodArg).GetField("Arg");
+        protected static readonly FieldInfo MethodArg_Arg = TypeUtils.GetField<MethodArg, object>(a => a.Arg);
 
         protected readonly MethodInfo ParentMethod;
 
@@ -59,7 +59,8 @@ namespace Dynamox.Compile.ILBuilders
             return array;
         }
 
-        MethodInfo _ConvertFromRefType = typeof(MethodBuilder).GetMethod("ConvertFromRefType", BindingFlags.Public | BindingFlags.Static);
+        static object _dummy;
+        static MethodInfo _ConvertFromRefType = TypeUtils.GetMethod(() => MethodBuilder.ConvertFromRefType<object>(ref _dummy));
         void AddParameterToInputArray(int index, LocalBuilder array)
         {
             var paramType = ParameterTypes[index].IsByRef ?

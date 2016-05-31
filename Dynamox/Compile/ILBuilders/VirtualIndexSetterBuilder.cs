@@ -15,6 +15,8 @@ namespace Dynamox.Compile.ILBuilders
     /// </summary>
     public class VirtualIndexSetterBuilder : PropertyBuilder
     {
+        static readonly MethodInfo MethodArg_Length = TypeUtils.GetProperty<MethodArg[], int>(a => a.Length).GetMethod;
+        static readonly MethodInfo Take = TypeUtils.GetMethod(() => Enumerable.Take(default(IEnumerable<MethodArg>), 0), true);
         readonly string PropertyName;
 
         public VirtualIndexSetterBuilder(TypeBuilder toType, FieldInfo objBase, PropertyInfo parentProperty)
@@ -26,18 +28,8 @@ namespace Dynamox.Compile.ILBuilders
             PropertyName = parentProperty.Name;
         }
 
-        static MethodInfo MethodArg_Length;
-        static MethodInfo Take;
         protected override LocalBuilder CallMockedMethod(LocalBuilder generics, LocalBuilder args, LocalBuilder methodOut)
         {
-            if (Take == null)
-            {
-                Expression<Func<IEnumerable<MethodArg>>> takeTmp = () => Enumerable.Take(default(IEnumerable<MethodArg>), 0);
-                Take = (takeTmp.Body as MethodCallExpression).Method;
-
-                MethodArg_Length = typeof(MethodArg[]).GetProperty("Length").GetMethod;
-            }
-
             var ifResult = Body.DeclareLocal(typeof(bool));
             var indexParams = Body.DeclareLocal(typeof(IEnumerable<MethodArg>));
             var last = Body.DeclareLocal(typeof(int));

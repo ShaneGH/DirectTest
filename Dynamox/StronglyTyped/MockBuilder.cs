@@ -27,20 +27,14 @@ namespace Dynamox.StronglyTyped
             DxReturns = Guid.NewGuid().ToString()
         };
 
-        static readonly PropertyInfo DxAny = typeof(Dx)
-            .GetProperties(BindingFlags.Static | BindingFlags.Public)
-            .Where(m => m.Name == "Any")
-            .First();
-
-
-        static readonly MethodInfo DxAnyT = typeof(Dx)
-            .GetMethods(BindingFlags.Static | BindingFlags.Public)
-            .Where(m => m.Name == "AnyT")
-            .First();
+        static readonly PropertyInfo DxAny = TypeUtils.GetProperty<object>(() => Dx.Any);
+        static readonly MethodInfo DxAnyT1 = TypeUtils.GetMethod(() => Dx.AnyT<string>());
+        static readonly MethodInfo DxAnyT2 = TypeUtils.GetMethod(() => Dx.AnyT(default(Type)));
 
         static bool IsDxAny(MethodInfo method)
         {
-            return method.IsGenericMethod && method.GetGenericMethodDefinition() == DxAnyT;
+            return (method.IsGenericMethod && method.GetGenericMethodDefinition() == DxAnyT1) ||
+                (!method.IsGenericMethod && method == DxAnyT2);
         }
 
         static bool IsDxAny(MemberInfo property)
