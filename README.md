@@ -167,14 +167,14 @@ Chaining mocks is one of the core concepts of dynamox. Often with legacy project
 var factoryMock = Dx.Mock();
 
 // To chain mocks, simply call the methods expected in the chain
-factoryMock.GetUserService().SetUserName(123, "John");
+factoryMock.GetUserService().GetUser(123).DxReturns(new User());
 ```
 The above code is equivalent to:
 ```C#
 var userServiceMock = Dx.Mock();
 
 var factoryMock = Dx.Mock();
-userServiceMock.SetUserName(123, "John");
+userServiceMock.GetUser(123).DxReturns(new User());
 factoryMock.GetUserService().DxReturns(userServiceMock);
 ```
 And like magic, Dynamox has turned 3 lines of code into 1 
