@@ -30,5 +30,10 @@ namespace Dynamox.Mocks.Info
         /// Provide a callback to invoke when the property is accessed
         /// </summary>
         IPropertyMockBuilder<TProperty> OnSet(Action set);
+
+        /// <summary>
+        /// Ensure that this property will be accessed over the course of the test
+        /// </summary>
+        IPropertyMockBuilder<TProperty> DxEnsure();
     }
 }

@@ -10,7 +10,7 @@ namespace Dynamox.Mocks.Info
     /// A mocked property with get and set functionality
     /// </summary>
     /// <typeparam name="TProperty">The property type</typeparam>
-    internal class PropertyMockBuilder<TProperty> : IPropertyMockBuilder<TProperty>, IPropertyMockAccessor
+    internal class PropertyMockBuilder<TProperty> : IPropertyMockBuilder<TProperty>, IPropertyMockAccessor, IEnsuredProperty
     {
         Func<TProperty> GetProperty { get; set; }
 
@@ -18,6 +18,8 @@ namespace Dynamox.Mocks.Info
         readonly List<Action<TProperty>> OnGetActions = new List<Action<TProperty>>();
         readonly bool CanSet;
 
+        public bool IsEnsured { get; private set; }
+        
         public PropertyMockBuilder()
             : this(default(TProperty))
         {
@@ -89,6 +91,17 @@ namespace Dynamox.Mocks.Info
                 p(property, val);
 
             GetProperty = () => val;
+        }
+
+        public IPropertyMockBuilder<TProperty> DxEnsure()
+        {
+            IsEnsured = true;
+            return this;
+        }
+
+        public object Value
+        {
+            get { return this; }
         }
     }
 }

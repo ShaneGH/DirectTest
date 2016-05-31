@@ -9,7 +9,23 @@ namespace Dynamox.Mocks.Info
     /// <summary>
     /// Flag for MockBuilder class to indicate that the property set should be "Ensured"
     /// </summary>
-    internal class EnsuredProperty
+    interface IEnsuredProperty
+    {
+        /// <summary>
+        /// The actual property value
+        /// </summary>
+        object Value { get; }
+
+        /// <summary>
+        /// If true, the value of this object is ensured, otherwise it is not
+        /// </summary>
+        bool IsEnsured { get; }
+    }
+
+    /// <summary>
+    /// Flag for MockBuilder class to indicate that the property set should be "Ensured"
+    /// </summary>
+    internal class EnsuredProperty : IEnsuredProperty
     {
         /// <summary>
         /// The actual property value
@@ -19,6 +35,16 @@ namespace Dynamox.Mocks.Info
         public EnsuredProperty(object value) 
         {
             Value = value;
+        }
+
+        object IEnsuredProperty.Value
+        {
+            get { return Value; }
+        }
+
+        bool IEnsuredProperty.IsEnsured
+        {
+            get { return true; }
         }
     }
 }
