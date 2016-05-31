@@ -127,6 +127,8 @@
     <Compile Include="Dynamic\DynamicBag.cs" />
     <Compile Include="StronglyTyped\IMockBuilder.cs" />
     <Compile Include="StronglyTyped\MockBuilder.cs" />
+    <Compile Include="StronglyTyped\MockValueSetter.cs" />
+    <Compile Include="StronglyTyped\Returns.cs" />
     <Compile Include="Utils\IEnumerableUtils.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>
