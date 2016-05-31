@@ -229,10 +229,10 @@ You can also ensure that properties and indexed properties are accessed.
 var userContextMock = Dx.Mock();
 
 // mock the CurrentUser property and ensure that it is accessed
-databaseMock.CurrentUser = Dx.Property(new User()).Ensure();
+databaseMock.CurrentUser = Dx.Property(new User()).DxEnsure();
 
 // mock the CurrentUser property and ensure that it is accessed
-databaseMock.Permissions["Read"] = Dx.Property(true).Ensure();
+databaseMock.Permissions["Read"] = Dx.Property(true).DxEnsure();
 
 // Test that the CurrentUser and Permissions["Read"] properties were accessed
 Dx.Ensure(userContextMock);
