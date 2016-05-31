@@ -10,7 +10,7 @@ using Dynamox.Mocks.Info;
 
 namespace Dynamox.StronglyTyped
 {
-    public class MockBuilder<T> : IEnsure
+    public class MockBuilder<T> : IEnsure, IMockBuilder<T>
     {
         internal readonly Mocks.Info.MockBuilder _mock;
         readonly List<Expression<Func<T, bool>>> MockExpressions = new List<Expression<Func<T, bool>>>();
@@ -60,7 +60,7 @@ namespace Dynamox.StronglyTyped
             _mock = CreateMockBuilder(constructorArgs);
         }
 
-        public Returns<T, object> Mock(Expression<Action<T>> mockExpression)
+        public IReturns<T, object> Mock(Expression<Action<T>> mockExpression)
         {
             if (mockExpression == null)
                 throw new InvalidOperationException("Invalid mock expression");
@@ -68,7 +68,7 @@ namespace Dynamox.StronglyTyped
             return _Mock<object>(mockExpression.Body, mockExpression.Parameters[0]);
         }
 
-        public Returns<T, TReturnType> Mock<TReturnType>(Expression<Func<T, TReturnType>> mockExpression)
+        public IReturns<T, TReturnType> Mock<TReturnType>(Expression<Func<T, TReturnType>> mockExpression)
         {
             if (mockExpression == null)
                 throw new InvalidOperationException("Invalid mock expression");
@@ -94,8 +94,21 @@ namespace Dynamox.StronglyTyped
 
                 if (property != null)
                 {
+                    var ensure = false;
+                    var valueSet = false;
+                    object setValue = null;
+
                     setter = (setValueOf, value) =>
                     {
+                        setValue = value;
+                        valueSet = true;
+
+                        if (ensure)
+                            value = new EnsuredProperty(value) 
+                            {
+                                IsEnsured = true
+                            };
+
                         if ((setValueOf is MockBuilder))
                         {
                             var name = property.Member.Name;
@@ -113,6 +126,13 @@ namespace Dynamox.StronglyTyped
                         {
                             throw new InvalidOperationException("Invalid mock expression");
                         }
+                    };
+
+                    ensurer = setValueOf => 
+                    {
+                        ensure = true;
+                        if (valueSet)
+                            setter(setValueOf, setValue);
                     };
 
                     current = property.Expression;
@@ -137,8 +157,21 @@ namespace Dynamox.StronglyTyped
                     var asProperty = IsPropertyGetterOrSetter(method.Method);
                     if (asProperty != null)
                     {
+                        var ensure = false;
+                        var valueSet = false;
+                        object setValue = null;
+
                         setter = (setValueOf, value) =>
                         {
+                            setValue = value;
+                            valueSet = true;
+
+                            if (ensure)
+                                value = new EnsuredProperty(value)
+                                {
+                                    IsEnsured = true
+                                };
+
                             if ((setValueOf is MockBuilder))
                             {
                                 (setValueOf as MockBuilder).SetIndex(args, value);
@@ -147,6 +180,13 @@ namespace Dynamox.StronglyTyped
                             {
                                 asProperty.GetSetMethod().Invoke(setValueOf, new object[] { value });
                             }
+                        };
+
+                        ensurer = setValueOf =>
+                        {
+                            ensure = true;
+                            if (valueSet)
+                                setter(setValueOf, setValue);
                         };
                     }
                     else
@@ -304,7 +344,7 @@ namespace Dynamox.StronglyTyped
             return (T)_mock.Mock(typeof(T));
         }
 
-        public class Returns<TMockType, TReturnType>
+        class Returns<TMockType, TReturnType> : IMockOrReturns<TMockType, TReturnType>
         {
             Action<TReturnType> Setter;
             Action Ensurer;
@@ -317,19 +357,34 @@ namespace Dynamox.StronglyTyped
                 Builder = builder;
             }
 
-            public MockBuilder<TMockType> DxReturns(TReturnType value)
-            {
-                Setter(value);
-                return Builder;
-            }
-
-            public MockBuilder<TMockType> DxEnsure()
+            public IMockOrReturns<TMockType, TReturnType> DxEnsure()
             {
                 if (Ensurer == null)
                     throw new InvalidOperationException("You cannot ensure this mocked item");
 
                 Ensurer();
-                return Builder;
+                return this;
+            }
+
+            public IMockOrReturns<TMockType, TReturnType> DxReturns(TReturnType value)
+            {
+                Setter(value);
+                return this;
+            }
+
+            public IReturns<TMockType, object> Mock(Expression<Action<TMockType>> mockExpression)
+            {
+                return Builder.Mock(mockExpression);
+            }
+
+            public IReturns<TMockType, TNewReturnType> Mock<TNewReturnType>(Expression<Func<TMockType, TNewReturnType>> mockExpression)
+            {
+                return Builder.Mock(mockExpression);
+            }
+
+            public TMockType DxAs()
+            {
+                return Builder.DxAs();
             }
         }
 

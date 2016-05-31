@@ -57,20 +57,25 @@ namespace Dynamox.Mocks.Info
             return true;
         }
 
+        protected internal override void SetMember(string name, object value)
+        {
+            if (value is IEnsuredProperty)
+            {
+                var temp = value as IEnsuredProperty;
+                value = temp.PropertyValue;
+                if (temp.IsEnsured && !EnsuredMembers.Contains(name))
+                    EnsuredMembers.Add(name);
+            }
+
+            base.SetMember(name, value);
+        }
+
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
             // ensure we don't override a method mock
             object existingMock;
             if (TryGetMember(binder.Name, out existingMock) && existingMock is MethodGroup)
                 throw new InvalidOperationException("The member \"" + binder.Name + "\" has already been mocked as a function, and cannot be set as a property");    //TODM
-
-            if (value is IEnsuredProperty)
-            {
-                var temp = value as IEnsuredProperty;
-                value = temp.PropertyValue;
-                if (temp.IsEnsured && !EnsuredMembers.Contains(binder.Name))
-                    EnsuredMembers.Add(binder.Name);
-            }
 
             return base.TrySetMember(binder, value);
         }
@@ -90,17 +95,17 @@ namespace Dynamox.Mocks.Info
             return base.TryGetMember(binder, out result);
         }
 
-        public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object value)
+        protected internal override void SetIndex(IEnumerable<object> key, object value)
         {
             if (value is IEnsuredProperty)
             {
                 var temp = value as IEnsuredProperty;
                 value = temp.PropertyValue;
                 if (temp.IsEnsured)
-                    EnsuredIndexedProperties.Add(indexes);
+                    EnsuredIndexedProperties.Add(key.ToList().AsReadOnly());
             }
 
-            return base.TrySetIndex(binder, indexes, value);
+            base.SetIndex(key, value);
         }
 
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)

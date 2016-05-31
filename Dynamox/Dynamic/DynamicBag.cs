@@ -35,12 +35,12 @@ namespace Dynamox.Dynamic
             Values = new ReadOnlyDictionary<string, object>(_Values);
         }
 
-        protected internal void SetMember(string name, object value)
+        protected virtual internal void SetMember(string name, object value)
         {
             _Values.AddOrUpdate(name, value, (a, b) => value);
         }
 
-        protected internal void SetIndex(IEnumerable<object> key, object value)
+        protected virtual internal void SetIndex(IEnumerable<object> key, object value)
         {
             // the later objects take precedence
             _IndexedValues.Insert(0, new IndexedProperty(key, value));

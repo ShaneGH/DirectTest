@@ -15,6 +15,8 @@ namespace Dynamox
     {
         public static readonly DxSettings Settings = DxSettings.GlobalSettings;
 
+        #region Any
+
         public static object Any
         {
             get
@@ -32,6 +34,8 @@ namespace Dynamox
         {
             return MethodApplicabilityChecker.AnyT(t);
         }
+
+        #endregion
 
         public static IArrange Test(string testName, DxSettings settings = null)
         {
@@ -95,7 +99,7 @@ namespace Dynamox
         /// </summary>
         /// <param name="constructorArgs">The constructor args for the mock</param>
         /// <returns>A weakly typed mock object</returns>
-        public static MockBuilder<T> Mock<T>(IEnumerable<object> constructorArgs = null)
+        public static IMockBuilder<T> Mock<T>(IEnumerable<object> constructorArgs = null)
         {
             return new MockBuilder<T>(constructorArgs);
         }
@@ -106,7 +110,7 @@ namespace Dynamox
         /// <param name="settings">The mock settings</param>
         /// <param name="constructorArgs">The constructor args for the mock</param>
         /// <returns>A weakly typed mock object</returns>
-        public static MockBuilder<T> Mock<T>(DxSettings settings, IEnumerable<object> constructorArgs = null)
+        public static IMockBuilder<T> Mock<T>(DxSettings settings, IEnumerable<object> constructorArgs = null)
         {
             return new MockBuilder<T>(settings, constructorArgs);
         }
@@ -123,7 +127,7 @@ namespace Dynamox
         /// <returns>A mocked object</returns>
         public static T Mock<T>(DxSettings settings, IEnumerable<object> constructorArgs, Action<MockBuilder<T>, dynamic> builder)
         {
-            var mock = Mock<T>(settings, constructorArgs);
+            var mock = Mock<T>(settings, constructorArgs) as MockBuilder<T>;
             builder(mock, mock._mock);
             return mock.DxAs();
         }
@@ -172,6 +176,8 @@ namespace Dynamox
             TestBuilder.Run(tests, singleTestName);
         }
 
+        #region Ensure
+
         /// <summary>
         /// Ensure that all methods mocked by a mock builder and marked with Ensure(...) were called
         /// </summary>
@@ -191,6 +197,8 @@ namespace Dynamox
 
             throw new MockedMethodNotCalledException(errors);
         }
+
+        #endregion
 
         #region Events
 
@@ -285,25 +293,6 @@ namespace Dynamox
         public static IPropertyMockBuilder<TProperty> Property<TProperty>(Func<TProperty> property, bool canSet = false)
         {
             return new PropertyMockBuilder<TProperty>(property, canSet);
-        }
-
-        #endregion
-
-        #region Indexes
-
-        public static IPropertyMockBuilder<TIndexValue> Index<TIndexValue>()
-        {
-            return Property<TIndexValue>();
-        }
-
-        public static IPropertyMockBuilder<TIndexValue> Index<TIndexValue>(TIndexValue property)
-        {
-            return Property<TIndexValue>(property);
-        }
-
-        public static IPropertyMockBuilder<TIndexValue> Index<TIndexValue>(Func<TIndexValue> property, bool canSet = false)
-        {
-            return Property<TIndexValue>(property, canSet);
         }
 
         #endregion

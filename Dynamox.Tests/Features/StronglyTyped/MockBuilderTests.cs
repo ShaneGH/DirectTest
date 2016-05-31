@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks;
 using Dynamox.StronglyTyped;
 using NUnit.Framework;
 
@@ -82,6 +83,56 @@ namespace Dynamox.Tests.Features.StronglyTyped
             // Assert
             Assert.AreEqual(mock.Property1, "val1");
             Assert.AreEqual(mock.Method1(5), "val2");
+        }
+
+        [Test]
+        public void Ensure_Method()
+        {
+            // Arrange
+            // Act
+            var mock = Dx.Mock<TestClass>()
+                .Mock(x => x.Method1(22)).DxReturns("val1").DxEnsure()
+                .DxAs();
+
+            // Act
+            // Assert
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock));
+            mock.Method1(11);
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock));
+            mock.Method1(22);
+            Dx.Ensure(mock);
+        }
+
+        [Test]
+        public void Ensure_Property()
+        {
+            // Arrange
+            // Act
+            var mock = Dx.Mock<TestClass>()
+                .Mock(x => x.Property1).DxReturns("val1").DxEnsure()
+                .DxAs();
+
+            // Act
+            // Assert
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock));
+            var p = mock.Property1;
+            Dx.Ensure(mock);
+        }
+
+        [Test]
+        public void Ensure_IndexedProperty()
+        {
+            // Arrange
+            // Act
+            var mock = Dx.Mock<TestClass>()
+                .Mock(x => x["Hello"]).DxReturns("val1").DxEnsure()
+                .DxAs();
+
+            // Act
+            // Assert
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock));
+            var p = mock["Hello"];
+            Dx.Ensure(mock);
         }
     }
 }
