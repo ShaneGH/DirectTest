@@ -21,7 +21,7 @@ Dynamox reduces the amount of code you need to write in order to generate simple
   * [Chaining mocks](#chaining-mocks)
   * [Mocking fields and properties](#mocking-fields-and-properties)
   * [Chaining mocks with properties](#chaining-mocks-with-properties)
-  * [Ensure methods are called](#ensure-methods-are-called)
+  * [Ensure methods and properties are used](#ensure-methods-and-properties-are-used)
   * [Method Callbacks](#method-callbacks)
   * [Property Callbacks](#property-callbacks)
   * [Dictionaries and Indexes](#dictionaries-and-indexes)
@@ -207,7 +207,7 @@ var userContextMock = Dx.Mock();
 userContextMock.CurrentUser.Logout().DxReturns(true);
 ```
 
-### Ensure methods are called
+### Ensure methods and properties are used
 If you want to ensure that a specific method was called during a test, use the DxEnsure(...) method
 ```C#
 var databaseMock = Dx.Mock();
@@ -221,6 +221,21 @@ Dx.Ensure(databaseMock);
 // you can also test the PersistAll method on the mocked object instance
 var database = databaseMock.DxAs<IDatabase>();
 Dx.Ensure(database);
+```
+
+You can also ensure that properties and indexed properties are accessed.
+
+```C#
+var userContextMock = Dx.Mock();
+
+// mock the CurrentUser property and ensure that it is accessed
+databaseMock.CurrentUser = Dx.Property(new User()).Ensure();
+
+// mock the CurrentUser property and ensure that it is accessed
+databaseMock.Permissions["Read"] = Dx.Property(true).Ensure();
+
+// Test that the CurrentUser and Permissions["Read"] properties were accessed
+Dx.Ensure(userContextMock);
 ```
 
 ### Method Callbacks
