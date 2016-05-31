@@ -43,63 +43,116 @@ namespace Dynamox
             return new TestModule(moduleName, settings ?? new DxSettings());
         }
 
-        #region strong
-
-        /// <summary>
-        /// Create a strongly typed mock builder
-        /// </summary>
-        public static MockBuilder<T> Strong<T>()
-        {
-            return new MockBuilder<T>();
-        }
-
-        /// <summary>
-        /// Create a mocked object using a strongly typed mock builder
-        /// </summary>
-        /// <param name="builder">The mock logic</param>
-        /// <returns>A mocked objet</returns>
-        public static T Strong<T>(Action<MockBuilder<T>> builder)
-        {
-            return Hybrid<T>((a, b) => builder(a));
-        }
-
-        /// <summary>
-        /// Create a mocked object using the combination of a strongly and weakly typed mock builder
-        /// </summary>
-        /// <param name="builder">The mock logic. 
-        /// The first paramater is a strongly typed mock builder. 
-        /// The second paramater is a weakly typed mock builder. 
-        /// You can use both interchangably to add mocked logic and parameters</param>
-        /// <returns>A mocked objet</returns>
-        public static T Hybrid<T>(Action<MockBuilder<T>, dynamic> builder)
-        {
-            var mock = new MockBuilder<T>();
-            builder(mock, mock._mock);
-            return mock.DxAs();
-        }
-
-        #endregion
-
         #region mock
 
+        /// <summary>
+        /// Create a weakly typed mock
+        /// </summary>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <returns>A weakly typed mock object</returns>
         public static dynamic Mock(IEnumerable<object> constructorArgs = null)
         {
             return new MockBuilder(constructorArgs);
         }
 
+        /// <summary>
+        /// Create a weakly typed mock
+        /// </summary>
+        /// <param name="settings">The mock settings</param>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <returns>A weakly typed mock object</returns>
         public static dynamic Mock(DxSettings settings, IEnumerable<object> constructorArgs = null)
         {
             return new MockBuilder(settings, constructorArgs);
         }
 
-        public static dynamic Mock(DxSettings settings, IReservedTerms mockSettings, IEnumerable<object> constructorArgs = null)
+        /// <summary>
+        /// Create a weakly typed mock
+        /// </summary>
+        /// <param name="settings">The mock settings</param>
+        /// <param name="reservedTerms">The mock reserved terms</param>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <returns>A weakly typed mock object</returns>
+        public static dynamic Mock(DxSettings settings, ReservedTerms reservedTerms, IEnumerable<object> constructorArgs = null)
         {
-            return new MockBuilder(mockSettings, settings, constructorArgs);
+            return new MockBuilder(reservedTerms, settings, constructorArgs);
         }
 
-        public static dynamic Mock(DxSettings settings, object mockSettings, IEnumerable<object> constructorArgs = null)
+        /// <summary>
+        /// Create a weakly typed mock
+        /// </summary>
+        /// <param name="settings">The mock settings</param>
+        /// <param name="reservedTerms">The mock reserved terms</param>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <returns>A weakly typed mock object</returns>
+        public static dynamic Mock(DxSettings settings, object reservedTerms, IEnumerable<object> constructorArgs = null)
         {
-            return new MockBuilder(new ReservedTerms(mockSettings), settings, constructorArgs);
+            return new MockBuilder(new ReservedTerms(reservedTerms), settings, constructorArgs);
+        }
+
+        /// <summary>
+        /// Create a strongly typed mock
+        /// </summary>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <returns>A weakly typed mock object</returns>
+        public static MockBuilder<T> Mock<T>(IEnumerable<object> constructorArgs = null)
+        {
+            return new MockBuilder<T>(constructorArgs);
+        }
+
+        /// <summary>
+        /// Create a strongly typed mock
+        /// </summary>
+        /// <param name="settings">The mock settings</param>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <returns>A weakly typed mock object</returns>
+        public static MockBuilder<T> Mock<T>(DxSettings settings, IEnumerable<object> constructorArgs = null)
+        {
+            return new MockBuilder<T>(settings, constructorArgs);
+        }
+
+        /// <summary>
+        /// Create a strongly typed mock
+        /// </summary>
+        /// <param name="settings">The mock settings</param>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <param name="builder">The mock logic. 
+        /// The first paramater is a strongly typed mock builder. 
+        /// The second paramater is a weakly typed mock builder. 
+        /// You can use both interchangably to add mocked logic and parameters</param>
+        /// <returns>A mocked object</returns>
+        public static T Mock<T>(DxSettings settings, IEnumerable<object> constructorArgs, Action<MockBuilder<T>, dynamic> builder)
+        {
+            var mock = Mock<T>(settings, constructorArgs);
+            builder(mock, mock._mock);
+            return mock.DxAs();
+        }
+
+        /// <summary>
+        /// Create a strongly typed mock
+        /// </summary>
+        /// <param name="constructorArgs">The constructor args for the mock</param>
+        /// <param name="builder">The mock logic. 
+        /// The first paramater is a strongly typed mock builder. 
+        /// The second paramater is a weakly typed mock builder. 
+        /// You can use both interchangably to add mocked logic and parameters</param>
+        /// <returns>A mocked object</returns>
+        public static T Mock<T>(IEnumerable<object> constructorArgs, Action<MockBuilder<T>, dynamic> builder)
+        {
+            return Mock(DxSettings.GlobalSettings, constructorArgs, builder);
+        }
+
+        /// <summary>
+        /// Create a strongly typed mock
+        /// </summary>
+        /// <param name="builder">The mock logic. 
+        /// The first paramater is a strongly typed mock builder. 
+        /// The second paramater is a weakly typed mock builder. 
+        /// You can use both interchangably to add mocked logic and parameters</param>
+        /// <returns>A mocked object</returns>
+        public static T Mock<T>(Action<MockBuilder<T>, dynamic> builder)
+        {
+            return Mock(DxSettings.GlobalSettings, null, builder);
         }
 
         #endregion

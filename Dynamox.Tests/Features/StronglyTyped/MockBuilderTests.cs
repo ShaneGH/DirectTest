@@ -44,7 +44,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
         {
             // Arrange
             // Act
-            var mock = Dx.Strong<TestClass>()
+            var mock = Dx.Mock<TestClass>()
                 .Mock(x => x.Property1).DxReturns("val1")
                 .Mock(x => x.Method1(Dx.AnyT<int>())).DxReturns("val3")
                 .Mock(x => x.Method1(5)).DxReturns("val2")
@@ -69,22 +69,11 @@ namespace Dynamox.Tests.Features.StronglyTyped
         }
 
         [Test]
-        public void StrongBuilder()
-        {
-            // Arrange
-            // Act
-            var mock = Dx.Strong<TestClass>(a => a.Mock(x => x.Property1).DxReturns("val1"));
-
-            // Assert
-            Assert.AreEqual(mock.Property1, "val1");
-        }
-
-        [Test]
         public void HybridBuilder()
         {
             // Arrange
             // Act
-            var mock = Dx.Hybrid<TestClass>((strong, weak) =>
+            var mock = Dx.Mock<TestClass>((strong, weak) =>
             {
                 strong.Mock(x => x.Property1).DxReturns("val1");
                 weak.Method1(5).DxReturns("val2");

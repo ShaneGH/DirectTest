@@ -14,6 +14,7 @@ namespace Dynamox.StronglyTyped
     {
         internal readonly Mocks.Info.MockBuilder _mock;
         readonly List<Expression<Func<T, bool>>> MockExpressions = new List<Expression<Func<T, bool>>>();
+        readonly DxSettings MockSettings;
 
         // use unique names for all reserved terms
         static readonly ReservedTerms DefaultReservedTerms = new ReservedTerms
@@ -48,8 +49,14 @@ namespace Dynamox.StronglyTyped
                 .FirstOrDefault(p => p.GetAccessors(true).Contains(method));
         }
 
-        public MockBuilder(IEnumerable<object> constructorArgs = null) 
+        public MockBuilder(IEnumerable<object> constructorArgs = null)
+            : this(DxSettings.GlobalSettings, constructorArgs)
         {
+        }
+
+        public MockBuilder(DxSettings settings, IEnumerable<object> constructorArgs = null)
+        {
+            MockSettings = settings;
             _mock = CreateMockBuilder(constructorArgs);
         }
 
@@ -287,9 +294,9 @@ namespace Dynamox.StronglyTyped
             }
         }
 
-        static MockBuilder CreateMockBuilder(IEnumerable<object> constructorArgs = null, IReservedTerms reservedTerms = null)
+        MockBuilder CreateMockBuilder(IEnumerable<object> constructorArgs = null, IReservedTerms reservedTerms = null)
         {
-            return new MockBuilder(reservedTerms ?? ReservedTerms.Default, DxSettings.GlobalSettings, constructorArgs);
+            return new MockBuilder(reservedTerms ?? ReservedTerms.Default, MockSettings, constructorArgs);
         }
 
         public T DxAs() 
