@@ -81,7 +81,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void Property_OK()
         {
             var mock1 = Dx.Mock();
-            mock1.Another = Dx.EnsuredProperty(null);
+            mock1.Another = Dx.Property<ICurrentTest>(null).DxEnsure();
             Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1));
 
             var val = ((ICurrentTest)mock1.DxAs<ICurrentTest>()).Another;
@@ -92,7 +92,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void Nested_Property_OK()
         {
             var mock = Dx.Mock();
-            mock.Another.Another = Dx.EnsuredProperty(null);
+            mock.Another.Another = Dx.Property<ICurrentTest>(null).DxEnsure();
             Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock));
 
             var val = ((ICurrentTest)mock.DxAs<ICurrentTest>()).Another.Another;

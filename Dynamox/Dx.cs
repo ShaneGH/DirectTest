@@ -120,16 +120,6 @@ namespace Dynamox
         }
 
         /// <summary>
-        /// Return an object which, when added to a mock, is flagged as ensured, meaning, it is expected to be retrieved over the course of the test
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static object EnsuredProperty(object value)
-        {
-            return new EnsuredProperty(value);
-        }
-
-        /// <summary>
         /// Ensure that all methods mocked by a mock builder and marked with Ensure(...) were called
         /// </summary>
         /// <param name="mocks">The mocked objects or mock builders</param>

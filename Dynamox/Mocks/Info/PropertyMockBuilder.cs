@@ -99,7 +99,7 @@ namespace Dynamox.Mocks.Info
             return this;
         }
 
-        public object Value
+        public object PropertyValue
         {
             get { return this; }
         }

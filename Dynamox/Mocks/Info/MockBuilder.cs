@@ -63,7 +63,7 @@ namespace Dynamox.Mocks.Info
             if (value is IEnsuredProperty)
             {
                 var temp = value as IEnsuredProperty;
-                value = temp.Value;
+                value = temp.PropertyValue;
                 if (temp.IsEnsured && !EnsuredMembers.Contains(binder.Name))
                     EnsuredMembers.Add(binder.Name);
             }
