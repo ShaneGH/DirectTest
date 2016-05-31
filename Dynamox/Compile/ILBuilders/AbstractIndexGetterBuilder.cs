@@ -29,10 +29,11 @@ namespace Dynamox.Compile.ILBuilders
         {
             var ifResult = Body.DeclareLocal(typeof(bool));
 
-            // this.ObjectBase.GetIndex<TProperty>(indexValues)
+            // this.ObjectBase.GetIndex<TProperty>(indexValues, true)
             Body.Emit(OpCodes.Ldarg_0);
             Body.Emit(OpCodes.Ldfld, ObjBase);
             Body.Emit(OpCodes.Ldloc, args);
+            Body.Emit(OpCodes.Ldc_I4_1);
             Body.Emit(OpCodes.Call, ObjectBase.Reflection.GetIndex.MakeGenericMethod(ParentMethod.ReturnType));
             Body.Emit(OpCodes.Stloc, methodOut);
 

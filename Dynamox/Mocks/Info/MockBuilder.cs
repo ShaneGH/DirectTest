@@ -18,8 +18,12 @@ namespace Dynamox.Mocks.Info
     {
         IEnumerable<object> ConstructorArgs;
         private readonly Dictionary<Type, Mock> Concrete = new Dictionary<Type, Mock>();
+
         private readonly HashSet<string> EnsuredMembers = new HashSet<string>();
         private readonly HashSet<string> AccessedMembers = new HashSet<string>();
+
+        private readonly List<IReadOnlyCollection<object>> EnsuredIndexedProperties = new List<IReadOnlyCollection<object>>();
+        private readonly List<IReadOnlyCollection<object>> AccessedIndexedProperties = new List<IReadOnlyCollection<object>>();
 
         public readonly DxSettings TestSettings;
 
@@ -84,6 +88,19 @@ namespace Dynamox.Mocks.Info
             SetMember(binder.Name, new MockBuilder(MockSettings.Next(), TestSettings));
 
             return base.TryGetMember(binder, out result);
+        }
+
+        public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object value)
+        {
+            if (value is IEnsuredProperty)
+            {
+                var temp = value as IEnsuredProperty;
+                value = temp.PropertyValue;
+                if (temp.IsEnsured)
+                    EnsuredIndexedProperties.Add(indexes);
+            }
+
+            return base.TrySetIndex(binder, indexes, value);
         }
 
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
@@ -199,10 +216,19 @@ namespace Dynamox.Mocks.Info
         /// Tell the mock builder that the following property has been retrieved
         /// </summary>
         /// <param name="memberName"></param>
-        public void AccessedProperty(string memberName) 
+        public void AccessedProperty(string memberName)
         {
             if (!AccessedMembers.Contains(memberName))
                 AccessedMembers.Add(memberName);
+        }
+
+        /// <summary>
+        /// Tell the mock builder that the following indexed property has been retrieved
+        /// </summary>
+        /// <param name="memberName"></param>
+        public void AccessedIndexedProperty(IEnumerable<object> keys)
+        {
+            AccessedIndexedProperties.Add(keys.ToList().AsReadOnly());
         }
 
         protected internal MethodMockBuilder MockMethod(string name, IEnumerable<Type> genericArgs, IEnumerable<object> args)
@@ -235,6 +261,8 @@ namespace Dynamox.Mocks.Info
             get
             {
                 //TODO, messages need some work
+
+                // methods
                 var methods = Values
                     .Where(v => v.Value is MethodGroup)
                     .Select(v => new { name = v.Key, args = (v.Value as MethodGroup).ShouldHaveBeenCalled })
@@ -246,14 +274,31 @@ namespace Dynamox.Mocks.Info
                     .Select(v => new { name = v.Key, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
                     .SelectMany(v => v.args.Select(a => v.name + (a.Any() ? "." + a : string.Empty)));
 
-                //propeties
+                // propeties
                 var properties = Values
                     .Where(v => !(v.Value is MockBuilder) && !(v.Value is MethodGroup))
                     .Where(v => EnsuredMembers.Contains(v.Key))
                     .Where(v => !AccessedMembers.Contains(v.Key))
                     .Select(v => v.Key);
 
-                return methods.Concat(nestedProperties).Concat(properties);
+                // nested indexes
+                var nestedIndexes = IndexedValues
+                    .Where(v => v.Value is MockBuilder)
+                    .Select(v => new { keys = v.Keys, args = (v.Value as MockBuilder).ShouldHaveBeenCalled })
+                    .SelectMany(v => v.args.Select(a => "[" + string.Join(", ", v.keys) + "]" + (a.Any() ? "." + a : string.Empty)));
+                
+                // indexes
+                var indexes = IndexedValues
+                    .Where(v => !(v.Value is MockBuilder))
+                    .Where(v => EnsuredIndexedProperties.Any(i => v.CompareKeys(i)))
+                    .Where(v => !AccessedIndexedProperties.Any(i => v.CompareKeys(i)))
+                    .Select(v => "[" + string.Join(", ", v.Keys) + "]");
+
+                return methods
+                    .Concat(nestedProperties)
+                    .Concat(properties)
+                    .Concat(nestedIndexes)
+                    .Concat(indexes);
             }
         }
 

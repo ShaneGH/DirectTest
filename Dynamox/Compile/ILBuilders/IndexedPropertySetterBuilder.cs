@@ -87,9 +87,10 @@ namespace Dynamox.Compile.ILBuilders
             MethodBody.Emit(OpCodes.Callvirt, Current);
             MethodBody.Emit(OpCodes.Stloc, keys);
 
-            // value = ObjectBase.GetIndex<TIndexed>(IEnumerable<MethodArg> indexValues)
+            // value = ObjectBase.GetIndex<TIndexed>(indexValues, true)
             MethodBody.Emit(OpCodes.Ldarg_1);
             MethodBody.Emit(OpCodes.Ldloc, keys);
+            MethodBody.Emit(OpCodes.Ldc_I4_1);
             MethodBody.Emit(OpCodes.Call, GetIndex.MakeGenericMethod(new[] { propertyType }));
             MethodBody.Emit(OpCodes.Stloc, value);
             

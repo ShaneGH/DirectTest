@@ -258,11 +258,11 @@ namespace Dynamox.Tests.Mocks
             var subject = new ObjectBase(DxSettings.GlobalSettings, values);
 
             // act
-            Assert.AreEqual(val1, subject.GetIndex<object>(key1));
+            Assert.AreEqual(val1, subject.GetIndex<object>(key1, false));
             subject.SetIndex(key1, val2);
-            Assert.AreEqual(val2, subject.GetIndex<object>(key1));
+            Assert.AreEqual(val2, subject.GetIndex<object>(key1, false));
             subject.SetIndex(key2, val3);
-            Assert.AreEqual(val3, subject.GetIndex<object>(key2));
+            Assert.AreEqual(val3, subject.GetIndex<object>(key2, false));
         }
 
         [Test]
@@ -273,8 +273,8 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.AreEqual(null, subject.GetIndex<object>(new MethodArg[0]));
-            Assert.AreEqual(0, subject.GetIndex<int>(new MethodArg[0]));
+            Assert.AreEqual(null, subject.GetIndex<object>(new MethodArg[0], false));
+            Assert.AreEqual(0, subject.GetIndex<int>(new MethodArg[0], false));
         }
 
         [Test]
@@ -285,7 +285,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidMockException), () => subject.GetIndex<object>(new MethodArg[0]));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetIndex<object>(new MethodArg[0], false));
         }
 
         [Test]
@@ -300,7 +300,7 @@ namespace Dynamox.Tests.Mocks
 
             // act
             // assert
-            Assert.Throws(typeof(InvalidMockException), () => subject.GetIndex<string>(key));
+            Assert.Throws(typeof(InvalidMockException), () => subject.GetIndex<string>(key, false));
         }
 
         #endregion

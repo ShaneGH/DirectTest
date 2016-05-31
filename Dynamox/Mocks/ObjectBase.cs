@@ -199,7 +199,7 @@ namespace Dynamox.Mocks
             }
 
             result = ConvertAndReturn<TProperty>(property.Value, "property " + propertyName);
-            MockedInfo.AccessedProperty(propertyName);
+            if (recordAccess) MockedInfo.AccessedProperty(propertyName);
             return true;
         }
 
@@ -224,10 +224,10 @@ namespace Dynamox.Mocks
                 .ToArray();
         }
 
-        public TIndexed GetIndex<TIndexed>(IEnumerable<MethodArg> indexValues)
+        public TIndexed GetIndex<TIndexed>(IEnumerable<MethodArg> indexValues, bool recordAccess)
         {
             TIndexed result;
-            if (!TryGetIndex(indexValues, out result))
+            if (!TryGetIndex(indexValues, recordAccess, out result))
                 result = default(TIndexed);
 
             return result;
@@ -264,7 +264,7 @@ namespace Dynamox.Mocks
             }
         }
 
-        public bool TryGetIndex<TIndexed>(IEnumerable<MethodArg> indexValues, out TIndexed result)
+        public bool TryGetIndex<TIndexed>(IEnumerable<MethodArg> indexValues, bool recordAccess, out TIndexed result)
         {
             IndexedProperty value;
             var keys = indexValues.Select(v => v.Arg).ToArray();
@@ -288,6 +288,7 @@ namespace Dynamox.Mocks
             }
 
             result = ConvertAndReturn<TIndexed>(value.Value, "index");
+            if (recordAccess) MockedInfo.AccessedIndexedProperty(indexValues.Select(i => i.Arg));
             return true;
         }
 
@@ -457,9 +458,9 @@ namespace Dynamox.Mocks
                 TypeUtils.GetMethod<ObjectBase>(a => a.SetProperty(default(string), default(object)));
 
             public readonly MethodInfo TryGetIndex =
-                TypeUtils.GetMethod<ObjectBase>(a => a.TryGetIndex<string>(default(IEnumerable<MethodArg>), out _dummy));
+                TypeUtils.GetMethod<ObjectBase>(a => a.TryGetIndex<string>(default(IEnumerable<MethodArg>), default(bool), out _dummy));
             public readonly MethodInfo GetIndex =
-                TypeUtils.GetMethod<ObjectBase>(a => a.GetIndex<string>(default(IEnumerable<MethodArg>)));
+                TypeUtils.GetMethod<ObjectBase>(a => a.GetIndex<string>(default(IEnumerable<MethodArg>), default(bool)));
             public readonly MethodInfo TrySetIndex =
                 TypeUtils.GetMethod<ObjectBase>(a => a.TrySetIndex(default(IEnumerable<MethodArg>), default(object)));
             public readonly MethodInfo SetIndex =

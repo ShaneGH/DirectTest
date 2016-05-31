@@ -17,6 +17,8 @@ namespace Dynamox.Tests.Features.Mocks
             void DoSomething(string val);
             ICurrentTest GetAnother();
             ICurrentTest Another { get; }
+
+            ICurrentTest this[string key] { get; }
         }
 
         [Test]
@@ -74,6 +76,39 @@ namespace Dynamox.Tests.Features.Mocks
             Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1));
 
             mock1.DxAs().DoSomething("hello1");
+            Dx.Ensure(mock1);
+        }
+
+        [Test]
+        public void IndexedProperty_OK()
+        {
+            var mock1 = Dx.Mock();
+            mock1["Another"] = Dx.Property<ICurrentTest>(null).DxEnsure();
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1));
+
+            var val = ((ICurrentTest)mock1.DxAs<ICurrentTest>())["Another"];
+            Dx.Ensure(mock1);
+        }
+
+        [Test]
+        public void Nested_IndexedProperty_OK()
+        {
+            var mock = Dx.Mock();
+            mock["Another"]["Another"] = Dx.Property<ICurrentTest>(null).DxEnsure();
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock));
+
+            var val = ((ICurrentTest)mock.DxAs<ICurrentTest>())["Another"]["Another"];
+            Dx.Ensure(mock);
+        }
+
+        [Test]
+        public void Complex_IndexedProperty_OK()
+        {
+            var mock1 = Dx.Mock();
+            mock1["Another"] = Dx.Property<ICurrentTest>(null).DxEnsure();
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mock1));
+
+            var val = ((ICurrentTest)mock1.DxAs<ICurrentTest>())["Another"];
             Dx.Ensure(mock1);
         }
 
