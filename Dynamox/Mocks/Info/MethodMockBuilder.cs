@@ -24,7 +24,7 @@ namespace Dynamox.Mocks.Info
         readonly IEnumerable<Type> GenericArguments;
         readonly MockBuilder NextPiece;
 
-        readonly List<IMethodCallback> Actions = new List<IMethodCallback>();
+        public readonly List<IMethodCallback> Actions = new List<IMethodCallback>();
 
         public MethodMockBuilder(MockBuilder nextPiece, IEnumerable<object> args)
             : this(nextPiece, Enumerable.Empty<Type>(), args)
@@ -220,7 +220,6 @@ namespace Dynamox.Mocks.Info
 
             if (ArgChecker.TestArgs(arguments))
             {
-                result = ReturnValue;
                 foreach (var _out in OutParamValues.Where(p => p.Index >= 0 && p.Index < arguments.Count()))
                     arguments.ElementAt(_out.Index).Arg = _out.Value;
                 foreach (var _out in OutParamValues.Where(p => p.Name != null))
@@ -230,6 +229,7 @@ namespace Dynamox.Mocks.Info
                     if (!after.Do(arguments.Select(a => a.Arg)))
                         throw new InvalidOperationException("Bad type args");
 
+                result = ReturnValue;
                 return true;
             }
 

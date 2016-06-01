@@ -62,6 +62,12 @@ namespace Dynamox.Mocks.Info
             // ensure we don't override a method mock
             if (Values.ContainsKey(name) && Values[name] is MethodGroup)
                 throw new InvalidOperationException("The member \"" + name + "\" has already been mocked as a method, and cannot be set as a property");    //TODM
+            
+            if (value is IMethod)
+            {
+                SetMethod(name, value as IMethod);
+                return;
+            }
 
             if (value is IEnsuredProperty)
             {
@@ -72,6 +78,17 @@ namespace Dynamox.Mocks.Info
             }
 
             base.SetMember(name, value);
+        }
+
+        void SetMethod(string name, IMethod value)
+        {
+            var builder = MockMethod(name, Enumerable.Empty<Type>(), value.ArgTypes.Select(a => Dx.Any(a)));
+
+            if (value.Ensured)
+                builder.Ensure();
+
+            builder.Actions.Add(new Is_MethodCallback(
+                a => builder.ReturnValue = value.Execute(a)));
         }
 
         public override bool TryGetMember(string name, out object result)

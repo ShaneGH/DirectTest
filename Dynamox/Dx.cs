@@ -12,7 +12,7 @@ using Dynamox.StronglyTyped;
 namespace Dynamox
 {
     /// <summary>
-    /// Dynamox! All mocking functionality starts in this static class
+    /// Dynamox! All mocking functionality starts in this static class.
     /// </summary>
     public static class Dx
     {
@@ -356,6 +356,15 @@ namespace Dynamox
 
         #endregion
 
+        #region Method
+
+        public static IMethod Method<T, TReturn>(Func<T, TReturn> method)
+        {
+            return new PreBuiltMethod<T, TReturn>(method);
+        }
+
+        #endregion
+
         #region MethodCallback
 
         public static IMethodCallback Callback(Action callback)
@@ -414,5 +423,81 @@ namespace Dynamox
         }
 
         #endregion
+    }
+
+    public interface IMethod
+    {
+        IEnumerable<Type> ArgTypes { get; }
+
+        Type ReturnType { get; }
+
+        bool Ensured { get; }
+
+        object Execute(IEnumerable<object> arguments);
+
+        IMethod DxEnsure();
+    }
+
+    public abstract class PreBuiltMethod : IMethod
+    {
+        readonly Delegate Method;
+
+        public PreBuiltMethod(Delegate method)
+        {
+            Method = method;
+        }
+
+        public object Execute(IEnumerable<object> arguments)
+        {
+            return Method.DynamicInvoke(arguments.ToArray());
+        }
+
+        public abstract IEnumerable<Type> ArgTypes { get; }
+
+        public abstract Type ReturnType { get; }
+
+        public bool Ensured { get; private set; }
+
+        public IMethod DxEnsure()
+        {
+            Ensured = true;
+            return this;
+        }
+    }
+
+    public class PreBuiltMethod<T, TReturn> : PreBuiltMethod
+    {
+        public PreBuiltMethod(Func<T, TReturn> method) 
+            : base(method)
+        {
+        }
+
+        public override IEnumerable<Type> ArgTypes
+        {
+            get 
+            {
+                yield return typeof(T);
+            }
+        }
+
+        public override Type ReturnType
+        {
+            get { return typeof(TReturn); }
+        }
+    }
+
+    class Is_MethodCallback : MethodCallbackBase
+    {
+        Action<IEnumerable<object>> Action;
+
+        public Is_MethodCallback(Action<IEnumerable<object>> action) 
+        {
+            Action = action;
+        }
+
+        protected override void _Do(IEnumerable<object> args)
+        {
+            Action(args);
+        }
     }
 }
