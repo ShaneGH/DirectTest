@@ -35,34 +35,42 @@ namespace Dynamox.Dynamic
             Values = new ReadOnlyDictionary<string, object>(_Values);
         }
 
-        protected virtual internal void SetMember(string name, object value)
+        public virtual void SetMember(string name, object value)
         {
             _Values.AddOrUpdate(name, value, (a, b) => value);
         }
 
-        protected virtual internal void SetIndex(IEnumerable<object> key, object value)
+        public virtual void SetIndex(IEnumerable<object> key, object value)
         {
             // the later objects take precedence
             _IndexedValues.Insert(0, new IndexedProperty(key, value));
         }
 
-        protected virtual internal bool TryGetMember(string name, out object result)
+        public virtual bool TryGetMember(string name, out object result)
         {
             return _Values.TryGetValue(name, out result);
         }
 
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        public virtual bool TryGetIndex(object[] indexes, out object result)
+        {
+            var value = _IndexedValues.FirstOrDefault(i => i.CompareKeys(indexes));
+
+            result = value == null ? null : value.Value;
+            return result != null;
+        }
+
+        public override sealed bool TryGetMember(GetMemberBinder binder, out object result)
         {
             return TryGetMember(binder.Name, out result);
         }
 
-        public override bool TrySetMember(System.Dynamic.SetMemberBinder binder, object value)
+        public override sealed bool TrySetMember(System.Dynamic.SetMemberBinder binder, object value)
         {
             SetMember(binder.Name, value);
             return true;
         }
 
-        public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object value)
+        public override sealed bool TrySetIndex(SetIndexBinder binder, object[] indexes, object value)
         {
             SetIndex(indexes, value);
             return true;
@@ -70,10 +78,7 @@ namespace Dynamox.Dynamic
 
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
         {
-            var value = _IndexedValues.FirstOrDefault(i => i.CompareKeys(indexes));
-
-            result = value == null ? null : value.Value;
-            return result != null;
+            return TryGetIndex(indexes, out result);
         }
 
         protected void Clear() 

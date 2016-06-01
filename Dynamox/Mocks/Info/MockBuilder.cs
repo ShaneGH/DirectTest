@@ -57,12 +57,11 @@ namespace Dynamox.Mocks.Info
             return true;
         }
 
-        protected internal override void SetMember(string name, object value)
+        public override void SetMember(string name, object value)
         {
             // ensure we don't override a method mock
-            object existingMock;
-            if (TryGetMember(name, out existingMock) && existingMock is MethodGroup)
-                throw new InvalidOperationException("The member \"" + name + "\" has already been mocked as a function, and cannot be set as a property");    //TODM
+            if (Values.ContainsKey(name) && Values[name] is MethodGroup)
+                throw new InvalidOperationException("The member \"" + name + "\" has already been mocked as a method, and cannot be set as a property");    //TODM
 
             if (value is IEnsuredProperty)
             {
@@ -75,22 +74,23 @@ namespace Dynamox.Mocks.Info
             base.SetMember(name, value);
         }
 
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        public override bool TryGetMember(string name, out object result)
         {
             // you cannot get a method mock
-            object existingMock;
-            if (TryGetMember(binder.Name, out existingMock) && existingMock is MethodGroup)
-                throw new InvalidOperationException("The member \"" + binder.Name + "\" has already been mocked as a function, and cannot be retrieved as a property");    //TODM
+            if (base.TryGetMember(name, out result))
+            {
+                if (result is MethodGroup)
+                    throw new InvalidOperationException("The member \"" + name + "\" has already been mocked as a method, and cannot be retrieved as a property");    //TODM
+                else
+                    return true;
+            }
 
-            if (base.TryGetMember(binder, out result))
-                return true;
+            SetMember(name, new MockBuilder(MockSettings.Next(), TestSettings));
 
-            SetMember(binder.Name, new MockBuilder(MockSettings.Next(), TestSettings));
-
-            return base.TryGetMember(binder, out result);
+            return base.TryGetMember(name, out result);
         }
 
-        protected internal override void SetIndex(IEnumerable<object> key, object value)
+        public override void SetIndex(IEnumerable<object> key, object value)
         {
             if (value is IEnsuredProperty)
             {
@@ -233,9 +233,13 @@ namespace Dynamox.Mocks.Info
 
         protected internal MethodMockBuilder MockMethod(string name, IEnumerable<Type> genericArgs, IEnumerable<object> args)
         {
-            object existingMock;
-            if (TryGetMember(name, out existingMock) && !(existingMock is MethodGroup))
-                throw new InvalidMockException("The member \"" + name + "\" has already been set as a parameter and cannot be mocked now as a function");    //TODM
+            MethodGroup existingMock = null;
+            if (Values.ContainsKey(name))
+            {
+                existingMock = Values[name] as MethodGroup;
+                if (existingMock == null)
+                    throw new InvalidMockException("The member \"" + name + "\" has already been set as a parameter and cannot be mocked now as a method");    //TODM
+            }
 
             var settings = MockSettings.Next();
             var result = new MethodMockBuilder(settings, new MockBuilder(settings, TestSettings), genericArgs, args);
@@ -247,7 +251,7 @@ namespace Dynamox.Mocks.Info
             else
             {
                 //TODM: if a method is mocked twice, the second mock will take precedence
-                (existingMock as MethodGroup).Insert(0, result);
+                existingMock.Insert(0, result);
             }
 
             return result;

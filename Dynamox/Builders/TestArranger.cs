@@ -17,10 +17,10 @@ namespace Dynamox.Builders
             Settings = settings;
         }
 
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        public override bool TryGetMember(string name, out object result)
         {
-            if (!base.TryGetMember(binder, out result))
-                SetMember(binder.Name, result = new MockBuilder(Settings));
+            if (!base.TryGetMember(name, out result))
+                SetMember(name, result = new MockBuilder(Settings));
 
             return true;
         }
