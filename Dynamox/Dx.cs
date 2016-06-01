@@ -11,9 +11,37 @@ using Dynamox.StronglyTyped;
 
 namespace Dynamox
 {
+    /// <summary>
+    /// Dynamox! All mocking funcitonality starts in this static class
+    /// </summary>
     public static class Dx
     {
         public static readonly DxSettings Settings = DxSettings.GlobalSettings;
+
+        public static IArrange Test(string testName, DxSettings settings = null)
+        {
+            return new TestBuilder(testName, settings ?? new DxSettings());
+        }
+
+        public static ITestModule Module(string moduleName = null, DxSettings settings = null)
+        {
+            return new TestModule(moduleName, settings ?? new DxSettings());
+        }
+
+        public static void Run(ITest test)
+        {
+            Run(new TestModule(test));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tests"></param>
+        /// <param name="singleTest">If not null, only run the given test from the module</param>
+        public static void Run(ITestModule tests, string singleTestName = null)
+        {
+            TestBuilder.Run(tests, singleTestName);
+        }
 
         #region Any
 
@@ -34,17 +62,7 @@ namespace Dynamox
 
         #endregion
 
-        public static IArrange Test(string testName, DxSettings settings = null)
-        {
-            return new TestBuilder(testName, settings ?? new DxSettings());
-        }
-
-        public static ITestModule Module(string moduleName = null, DxSettings settings = null)
-        {
-            return new TestModule(moduleName, settings ?? new DxSettings());
-        }
-
-        #region mock
+        #region Mock
 
         /// <summary>
         /// Create a weakly typed mock
@@ -157,21 +175,6 @@ namespace Dynamox
         }
 
         #endregion
-
-        public static void Run(ITest test)
-        {
-            Run(new TestModule(test));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tests"></param>
-        /// <param name="singleTest">If not null, only run the given test from the module</param>
-        public static void Run(ITestModule tests, string singleTestName = null)
-        {
-            TestBuilder.Run(tests, singleTestName);
-        }
 
         #region Ensure
 
