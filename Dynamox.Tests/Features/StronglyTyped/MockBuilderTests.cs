@@ -170,7 +170,6 @@ namespace Dynamox.Tests.Features.StronglyTyped
         }
 
         [Test]
-        [Ignore]
         public void Weak_IndexedProperty()
         {
             // Arrange

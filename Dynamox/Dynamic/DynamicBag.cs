@@ -51,7 +51,7 @@ namespace Dynamox.Dynamic
             return _Values.TryGetValue(name, out result);
         }
 
-        public virtual bool TryGetIndex(object[] indexes, out object result)
+        public virtual bool TryGetIndex(IEnumerable<object> indexes, out object result)
         {
             var value = _IndexedValues.FirstOrDefault(i => i.CompareKeys(indexes));
 
