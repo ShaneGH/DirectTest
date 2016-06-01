@@ -131,7 +131,6 @@
     <Compile Include="StronglyTyped\MockValueSetter.cs" />
     <Compile Include="StronglyTyped\IndexedPropertyReturnValue.cs" />
     <Compile Include="StronglyTyped\PropertyReturnValue.cs" />
-    <Compile Include="StronglyTyped\Returns.cs" />
     <Compile Include="Utils\IEnumerableUtils.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks;
 using Dynamox.Mocks.Info;
 
 namespace Dynamox.StronglyTyped
@@ -51,6 +52,24 @@ namespace Dynamox.StronglyTyped
             return this;
         }
 
+        dynamic IMockBuilder<TMockType>.WeakMock
+        {
+            get
+            {
+                return RootMock.WeakMock;
+            }
+        }
+
+        dynamic IReturns<TMockType, TReturnType>.Weak
+        {
+            get
+            {
+                var returns = new MockBuilder();
+               // Setter(returns);
+                return returns;
+            }
+        }
+
         bool PropertyEnsure;
         bool PropertySet;
         object PropertyValue;
@@ -88,6 +107,24 @@ namespace Dynamox.StronglyTyped
                 if (PropertySet)
                     PropertySetter(setValueOf, PropertyValue);
             }
+        }
+
+        object GetReturnValueAsWeakMock()
+        {
+            throw new NotImplementedException();
+            //const string errorMessage =
+            //    "You cannot convert an object which has been mocked as a concrete type into a weak mock";
+
+            //var finalMock = FinalMockInstance as MockBuilder;
+            //if (finalMock == null)
+            //    throw new InvalidMockException(errorMessage);
+
+            //object returns;
+            //finalMock.TryGetIndex(FinalMockExpression.Member.Name, out returns);
+            //if (!(returns is MockBuilder))
+            //    throw new InvalidMockException(errorMessage);
+
+            //return returns;
         }
     }
 }

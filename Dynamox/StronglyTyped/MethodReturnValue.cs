@@ -48,6 +48,23 @@ namespace Dynamox.StronglyTyped
             MethodEnsurer(FinalMockInstance);
             return this;
         }
+        dynamic IMockBuilder<TMockType>.WeakMock
+        {
+            get
+            {
+                return RootMock.WeakMock;
+            }
+        }
+
+        dynamic IReturns<TMockType, TReturnType>.Weak
+        {
+            get
+            {
+                var returns = new MockBuilder();
+              //  MethodSetter(FinalMockInstance, returns);
+                return returns;
+            }
+        }
 
         readonly object _lock = new object();
 
