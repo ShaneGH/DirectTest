@@ -166,7 +166,7 @@ namespace Dynamox.StronglyTyped
             }
             finally
             {
-                _mock.MockSettings.Set(ReservedTerms.Default);
+                _mock.MockSettings.Set(new ReservedTerms());
             }
         }
 

@@ -14,6 +14,7 @@ namespace Dynamox.Mocks.Info
     /// </summary>
     internal class MethodMockBuilder : DynamicObject
     {
+        internal readonly ReservedTermsContainer ReservedTerms;
         public readonly IMethodAssert ArgChecker;
         public object ReturnValue { get; internal set; }
         public readonly List<OutArg> OutParamValues = new List<OutArg>();
@@ -21,7 +22,6 @@ namespace Dynamox.Mocks.Info
         public bool WasCalled { get; private set; }
 
         readonly IEnumerable<Type> GenericArguments;
-        readonly ReadOnlyDictionary<string, Func<object[], bool>> SpecialActions;
         readonly MockBuilder NextPiece;
 
         readonly List<IMethodCallback> Actions = new List<IMethodCallback>();
@@ -50,6 +50,8 @@ namespace Dynamox.Mocks.Info
             else
                 ArgChecker = new EqualityMethodApplicabilityChecker(args);
 
+            ReservedTerms = new ReservedTermsContainer(terms);
+
             ArgChecker.OutParamValues = OutParamValues;
 
             GenericArguments = Array.AsReadOnly((genericArgs ?? Enumerable.Empty<Type>()).ToArray());
@@ -57,20 +59,6 @@ namespace Dynamox.Mocks.Info
             NextPiece = nextPiece;
             MustBeCalled = false;
             WasCalled = false;
-
-            // register special actions based on the input terms
-            SpecialActions = new ReadOnlyDictionary<string, Func<object[], bool>>(new Dictionary<string, Func<object[], bool>> 
-            {
-                { terms.DxOut, Out },
-                { terms.DxReturns, Returns },
-                { terms.DxDo, Do },
-                { terms.DxEnsure, a => {
-                    if (a != null && a.Any())
-                        throw new InvalidMockException("You cannot pass any argments into ensure");
-                    return Ensure();
-                } 
-                }
-            });
         }
 
         bool Out(object[] args)
@@ -147,15 +135,34 @@ namespace Dynamox.Mocks.Info
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (!SpecialActions.ContainsKey(binder.Name))
-                return NextPiece.TryInvokeMember(binder, args, out result);
+            if (binder.Name == ReservedTerms.Use_Unsafe(a => a.DxOut))
+            {
+                result = Out(args) ? this : null;
+                return true;
+            }
 
-            if (SpecialActions[binder.Name](args))
-                result = this;
-            else
-                result = null;
+            if (binder.Name == ReservedTerms.Use_Unsafe(a => a.DxReturns))
+            {
+                result = Returns(args) ? this : null;
+                return true;
+            }
 
-            return true;
+            if (binder.Name == ReservedTerms.Use_Unsafe(a => a.DxDo))
+            {
+                result = Do(args) ? this : null;
+                return true;
+            }
+
+            if (binder.Name == ReservedTerms.Use_Unsafe(a => a.DxEnsure))
+            {
+                if (args != null && args.Any())
+                    throw new InvalidMockException("You cannot pass any argments into ensure");
+
+                result = Ensure() ? this : null;
+                return true;
+            }
+            
+            return NextPiece.TryInvokeMember(binder, args, out result);
         }
 
         public bool TryInvoke(IEnumerable<MethodArg> arguments, out object result)

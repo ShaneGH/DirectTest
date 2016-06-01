@@ -185,5 +185,35 @@ namespace Dynamox.Tests.Features.StronglyTyped
             Assert.AreEqual(instance[1].Method1(3), "val1");
             Assert.AreEqual(instance[1].Method1(4), "val2");
         }
+
+        [Test]
+        public void Weak_MethodMethod1()
+        {
+            // Arrange
+            // Act
+            var mock = Dx.Mock<TestClass>();
+            mock.Mock(a => a.Method2()).Weak.Method1(4).DxReturns("val2");
+
+            // Act
+            var instance = mock.DxAs();
+
+            // Assert
+            Assert.AreEqual(instance.Method2().Method1(4), "val2");
+        }
+
+        [Test]
+        public void Weak_MethodMethod2()
+        {
+            // Arrange
+            // Act
+            var mock = Dx.Mock<TestClass>();
+            mock.Mock(a => a.Method2().Method1(4)).Weak.DxReturns("val2");
+
+            // Act
+            var instance = mock.DxAs();
+
+            // Assert
+            Assert.AreEqual(instance.Method2().Method1(4), "val2");
+        }
     }
 }
