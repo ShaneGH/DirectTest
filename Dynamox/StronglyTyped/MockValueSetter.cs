@@ -33,25 +33,25 @@ namespace Dynamox.StronglyTyped
             MockExpression = mockExpression;
         }
 
-        public Returns<TMock, TReturnType> Returns(MockBuilder<TMock> mock, object finalGetterInstance)
+        public IReturns<TMock, TReturnType> Returns(MockBuilder<TMock> mock, object finalGetterInstance)
         {
             var property = MockExpression as MemberExpression;
             var method = MockExpression as MethodCallExpression;
 
             if (property != null)
             {
-                return new Returns<TMock, TReturnType>(mock, a => PropertySetter(finalGetterInstance, a), () => PropertyEnsurer(finalGetterInstance));
+                return new PropertyReturnValue<TMock, TReturnType>(mock, property, finalGetterInstance);
             }
             else if (method != null)
             {
                 var asProperty = MockBuilder<TMock>.IsPropertyGetterOrSetter(method.Method);
                 if (asProperty != null)
                 {
-                    return new Returns<TMock, TReturnType>(mock, a => IndexedPropertySetter(asProperty, finalGetterInstance, a), () => IndexedPropertyEnsurer(asProperty, finalGetterInstance));
+                    return new IndexedPropertyReturnValue<TMock, TReturnType>(mock, asProperty, method, finalGetterInstance);
                 }
                 else
                 {
-                    return new Returns<TMock, TReturnType>(mock, a => MethodSetter(finalGetterInstance, a), () => MethodEnsurer(finalGetterInstance));
+                    return new MethodReturnValue<TMock, TReturnType>(mock, method, finalGetterInstance);
                 }
             }
             else
