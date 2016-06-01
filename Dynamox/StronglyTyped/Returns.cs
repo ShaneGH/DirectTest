@@ -4,16 +4,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamox.Mocks.Info;
 
 namespace Dynamox.StronglyTyped
 {
     internal class Returns<TMockType, TReturnType> : IMockOrReturns<TMockType, TReturnType>
     {
-        Action<TReturnType> Setter;
+        Action<object> Setter;
         Action Ensurer;
         MockBuilder<TMockType> Builder;
 
-        public Returns(MockBuilder<TMockType> builder, Action<TReturnType> setter, Action ensurer)
+        public Returns(MockBuilder<TMockType> builder, Action<object> setter, Action ensurer)
         {
             Setter = setter;
             Ensurer = ensurer;
@@ -48,6 +49,24 @@ namespace Dynamox.StronglyTyped
         public TMockType DxAs()
         {
             return Builder.DxAs();
+        }
+
+        dynamic IMockBuilder<TMockType>.WeakMock
+        {
+            get 
+            {
+                return Builder.WeakMock;
+            }
+        }
+
+        dynamic IReturns<TMockType, TReturnType>.Weak
+        {
+            get 
+            {
+                var returns = new MockBuilder();
+                Setter(returns);
+                return returns;
+            }
         }
     }
 }

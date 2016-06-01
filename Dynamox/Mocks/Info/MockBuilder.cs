@@ -59,6 +59,11 @@ namespace Dynamox.Mocks.Info
 
         protected internal override void SetMember(string name, object value)
         {
+            // ensure we don't override a method mock
+            object existingMock;
+            if (TryGetMember(name, out existingMock) && existingMock is MethodGroup)
+                throw new InvalidOperationException("The member \"" + name + "\" has already been mocked as a function, and cannot be set as a property");    //TODM
+
             if (value is IEnsuredProperty)
             {
                 var temp = value as IEnsuredProperty;
@@ -68,16 +73,6 @@ namespace Dynamox.Mocks.Info
             }
 
             base.SetMember(name, value);
-        }
-
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
-            // ensure we don't override a method mock
-            object existingMock;
-            if (TryGetMember(binder.Name, out existingMock) && existingMock is MethodGroup)
-                throw new InvalidOperationException("The member \"" + binder.Name + "\" has already been mocked as a function, and cannot be set as a property");    //TODM
-
-            return base.TrySetMember(binder, value);
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)

@@ -128,7 +128,7 @@ namespace Dynamox
         public static T Mock<T>(DxSettings settings, IEnumerable<object> constructorArgs, Action<MockBuilder<T>, dynamic> builder)
         {
             var mock = Mock<T>(settings, constructorArgs) as MockBuilder<T>;
-            builder(mock, mock._mock);
+            builder(mock, mock.WeakMock);
             return mock.DxAs();
         }
 

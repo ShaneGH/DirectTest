@@ -12,7 +12,7 @@ namespace Dynamox.StronglyTyped
 {
     public class MockBuilder<T> : IEnsure, IMockBuilder<T>
     {
-        internal readonly Mocks.Info.MockBuilder _mock;
+        readonly Mocks.Info.MockBuilder _mock;
         readonly List<Expression<Func<T, bool>>> MockExpressions = new List<Expression<Func<T, bool>>>();
         readonly DxSettings MockSettings;
 
@@ -27,6 +27,11 @@ namespace Dynamox.StronglyTyped
             DxOut = Guid.NewGuid().ToString(),
             DxReturns = Guid.NewGuid().ToString()
         };
+
+        public dynamic WeakMock
+        {
+            get { return _mock; }
+        }
 
         public MockBuilder(IEnumerable<object> constructorArgs = null)
             : this(DxSettings.GlobalSettings, constructorArgs)
@@ -55,7 +60,7 @@ namespace Dynamox.StronglyTyped
             return _Mock<TReturnType>(mockExpression.Body, mockExpression.Parameters[0]);
         }
 
-        List<Expression> InvertExpression(Expression mockExpression, ParameterExpression rootObject)
+        static List<Expression> InvertExpression(Expression mockExpression, ParameterExpression rootObject)
         {
             var expression = new List<Expression>();
             while (mockExpression != rootObject)

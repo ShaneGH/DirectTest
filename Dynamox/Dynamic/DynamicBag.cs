@@ -46,7 +46,7 @@ namespace Dynamox.Dynamic
             _IndexedValues.Insert(0, new IndexedProperty(key, value));
         }
 
-        protected internal bool TryGetMember(string name, out object result)
+        protected virtual internal bool TryGetMember(string name, out object result)
         {
             return _Values.TryGetValue(name, out result);
         }
