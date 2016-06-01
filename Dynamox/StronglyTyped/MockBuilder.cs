@@ -147,7 +147,7 @@ namespace Dynamox.StronglyTyped
             return current;
         }
 
-        Returns<T, TReturnType> _Mock<TReturnType>(Expression mockExpression, ParameterExpression rootObject)
+        IReturns<T, TReturnType> _Mock<TReturnType>(Expression mockExpression, ParameterExpression rootObject)
         {
             if (mockExpression == null)
                 throw new InvalidOperationException("Invalid mock expression");
