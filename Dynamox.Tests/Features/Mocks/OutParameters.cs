@@ -21,7 +21,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock();
-            mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
+            mock.DoSomething(3, Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any())
                 .DxReturns("44");
 
             int x;
@@ -42,7 +42,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock();
-            mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
+            mock.DoSomething(3, Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any())
                 .DxReturns("44")
                 .DxOut(2, new object());
 
@@ -66,7 +66,7 @@ namespace Dynamox.Tests.Features.Mocks
             var out1 = new object();
             var out2 = "rwerewrwrew";
             var mock = Dx.Mock();
-            mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
+            mock.DoSomething(3, Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any())
                 .DxReturns("44")
                 .DxOut("val2", 77)
                 .DxOut("ref2", out1)
@@ -97,7 +97,7 @@ namespace Dynamox.Tests.Features.Mocks
             var out1 = new object();
             var out2 = "rwerewrwrew";
             var mock = Dx.Mock();
-            mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
+            mock.DoSomething(3, Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any())
                 .DxReturns("44")
                 .DxOut(2, 77)
                 .DxOut(3, out1)
@@ -126,7 +126,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock();
-            mock.DoSomething(3, Dx.Any, Dx.Any, Dx.Any, Dx.Any, Dx.Any)
+            mock.DoSomething(3, Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any(), Dx.Any())
                 .DxReturns("44");
 
             int x;
@@ -151,7 +151,7 @@ namespace Dynamox.Tests.Features.Mocks
             // Arrange
             object x1, x2 = new object(), y1 = new object(), y2 = new object(), output = new object();
             var mock = Dx.Mock();
-            mock.Generic<object>(Dx.Any, Dx.Any)
+            mock.Generic<object>(Dx.Any(), Dx.Any())
                 .DxReturns(output)
                 .DxOut(0, x2)
                 .DxOut(1, y2);
@@ -173,7 +173,7 @@ namespace Dynamox.Tests.Features.Mocks
         {
             // Arrange
             var mock = Dx.Mock();
-            mock.Generic<int>(Dx.Any, Dx.Any)
+            mock.Generic<int>(Dx.Any(), Dx.Any())
                 .DxReturns(44)
                 .DxOut(0, 55)
                 .DxOut(1, 77);

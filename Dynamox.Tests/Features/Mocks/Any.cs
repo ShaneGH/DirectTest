@@ -26,7 +26,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void ReferenceType()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(Dx.Any).DxEnsure())
+                .Arrange(bag => bag.subject.DoSomething(Dx.Any()).DxEnsure())
                 .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething("Hello"); })
                 .Run();
         }
@@ -35,7 +35,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void ValueType()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(Dx.Any).DxEnsure())
+                .Arrange(bag => bag.subject.DoSomething(Dx.Any()).DxEnsure())
                 .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(4); })
                 .Run();
         }
@@ -44,7 +44,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void Null()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomething(Dx.Any).DxEnsure())
+                .Arrange(bag => bag.subject.DoSomething(Dx.Any()).DxEnsure())
                 .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomething(null); })
                 .Run();
         }
@@ -53,7 +53,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void Typed1()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomethingT(Dx.AnyT<C1>()).DxEnsure())
+                .Arrange(bag => bag.subject.DoSomethingT(Dx.Any<C1>()).DxEnsure())
                 .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomethingT(new C1()); })
                 .Run();
         }
@@ -62,7 +62,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void Typed2()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomethingT(Dx.AnyT<C1>()).DxEnsure())
+                .Arrange(bag => bag.subject.DoSomethingT(Dx.Any<C1>()).DxEnsure())
                 .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomethingT(new C2()); })
                 .Run();
         }
@@ -71,7 +71,7 @@ namespace Dynamox.Tests.Features.Mocks
         public void Typed3()
         {
             Dx.Test("")
-                .Arrange(bag => bag.subject.DoSomethingT(Dx.AnyT<C1>()).DxEnsure())
+                .Arrange(bag => bag.subject.DoSomethingT(Dx.Any<C1>()).DxEnsure())
                 .Act(bag => { ((ICurrentTest)bag.subject.DxAs<ICurrentTest>()).DoSomethingT(null); })
                 .Run();
         }

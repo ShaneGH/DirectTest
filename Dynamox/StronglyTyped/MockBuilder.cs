@@ -185,15 +185,15 @@ namespace Dynamox.StronglyTyped
             get { return _mock.ShouldHaveBeenCalled; }
         }
 
-        static readonly MethodInfo DxAnyT1 = TypeUtils.GetMethod(() => Dx.AnyT<string>());
-        static readonly MethodInfo DxAnyT2 = TypeUtils.GetMethod(() => Dx.AnyT(default(Type)));
+        static readonly MethodInfo DxAnyT1 = TypeUtils.GetMethod(() => Dx.Any<string>());
+        static readonly MethodInfo DxAnyT2 = TypeUtils.GetMethod(() => Dx.Any(default(Type)));
         internal static bool IsDxAny(MethodInfo method)
         {
             return (method.IsGenericMethod && method.GetGenericMethodDefinition() == DxAnyT1) ||
                 (!method.IsGenericMethod && method == DxAnyT2);
         }
 
-        static readonly PropertyInfo DxAny = TypeUtils.GetProperty<object>(() => Dx.Any);
+        static readonly PropertyInfo DxAny = TypeUtils.GetProperty<object>(() => Dx.Any());
         internal static bool IsDxAny(MemberInfo property)
         {
             return property == DxAny;
@@ -218,12 +218,13 @@ namespace Dynamox.StronglyTyped
                     return (a as ConstantExpression).Value;
 
                 if (a is MemberExpression && IsDxAny((a as MemberExpression).Member))
-                    return Dx.Any;
+                    return Dx.Any();
 
                 if (a is MethodCallExpression && IsDxAny((a as MethodCallExpression).Method))
                     return new AnyValue((a as MethodCallExpression).Method.GetGenericArguments()[0]);
 
-                throw new InvalidOperationException("Invalid mock expression");
+                throw new InvalidMockException("Invalid mock expression. You can only use constants, " +
+                    "Dx.Any or calls to Dx.AnyT<>() for mock expression arguments.");
             });
         }
     }

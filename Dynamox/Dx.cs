@@ -17,22 +17,19 @@ namespace Dynamox
 
         #region Any
 
-        public static object Any
+        public static object Any()
         {
-            get
-            {
-                return MethodApplicabilityChecker.Any;
-            }
+            return MethodApplicabilityChecker.Any;
         }
 
-        public static AnyValue<T> AnyT<T>()
-        {
-            return MethodApplicabilityChecker.AnyT<T>();
-        }
-
-        public static AnyValue AnyT(Type t)
+        public static object Any(Type t)
         {
             return MethodApplicabilityChecker.AnyT(t);
+        }
+
+        public static AnyValue<T> Any<T>()
+        {
+            return MethodApplicabilityChecker.AnyT<T>();
         }
 
         #endregion

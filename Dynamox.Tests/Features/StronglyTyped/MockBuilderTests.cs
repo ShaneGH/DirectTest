@@ -47,12 +47,12 @@ namespace Dynamox.Tests.Features.StronglyTyped
             // Act
             var mock = Dx.Mock<TestClass>()
                 .Mock(x => x.Property1).DxReturns("val1")
-                .Mock(x => x.Method1(Dx.AnyT<int>())).DxReturns("val3")
+                .Mock(x => x.Method1(Dx.Any<int>())).DxReturns("val3")
                 .Mock(x => x.Method1(5)).DxReturns("val2")
                 .Mock(x => x.Property2.Property1).DxReturns("val4")
-                .Mock(x => x.Property2.Method1(Dx.AnyT<int>())).DxReturns("val5")
+                .Mock(x => x.Property2.Method1(Dx.Any<int>())).DxReturns("val5")
                 .Mock(x => x["val6"]).DxReturns("val7")
-                .Mock(x => x[Dx.AnyT<int>()].Property1).DxReturns("val8")
+                .Mock(x => x[Dx.Any<int>()].Property1).DxReturns("val8")
                 .Mock(x => x[4].Property1).DxReturns("val9")
                 .Mock(x => x.Method2().Property1).DxReturns("val10")
                 .DxAs();
@@ -158,7 +158,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
             // Arrange
             // Act
             var mock = Dx.Mock<TestClass>()
-                .Mock(x => x.Property2.Method1(3)).DxReturns("val1");
+                .Mock(a => a.Property2.Method1(3)).DxReturns("val1");
             mock.Mock(a => a.Property2).Weak.Method1(4).DxReturns("val2");
 
             // Act
@@ -175,7 +175,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
             // Arrange
             // Act
             var mock = Dx.Mock<TestClass>()
-                .Mock(x => x[1].Method1(3)).DxReturns("val1");
+                .Mock(a => a[1].Method1(3)).DxReturns("val1");
             mock.Mock(a => a[1]).Weak.Method1(4).DxReturns("val2");
 
             // Act
@@ -187,7 +187,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
         }
 
         [Test]
-        public void Weak_MethodMethod1()
+        public void Weak_Method1()
         {
             // Arrange
             // Act
@@ -202,7 +202,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
         }
 
         [Test]
-        public void Weak_MethodMethod2()
+        public void Weak_Method2()
         {
             // Arrange
             // Act

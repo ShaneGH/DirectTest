@@ -22,7 +22,7 @@ namespace Dynamox.Tests.Features.Mocks
             Dx.Test("")
                 .Arrange(bag =>
                 {
-                    bag.subject[Dx.Any, Dx.Any] = 11;
+                    bag.subject[Dx.Any(), Dx.Any()] = 11;
                     bag.subject[6, "6"] = 22;
                     bag.subject[7, "7"] = 33;
                 })
