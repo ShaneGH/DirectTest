@@ -12,7 +12,7 @@ using Dynamox.StronglyTyped;
 namespace Dynamox
 {
     /// <summary>
-    /// Dynamox! All mocking funcitonality starts in this static class
+    /// Dynamox! All mocking functionality starts in this static class
     /// </summary>
     public static class Dx
     {
