@@ -88,11 +88,6 @@ namespace Dynamox.Tests.Features.Mocks
             Assert.True(called);
         }
 
-
-
-
-
-
         [Test]
         public void SetMethod_Generic_WithReturnType()
         {

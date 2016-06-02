@@ -36,7 +36,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
             {
                 return null;
             }
-
+            
             public virtual TestClass Property2 { get; set; }
         }
 

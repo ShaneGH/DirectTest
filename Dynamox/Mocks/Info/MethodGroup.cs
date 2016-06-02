@@ -10,14 +10,14 @@ namespace Dynamox.Mocks.Info
     /// <summary>
     /// Represents a group of MethodMockBuilders which all have the same name and will be invoked as a group
     /// </summary>
-    internal class MethodGroup : Collection<MethodMockBuilder>
+    internal class MethodGroup : Collection<IMethodMock>
     {
         public MethodGroup()
             : base()
         {
         }
 
-        public MethodGroup(MethodMockBuilder first)
+        public MethodGroup(IMethodMock first)
             : this()
         {
             Add(first);
@@ -48,7 +48,7 @@ namespace Dynamox.Mocks.Info
             get
             {
                 return this.Where(m => m.MustBeCalled && !m.WasCalled)
-                    .Select(m => "(" + string.Join(", ", m.ArgChecker.ArgTypes) + ")")
+                    .Select(m => "(" + string.Join(", ", m.ArgTypes) + ")")
                     .Union(
                         this.Select(m => m.ReturnValue).OfType<MockBuilder>().SelectMany(b => b.ShouldHaveBeenCalled));
             }

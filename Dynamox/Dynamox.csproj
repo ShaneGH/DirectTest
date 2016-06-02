@@ -119,8 +119,6 @@
     <Compile Include="Mocks\InvalidMockException.cs" />
     <Compile Include="Mocks\MockedMethodNotCalledException.cs" />
     <Compile Include="Mocks\PreBuiltMethod.cs" />
-    <Compile Include="Mocks\PreBuiltVoidMethod_TCopy.cs" />
-    <Compile Include="Mocks\PreBuiltMethod_T.cs" />
     <Compile Include="ReservedTerms.cs" />
     <Compile Include="Mocks\NonMockedConstructor.cs" />
     <Compile Include="Mocks\ObjectBaseValidator.cs" />

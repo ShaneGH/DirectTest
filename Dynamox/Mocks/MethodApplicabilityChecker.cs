@@ -88,7 +88,12 @@ namespace Dynamox.Mocks
 
         public bool CanMockMethod(MethodInfo method)
         {
-            var mockArgTypes = ArgTypes.ToArray();
+            return CanMockMethod(method, ArgTypes);
+        }
+
+        public static bool CanMockMethod(MethodInfo method, IEnumerable<Type> argTypes)
+        {
+            var mockArgTypes = argTypes.ToArray();
             var methodArgTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
 
             if (mockArgTypes.Length != methodArgTypes.Length)

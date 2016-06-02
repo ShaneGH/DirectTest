@@ -9,13 +9,23 @@ using System.Threading.Tasks;
 
 namespace Dynamox.Mocks.Info
 {
+    public interface IMethodMock 
+    {
+        bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<MethodArg> arguments, out object result);
+        bool RepresentsMethod(MethodInfo method);
+        object ReturnValue { get; }
+        bool MustBeCalled { get; }
+        bool WasCalled { get; }
+        IEnumerable<Type> ArgTypes { get; }
+    }
+
     /// <summary>
     /// Builds method mock functionality. Created and returned by MockBuilder
     /// </summary>
-    internal class MethodMockBuilder : DynamicObject
+    internal class MethodMockBuilder : DynamicObject, IMethodMock
     {
         internal readonly ReservedTermsContainer ReservedTerms;
-        public readonly IMethodAssert ArgChecker;
+        public IMethodAssert ArgChecker { get; private set; }
         public object ReturnValue { get; internal set; }
         public readonly List<OutArg> OutParamValues = new List<OutArg>();
         public bool MustBeCalled { get; private set; }
@@ -235,6 +245,11 @@ namespace Dynamox.Mocks.Info
 
             result = null;
             return false;
+        }
+
+        public IEnumerable<Type> ArgTypes
+        {
+            get { return ArgChecker.ArgTypes; }
         }
     }
 }

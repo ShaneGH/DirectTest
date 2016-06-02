@@ -62,10 +62,10 @@ namespace Dynamox.Mocks.Info
             // ensure we don't override a method mock
             if (Values.ContainsKey(name) && Values[name] is MethodGroup)
                 throw new InvalidOperationException("The member \"" + name + "\" has already been mocked as a method, and cannot be set as a property");    //TODM
-            
-            if (value is IMethod)
+
+            if (value is IMethodMock)
             {
-                SetMethod(name, value as IMethod);
+                MockMethod(name, value as IMethodMock);
                 return;
             }
 
@@ -78,17 +78,6 @@ namespace Dynamox.Mocks.Info
             }
 
             base.SetMember(name, value);
-        }
-
-        void SetMethod(string name, IMethod value)
-        {
-            var method = MockMethod(name, value.GenericArgs, value.ArgTypes.Select(a => Dx.Any(a)));
-
-            if (value.Ensured)
-                method.Ensure();
-
-            method.Actions.Add(new DelegateMethodCallback(
-                a => method.ReturnValue = value.Invoke(a), value.ArgTypes));
         }
 
         public override bool TryGetMember(string name, out object result)
@@ -250,6 +239,16 @@ namespace Dynamox.Mocks.Info
 
         protected internal MethodMockBuilder MockMethod(string name, IEnumerable<Type> genericArgs, IEnumerable<object> args)
         {
+            var settings = MockSettings.Next();
+            var method = new MethodMockBuilder(settings, new MockBuilder(settings, TestSettings), genericArgs, args);
+
+            MockMethod(name, method);
+
+            return method;
+        }
+
+        void MockMethod(string name, IMethodMock method)
+        {
             MethodGroup existingMock = null;
             if (Values.ContainsKey(name))
             {
@@ -258,20 +257,16 @@ namespace Dynamox.Mocks.Info
                     throw new InvalidMockException("The member \"" + name + "\" has already been set as a parameter and cannot be mocked now as a method");    //TODM
             }
 
-            var settings = MockSettings.Next();
-            var result = new MethodMockBuilder(settings, new MockBuilder(settings, TestSettings), genericArgs, args);
             if (existingMock == null)
             {
-                existingMock = new MethodGroup(result);
+                existingMock = new MethodGroup(method);
                 SetMember(name, existingMock);
             }
             else
             {
                 //TODM: if a method is mocked twice, the second mock will take precedence
-                existingMock.Insert(0, result);
+                existingMock.Insert(0, method);
             }
-
-            return result;
         }
 
         /// <summary>
