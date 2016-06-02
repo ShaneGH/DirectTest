@@ -179,7 +179,7 @@ namespace Dynamox
         #region Ensure
 
         /// <summary>
-        /// Ensure that all methods mocked by a mock builder and marked with Ensure(...) were called
+        /// Ensure that all methods mocked by a mock or mock builder and marked with Ensure(...) were called
         /// </summary>
         /// <param name="mocks">The mocked objects or mock builders</param>
         public static void Ensure(params object[] mocks)

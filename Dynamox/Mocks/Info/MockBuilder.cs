@@ -82,7 +82,7 @@ namespace Dynamox.Mocks.Info
 
         void SetMethod(string name, IMethod value)
         {
-            var method = MockMethod(name, Enumerable.Empty<Type>(), value.ArgTypes.Select(a => Dx.Any(a)));
+            var method = MockMethod(name, value.GenericArgs, value.ArgTypes.Select(a => Dx.Any(a)));
 
             if (value.Ensured)
                 method.Ensure();

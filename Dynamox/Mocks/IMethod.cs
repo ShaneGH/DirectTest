@@ -35,5 +35,35 @@ namespace Dynamox.Mocks
         /// Set Ensured to true
         /// </summary>
         IMethod DxEnsure();
+
+        /// <summary>
+        /// The generic arguments of the method
+        /// </summary>
+        IEnumerable<Type> GenericArgs { get; }
+
+        /// <summary>
+        /// Add a generic argument to the method definition
+        /// </summary>
+        IMethod_IGenericAdd AddGeneric<T>();
+
+        /// <summary>
+        /// Add a generic argument to the method definition
+        /// </summary>
+        IMethod_IGenericAdd AddGeneric(Type genericType);
     }
+
+    public interface IGenericAdd
+    {
+        /// <summary>
+        /// Add another generic argument to the method definition
+        /// </summary>
+        IMethod_IGenericAdd And<T>();
+
+        /// <summary>
+        /// Add another generic argument to the method definition
+        /// </summary>
+        IMethod_IGenericAdd And(Type genericType);
+    }
+
+    public interface IMethod_IGenericAdd : IMethod, IGenericAdd { }
 }
