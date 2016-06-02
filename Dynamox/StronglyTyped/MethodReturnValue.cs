@@ -110,7 +110,20 @@ namespace Dynamox.StronglyTyped
 
         public IMockOrReturns<TMockType, TReturnType> DxIs(IMethod method)
         {
-            throw new NotImplementedException();
+            var finalMockInstance = FinalMockInstance as MockBuilder;
+            if (finalMockInstance == null)
+                throw new InvalidMockException("Cannot mock a method on a concrete class");
+
+            if (!method.GenericArgs.Any())
+            {
+                FinalMockExpression.Method
+                    .GetGenericArguments()
+                    .ToList()
+                    .ForEach(a => method.AddGeneric(a));
+            }
+
+            finalMockInstance.SetMember(FinalMockExpression.Method.Name, method);
+            return this;
         }
     }
 }

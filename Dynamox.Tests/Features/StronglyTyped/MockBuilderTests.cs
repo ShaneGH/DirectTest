@@ -37,7 +37,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
                 return null;
             }
 
-            public virtual T2 Method3<T1, T2>(T2 input)
+            public virtual T2 Method3<T1, T2>(T1 input)
             {
                 return default(T2);
             }
@@ -222,13 +222,12 @@ namespace Dynamox.Tests.Features.StronglyTyped
         }
 
         [Test]
-        [Ignore]
         public void Set_Method()
         {
             // Arrange
             // Act
             var mock = Dx.Mock<TestClass>();
-            mock.Mock(a => a.Method3<int, string>(Dx.Any<string>()))
+            mock.Mock(a => a.Method3<int, string>(Dx.Any<int>()))
                 .DxIs(Dx.Method<int, string>(x => 
                 {
                     Assert.AreEqual(55, x);
@@ -239,7 +238,7 @@ namespace Dynamox.Tests.Features.StronglyTyped
             var instance = mock.DxAs();
 
             // Assert
-            Assert.AreEqual(instance.Method2().Method1(4), "val2");
+            Assert.AreEqual(instance.Method3<int, string>(55), "hello");
         }
     }
 }

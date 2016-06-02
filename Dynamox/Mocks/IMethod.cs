@@ -25,6 +25,11 @@ namespace Dynamox.Mocks
         /// Add a generic argument to the method definition
         /// </summary>
         IMethod_IGenericAdd AddGeneric(Type genericType);
+
+        /// <summary>
+        /// Get the generic type args which have been added to this class
+        /// </summary>
+        IEnumerable<Type> GenericArgs { get; }
     }
 
     public interface IGenericAdd
