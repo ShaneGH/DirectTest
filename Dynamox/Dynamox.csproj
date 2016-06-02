@@ -89,6 +89,7 @@
     <Compile Include="Dx.cs" />
     <Compile Include="DxSettings.cs" />
     <Compile Include="Dynamic\IndexedProperty.cs" />
+    <Compile Include="FullyMockedObjects\FullyMockedObject.cs" />
     <Compile Include="Mocks\AnyValue.cs" />
     <Compile Include="Mocks\Constructor.cs" />
     <Compile Include="Mocks\Constructors.cs" />

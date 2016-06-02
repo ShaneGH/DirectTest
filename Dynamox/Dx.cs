@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamox.Builders;
 using Dynamox.Compile;
+using Dynamox.FullyMockedObjects;
 using Dynamox.Mocks;
 using Dynamox.Mocks.Info;
 using Dynamox.StronglyTyped;
@@ -63,6 +64,16 @@ namespace Dynamox
         #endregion
 
         #region Mock
+
+        /// <summary>
+        /// Create a mocked object based on an anonymous object
+        /// </summary>
+        /// <param name="mockedValues">The values and functionality to add to the mock</param>
+        /// <returns>A mocked object</returns>
+        public static T Mock<T>(object mockedValues)
+        {
+            return (T)new FullyMockedObject(typeof(T), mockedValues).Build();
+        }
 
         /// <summary>
         /// Create a weakly typed mock
