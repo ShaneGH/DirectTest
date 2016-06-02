@@ -130,5 +130,10 @@ namespace Dynamox.StronglyTyped
                 return GetReturnValueAsWeakMock();
             }
         }
+        
+        public IMockOrReturns<TMockType, TReturnType> DxIs(IMethod method)
+        {
+            throw new InvalidMockException("\"DxIs(...)\" is not valid for this mock type. DxIs is for mocking methods only. User DxReturns(...) with an input arg from Dx.Property for the same rich functionality.");
+        }
     }
 }

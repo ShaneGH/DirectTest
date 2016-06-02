@@ -64,6 +64,8 @@ namespace Dynamox.StronglyTyped
         /// Ensure that this method is called
         /// </summary>
         IMockOrReturns<TMock, TReturnType> DxEnsure();
+
+        IMockOrReturns<TMock, TReturnType> DxIs(IMethod method);
     }
 
     public interface IMockOrReturns<TMock, TReturnType> : 

@@ -92,7 +92,6 @@
     <Compile Include="Mocks\AnyValue.cs" />
     <Compile Include="Mocks\Constructor.cs" />
     <Compile Include="Mocks\Constructors.cs" />
-    <Compile Include="Mocks\DelegateMethodCallback.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
     <Compile Include="Mocks\IConstructor.cs" />
     <Compile Include="Mocks\IMethod.cs" />

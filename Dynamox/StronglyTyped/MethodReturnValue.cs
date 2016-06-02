@@ -107,5 +107,10 @@ namespace Dynamox.StronglyTyped
                 return MethodMock;
             }
         }
+
+        public IMockOrReturns<TMockType, TReturnType> DxIs(IMethod method)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -21,6 +21,19 @@ namespace Dynamox.Mocks
             }
         }
 
+        IEnumerable<Type> _ArgTypes;
+        public IEnumerable<Type> ArgTypes
+        {
+            get
+            {
+                return _ArgTypes ?? 
+                    (_ArgTypes = Method.Method
+                        .GetParameters()
+                        .Select(a => a.ParameterType)
+                        .ToArray());
+            }
+        }
+
         public PreBuiltMethod(Delegate method)
         {
             Method = method;
@@ -45,21 +58,6 @@ namespace Dynamox.Mocks
 
             _GenericArgs.Add(genericType);
             return this;
-        }
-        
-        IMethod_IGenericAdd IMethod.AddGeneric<T>()
-        {
-            return AddGeneric(typeof(T));
-        }
-        
-        IMethod_IGenericAdd IGenericAdd.And<T>()
-        {
-            return AddGeneric(typeof(T));
-        }
-        
-        IMethod_IGenericAdd IGenericAdd.And(Type genericType)
-        {
-            return AddGeneric(genericType);
         }
 
         public bool TryInvoke(IEnumerable<Type> genericArguments, IEnumerable<MethodArg> arguments, out object result)
@@ -94,13 +92,20 @@ namespace Dynamox.Mocks
 
             return MethodApplicabilityChecker.CanMockMethod(method, ArgTypes);
         }
-
-        public IEnumerable<Type> ArgTypes
+        
+        IMethod_IGenericAdd IMethod.AddGeneric<T>()
         {
-            get 
-            {
-                return Method.Method.GetParameters().Select(a => a.ParameterType); 
-            }
+            return AddGeneric(typeof(T));
+        }
+        
+        IMethod_IGenericAdd IGenericAdd.And<T>()
+        {
+            return AddGeneric(typeof(T));
+        }
+        
+        IMethod_IGenericAdd IGenericAdd.And(Type genericType)
+        {
+            return AddGeneric(genericType);
         }
     }
 }
