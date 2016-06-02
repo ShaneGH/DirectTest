@@ -358,9 +358,113 @@ namespace Dynamox
 
         #region Method
 
-        public static IMethod Method<T, TReturn>(Func<T, TReturn> method)
+        public static IMethod Method<TReturn>(Func<TReturn> method)
         {
-            return new PreBuiltMethod<T, TReturn>(method);
+            return new PreBuiltMethod<TReturn>(method);
+        }
+
+        public static IMethod Method<T1, TReturn>(Func<T1, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, TReturn>(Func<T1, T2, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, TReturn>(Func<T1, T2, T3, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, T4, TReturn>(Func<T1, T2, T3, T4, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, T4, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, T4, T5, TReturn>(Func<T1, T2, T3, T4, T5, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, T4, T5, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, T4, T5, T6, TReturn>(Func<T1, T2, T3, T4, T5, T6, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, T4, T5, T6, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, T4, T5, T6, T7, TReturn>(Func<T1, T2, T3, T4, T5, T6, T7, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, T4, T5, T6, T7, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, T4, T5, T6, T7, T8, TReturn>(Func<T1, T2, T3, T4, T5, T6, T7, T8, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, T4, T5, T6, T7, T8, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, T4, T5, T6, T7, T8, T9, TReturn>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, T4, T5, T6, T7, T8, T9, TReturn>(method);
+        }
+
+        public static IMethod Method<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn> method)
+        {
+            return new PreBuiltMethod<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn>(method);
+        }
+
+        #endregion
+
+        #region VoidMethod
+
+        public static IMethod VoidMethod<T1>(Action<T1> method)
+        {
+            return new PreBuiltVoidMethod<T1>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2>(Action<T1, T2> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3>(Action<T1, T2, T3> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3, T4>(Action<T1, T2, T3, T4> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3, T4>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3, T4, T5>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3, T4, T5, T6>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3, T4, T5, T6, T7>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3, T4, T5, T6, T7, T8>(Action<T1, T2, T3, T4, T5, T6, T7, T8> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3, T4, T5, T6, T7, T8>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3, T4, T5, T6, T7, T8, T9>(method);
+        }
+
+        public static IMethod VoidMethod<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> method)
+        {
+            return new PreBuiltVoidMethod<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(method);
         }
 
         #endregion
@@ -423,81 +527,5 @@ namespace Dynamox
         }
 
         #endregion
-    }
-
-    public interface IMethod
-    {
-        IEnumerable<Type> ArgTypes { get; }
-
-        Type ReturnType { get; }
-
-        bool Ensured { get; }
-
-        object Execute(IEnumerable<object> arguments);
-
-        IMethod DxEnsure();
-    }
-
-    public abstract class PreBuiltMethod : IMethod
-    {
-        readonly Delegate Method;
-
-        public PreBuiltMethod(Delegate method)
-        {
-            Method = method;
-        }
-
-        public object Execute(IEnumerable<object> arguments)
-        {
-            return Method.DynamicInvoke(arguments.ToArray());
-        }
-
-        public abstract IEnumerable<Type> ArgTypes { get; }
-
-        public abstract Type ReturnType { get; }
-
-        public bool Ensured { get; private set; }
-
-        public IMethod DxEnsure()
-        {
-            Ensured = true;
-            return this;
-        }
-    }
-
-    public class PreBuiltMethod<T, TReturn> : PreBuiltMethod
-    {
-        public PreBuiltMethod(Func<T, TReturn> method) 
-            : base(method)
-        {
-        }
-
-        public override IEnumerable<Type> ArgTypes
-        {
-            get 
-            {
-                yield return typeof(T);
-            }
-        }
-
-        public override Type ReturnType
-        {
-            get { return typeof(TReturn); }
-        }
-    }
-
-    class Is_MethodCallback : MethodCallbackBase
-    {
-        Action<IEnumerable<object>> Action;
-
-        public Is_MethodCallback(Action<IEnumerable<object>> action) 
-        {
-            Action = action;
-        }
-
-        protected override void _Do(IEnumerable<object> args)
-        {
-            Action(args);
-        }
     }
 }

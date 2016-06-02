@@ -18,8 +18,34 @@ namespace Dynamox.Tests
     {
         public static void Main(string[] args)
         {
-            var tmp = new SettingsTests();
-            tmp.Returns();
+            var ar = new object[] { 3, "", "" };
+
+            var totals = new List<TimeSpan>();
+            for (var i = 0; i < 10; i++)
+            {
+                var t = Time(() =>
+                {
+                    var cb = new MethodCallback<int, string, string>((a, b, c) => { });
+                    cb.Do(ar);
+                }, 10000);
+
+                totals.Add(t);
+                Console.WriteLine(Math.Round(t.TotalMilliseconds, 3));
+            }
+            //12
+            Console.WriteLine("Average");
+            Console.WriteLine(Math.Round(totals.Skip(1).Average(a => a.TotalMilliseconds), 3));
+                Console.ReadKey(true);
+        }
+
+        public static TimeSpan Time(Action action, int repeat = 1)
+        {
+            var start = DateTime.Now;
+
+            for (var i = 0; i < repeat; i++)
+                action();
+
+            return DateTime.Now - start;
         }
     }
 

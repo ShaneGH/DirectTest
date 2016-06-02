@@ -92,8 +92,10 @@
     <Compile Include="Mocks\AnyValue.cs" />
     <Compile Include="Mocks\Constructor.cs" />
     <Compile Include="Mocks\Constructors.cs" />
+    <Compile Include="Mocks\DelegateMethodCallback.cs" />
     <Compile Include="Mocks\EqualityMethodApplicabilityChecker.cs" />
     <Compile Include="Mocks\IConstructor.cs" />
+    <Compile Include="Mocks\IMethod.cs" />
     <Compile Include="Mocks\IMethodAssert.cs" />
     <Compile Include="Mocks\Info\DynamoxEventHandler.cs" />
     <Compile Include="Mocks\Info\DynamoxEventHandlerBase.cs" />
@@ -116,6 +118,9 @@
     <Compile Include="Mocks\Info\MockBuilder.cs" />
     <Compile Include="Mocks\InvalidMockException.cs" />
     <Compile Include="Mocks\MockedMethodNotCalledException.cs" />
+    <Compile Include="Mocks\PreBuiltMethod.cs" />
+    <Compile Include="Mocks\PreBuiltVoidMethod_TCopy.cs" />
+    <Compile Include="Mocks\PreBuiltMethod_T.cs" />
     <Compile Include="ReservedTerms.cs" />
     <Compile Include="Mocks\NonMockedConstructor.cs" />
     <Compile Include="Mocks\ObjectBaseValidator.cs" />

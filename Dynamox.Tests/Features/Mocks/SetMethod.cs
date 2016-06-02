@@ -14,6 +14,8 @@ namespace Dynamox.Tests.Features.Mocks
         public interface ITest
         {
             int MethodWithReturnType(string input);
+
+            void MethodWithNoReturnType(string input);
         }
 
         [Test]
@@ -56,6 +58,30 @@ namespace Dynamox.Tests.Features.Mocks
 
             // Assert
             Assert.AreEqual(88, val);
+        }
+
+        [Test]
+        public void SetVoidMethod_WithEnsure()
+        {
+            // Arrange
+            var called = false;
+            var mock = Dx.Mock();
+            mock.MethodWithNoReturnType = Dx.VoidMethod<string>(a =>
+            {
+                called = true;
+                Assert.AreEqual("5", a);
+            }).DxEnsure();
+
+            ITest mocked = mock.DxAs<ITest>();
+
+            Assert.Throws<MockedMethodNotCalledException>(() => Dx.Ensure(mocked));
+
+            // Act
+            mocked.MethodWithNoReturnType("5");
+
+            // Assert
+            Dx.Ensure(mocked);
+            Assert.True(called);
         }
     }
 }

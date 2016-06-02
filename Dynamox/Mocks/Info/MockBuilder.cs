@@ -82,13 +82,13 @@ namespace Dynamox.Mocks.Info
 
         void SetMethod(string name, IMethod value)
         {
-            var builder = MockMethod(name, Enumerable.Empty<Type>(), value.ArgTypes.Select(a => Dx.Any(a)));
+            var method = MockMethod(name, Enumerable.Empty<Type>(), value.ArgTypes.Select(a => Dx.Any(a)));
 
             if (value.Ensured)
-                builder.Ensure();
+                method.Ensure();
 
-            builder.Actions.Add(new Is_MethodCallback(
-                a => builder.ReturnValue = value.Execute(a)));
+            method.Actions.Add(new DelegateMethodCallback(
+                a => method.ReturnValue = value.Invoke(a), value.ArgTypes));
         }
 
         public override bool TryGetMember(string name, out object result)
@@ -97,13 +97,13 @@ namespace Dynamox.Mocks.Info
             if (base.TryGetMember(name, out result))
             {
                 if (result is MethodGroup)
-                    throw new InvalidOperationException("The member \"" + name + "\" has already been mocked as a method, and cannot be retrieved as a property");    //TODM
+                    throw new InvalidOperationException("The member \"" + name + 
+                        "\" has already been mocked as a method, and cannot be retrieved as a property");    //TODM
                 else
                     return true;
             }
 
             SetMember(name, new MockBuilder(MockSettings.Next(), TestSettings));
-
             return base.TryGetMember(name, out result);
         }
 
