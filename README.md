@@ -138,10 +138,10 @@ var mock = Dx.Mock();
 mock.SetUserName(123, "John");
 
 // use any arguments
-mock.SetUserName(Dx.Any, Dx.Any);
+mock.SetUserName(Dx.Any(), Dx.Any());
 
 // use any arguments with a given type
-mock.SetUserName(Dx.AnyT<int>(), Dx.AnyT<string>());
+mock.SetUserName(Dx.Any<int>(), Dx.Any<string>());
 
 // check arguments programatically
 mock.SetUserName(Dx.Args<int, string>((id, name) =>
@@ -251,7 +251,7 @@ In order to run some code when a method is called, use the DxDo(...) method
 ```C#
 var mock = Dx.Mock();
 var user = new User();
-mock.SetUserName(Dx.Any, Dx.Any).DxDo(Dx.Callback<int, string>((id, userName) =>
+mock.SetUserName(Dx.Any(), Dx.Any()).DxDo(Dx.Callback<int, string>((id, userName) =>
 {
     user.UserName = userName;
 }));
@@ -260,7 +260,7 @@ Alternatively, you do not need to include all of the arguments of the function i
 ```C#
 var mock = Dx.Mock();
 var user = new User();
-mock.SetUserName(Dx.Any, Dx.Any).DxDo(Dx.Callback<int>((id) =>
+mock.SetUserName(Dx.Any(), Dx.Any()).DxDo(Dx.Callback<int>((id) =>
 {
     Console.WriteLine("Edit username for user " + id);
 }));
@@ -293,8 +293,8 @@ var mock = Dx.Mock();
 
 mock["Val1"] = 123;
 mock["Val2"] = Dx.Property(() => 234); // see the Property Callbacks section
-mock[Dx.Any] = 456; // return 456 for any request for an indexed property
-mock[Dx.AnyT<string>()] = 456; // return 456 for any request for an indexed property with an index of type string
+mock[Dx.Any()] = 456; // return 456 for any request for an indexed property
+mock[Dx.Any<string>()] = 456; // return 456 for any request for an indexed property with an index of type string
 
 IDictionary<string, int> dictionary = mock.DxAs<IDictionary<string, int>>();
 ```
@@ -305,10 +305,10 @@ Specify `out` and `ref` values with the `DxOut(...)` method.
 var mock = Dx.Mock();
 
 // the first parameter is the index of the out parameter, the second parameter is the value
-mock.GetUserName(123, Dx.Any).DxOut(1, "John");
+mock.GetUserName(123, Dx.Any()).DxOut(1, "John");
 
 // -OR - the first parameter is the name of the out parameter, the second parameter is the value
-mock.GetUserName(123, Dx.Any).DxOut("name", "John");
+mock.GetUserName(123, Dx.Any()).DxOut("name", "John");
 
 string name;
 mock.DxAs<IUserService>().GetUserName(123, out name);
