@@ -299,7 +299,7 @@ mock[Dx.Any<string>()] = 456; // return 456 for any request for an indexed prope
 IDictionary<string, int> dictionary = mock.DxAs<IDictionary<string, int>>();
 ```
 
-###Out and Ref values
+### Out and Ref values
 Specify `out` and `ref` values with the `DxOut(...)` method.
 ```C#
 var mock = Dx.Mock();
@@ -317,7 +317,7 @@ Assert.AreEqual("John", name);
 ```
 
 
-###Partial Mocks
+### Partial Mocks
 Partial mocks are mocked exactly the same as interfaces.
 ```C#
 var mock = Dx.Mock();
@@ -327,7 +327,7 @@ UserService service = mock.DxAs<UserService>();
 var userName = service.GetFullUserName(123);
 ```
 
-###Constructor args
+### Constructor args
 ```C#
 // specify constructor args when defining the mock builder
 var mock = Dx.Mock(new object[] { "arg1", 2 });
@@ -335,7 +335,7 @@ var mock = Dx.Mock(new object[] { "arg1", 2 });
 var objectWithConstructorArgs = mock.DxAs<ObjectWithConstructorArgs>();
 ```
 
-###Constructor args in chained mocks
+### Constructor args in chained mocks
 Specify constructor args with the `DxConstructor(..)` function
 ```C#
 var mock = Dx.Mock();
@@ -346,7 +346,7 @@ mock.ObjectWithConstructorArgs.DxConstructor("arg1", 2).ToString().DxReturns("He
 mock.GetObjectWithConstructorArgs().DxConstructor("arg1", 2).ToString().DxReturns("Hello!");
 ```
 
-###Events
+### Events
 ```C#
 var mock = Dx.Mock();
 
@@ -372,7 +372,7 @@ bool eventFound3 = Dx.RaiseEvent(repository, "OnUserAdded", repository, new User
 Events can only be raised if they are abstract, virtual or part of an interface.
 
 
-###Structs (value types) and sealed classes
+### Structs (value types) and sealed classes
 Structs and sealed classes can be mocked in the same way as interfaces and non sealed classes, however, the implementation will be slightly different. Rather then create a proxy for the class, a mock of a sealed class or struct will be an instance of that class or struct with the mocked properties set, if possible.
 
 ### Reserved Terms
