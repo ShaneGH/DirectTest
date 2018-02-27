@@ -1,7 +1,5 @@
 # Dynamox
 
-[![Build status](https://ci.appveyor.com/api/projects/status/4u4q28v9cd9qgw18?svg=true)](https://ci.appveyor.com/project/ShaneGH/dynamox)
-
 Write logic, not lambdas
 
 ## Introduction
